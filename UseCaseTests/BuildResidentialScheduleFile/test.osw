@@ -1,0 +1,14 @@
+{
+  "measure_paths": ["/home/benoit/Documents/OpenStudio-HPXML/"],
+  "weather_file": "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/2020s_CAN_QC_Montreal-McTavish.716120_CWEC2016.epw",
+  "steps": [
+    {
+      "measure_dir_name": "BuildResidentialScheduleFile",
+	  "arguments": {
+        "hpxml_path": "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/built.xml",
+        "output_csv_path": "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/stochastic.csv",
+        "hpxml_output_path": "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/built-stochastic-schedules.xml"
+      }
+    }
+  ]
+}

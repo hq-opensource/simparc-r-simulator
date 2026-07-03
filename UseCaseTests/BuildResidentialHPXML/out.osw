@@ -1,0 +1,966 @@
+{
+   "completed_at" : "20250623T152756Z",
+   "completed_status" : "Fail",
+   "current_step" : 1,
+   "eplusout_err" : "Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2025.06.23 11:27,\n   ** Severe  ** <root>[BuildingSurface:Detailed][Surface 1] - Missing required property 'construction_name'.\n   ** Severe  ** <root>[FenestrationSurface:Detailed][Surface 2 - Window 1] - Missing required property 'construction_name'.\n   **  Fatal  ** Errors occurred on processing input file. Preceding condition(s) cause termination.\n   ...Summary of Errors that led to program termination:\n   ..... Reference severe error count=2\n   ..... Last severe error=<root>[FenestrationSurface:Detailed][Surface 2 - Window 1] - Missing required property 'construction_name'.\n   ************* Warning:  Node connection errors not checked - most system input has not been read (see previous warning).\n   ************* Fatal error -- final processing.  Program exited before simulations began.  See previous error messages.\n   ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.\n   ************* EnergyPlus Sizing Error Summary. During Sizing: 0 Warning; 0 Severe Errors.\n   ************* EnergyPlus Terminated--Fatal Error Detected. 0 Warning; 2 Severe Errors; Elapsed Time=00hr 00min  0.04sec\n",
+   "file_paths" : 
+   [
+      "/home/benoit/Documents/GIT/LTE-OpenStudioCLI-Test/UseCaseTests/BuildResidentialHPXML/generated_files",
+      "./files",
+      "./weather",
+      "../../files",
+      "../../weather",
+      "./"
+   ],
+   "hash" : "CF2C2D54",
+   "measure_paths" : 
+   [
+      "/home/benoit/Documents/OpenStudio-HPXML/"
+   ],
+   "run_options" : null,
+   "started_at" : "20250623T152755Z",
+   "steps" : 
+   [
+      {
+         "arguments" : 
+         {
+            "air_leakage_house_pressure" : 50,
+            "air_leakage_units" : "ACH",
+            "air_leakage_value" : 3,
+            "ceiling_assembly_r" : 39.299999999999997,
+            "cooling_system_cooling_capacity" : 24000,
+            "cooling_system_cooling_compressor_type" : "single stage",
+            "cooling_system_cooling_efficiency" : 13,
+            "cooling_system_cooling_efficiency_type" : "SEER",
+            "cooling_system_type" : "central air conditioner",
+            "door_area" : 40,
+            "door_rvalue" : 4.4000000000000004,
+            "ducts_leakage_units" : "CFM25",
+            "ducts_return_insulation_r" : 0,
+            "ducts_return_leakage_to_outside_value" : 25,
+            "ducts_return_location" : "attic - unvented",
+            "ducts_return_surface_area" : 50,
+            "ducts_supply_insulation_r" : 4,
+            "ducts_supply_leakage_to_outside_value" : 75,
+            "ducts_supply_location" : "attic - unvented",
+            "ducts_supply_surface_area" : 150,
+            "floor_over_foundation_assembly_r" : 0,
+            "floor_over_garage_assembly_r" : 0,
+            "foundation_wall_insulation_r" : 8.9000000000000004,
+            "geometry_attic_type" : "UnventedAttic",
+            "geometry_average_ceiling_height" : 8,
+            "geometry_eaves_depth" : 0,
+            "geometry_foundation_height" : 8,
+            "geometry_foundation_height_above_grade" : 1,
+            "geometry_foundation_type" : "ConditionedBasement",
+            "geometry_garage_width" : 0,
+            "geometry_rim_joist_height" : 9.25,
+            "geometry_roof_pitch" : "6:12",
+            "geometry_roof_type" : "gable",
+            "geometry_unit_aspect_ratio" : 1.5,
+            "geometry_unit_back_wall_is_adiabatic" : false,
+            "geometry_unit_cfa" : 2700,
+            "geometry_unit_left_wall_is_adiabatic" : false,
+            "geometry_unit_num_bedrooms" : 3,
+            "geometry_unit_num_floors_above_grade" : 1,
+            "geometry_unit_orientation" : 180,
+            "geometry_unit_right_wall_is_adiabatic" : false,
+            "geometry_unit_type" : "single-family detached",
+            "heating_system_fuel" : "natural gas",
+            "heating_system_heating_capacity" : 36000,
+            "heating_system_heating_efficiency" : 0.92000000000000004,
+            "heating_system_type" : "Furnace",
+            "hpxml_path" : "../built.xml",
+            "hvac_control_cooling_weekday_setpoint" : "78",
+            "hvac_control_cooling_weekend_setpoint" : "78",
+            "hvac_control_heating_weekday_setpoint" : "68",
+            "hvac_control_heating_weekend_setpoint" : "68",
+            "rim_joist_assembly_r" : 23,
+            "roof_assembly_r" : 2.2999999999999998,
+            "wall_assembly_r" : 23,
+            "water_heater_efficiency" : 0.94999999999999996,
+            "water_heater_efficiency_type" : "EnergyFactor",
+            "water_heater_fuel_type" : "electricity",
+            "water_heater_tank_volume" : 40,
+            "water_heater_type" : "storage water heater",
+            "weather_station_epw_filepath" : "2020s_CAN_QC_Montreal-McTavish.716120_CWEC2016.epw",
+            "window_area_back" : 108,
+            "window_area_front" : 108,
+            "window_area_left" : 72,
+            "window_area_right" : 72,
+            "window_aspect_ratio" : 1.333,
+            "window_back_wwr" : 0,
+            "window_front_wwr" : 0,
+            "window_left_wwr" : 0,
+            "window_right_wwr" : 0,
+            "window_shgc" : 0.45000000000000001,
+            "window_ufactor" : 0.33000000000000002
+         },
+         "measure_dir_name" : "BuildResidentialHPXML",
+         "result" : 
+         {
+            "completed_at" : "20250623T152756Z",
+            "measure_class_name" : "BuildResidentialHPXML",
+            "measure_display_name" : "HPXML Builder",
+            "measure_name" : "build_residential_hpxml",
+            "measure_taxonomy" : "Whole Building.Space Types",
+            "measure_type" : "ModelMeasure",
+            "measure_uid" : "a13a8983-2b01-4930-8af2-42030b6e4233",
+            "measure_version_id" : "683dd9fb-e200-411f-b76b-6ce065c2fb1f",
+            "measure_version_modified" : "20250508T000656Z",
+            "measure_xml_checksum" : "2C38F48B",
+            "started_at" : "20250623T152756Z",
+            "stderr" : "",
+            "stdout" : "",
+            "step_errors" : [],
+            "step_files" : [],
+            "step_info" : 
+            [
+               "Wrote file: /home/benoit/Documents/GIT/LTE-OpenStudioCLI-Test/UseCaseTests/BuildResidentialHPXML/run/built.xml"
+            ],
+            "step_result" : "Success",
+            "step_values" : 
+            [
+               {
+                  "name" : "hpxml_path",
+                  "value" : "../built.xml"
+               },
+               {
+                  "name" : "weather_station_epw_filepath",
+                  "value" : "2020s_CAN_QC_Montreal-McTavish.716120_CWEC2016.epw"
+               },
+               {
+                  "name" : "geometry_unit_type",
+                  "value" : "single-family detached"
+               },
+               {
+                  "name" : "geometry_unit_left_wall_is_adiabatic",
+                  "value" : false
+               },
+               {
+                  "name" : "geometry_unit_right_wall_is_adiabatic",
+                  "value" : false
+               },
+               {
+                  "name" : "geometry_unit_front_wall_is_adiabatic",
+                  "value" : false
+               },
+               {
+                  "name" : "geometry_unit_back_wall_is_adiabatic",
+                  "value" : false
+               },
+               {
+                  "name" : "geometry_unit_num_floors_above_grade",
+                  "value" : 1
+               },
+               {
+                  "name" : "geometry_unit_cfa",
+                  "value" : 2700.0
+               },
+               {
+                  "name" : "geometry_unit_aspect_ratio",
+                  "value" : 1.5
+               },
+               {
+                  "name" : "geometry_unit_orientation",
+                  "value" : 180.0
+               },
+               {
+                  "name" : "geometry_unit_num_bedrooms",
+                  "value" : 3
+               },
+               {
+                  "name" : "geometry_average_ceiling_height",
+                  "value" : 8.0
+               },
+               {
+                  "name" : "geometry_garage_width",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "geometry_garage_depth",
+                  "value" : 20.0
+               },
+               {
+                  "name" : "geometry_garage_protrusion",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "geometry_garage_position",
+                  "value" : "Right"
+               },
+               {
+                  "name" : "geometry_foundation_type",
+                  "value" : "ConditionedBasement"
+               },
+               {
+                  "name" : "geometry_foundation_height",
+                  "value" : 8.0
+               },
+               {
+                  "name" : "geometry_foundation_height_above_grade",
+                  "value" : 1.0
+               },
+               {
+                  "name" : "geometry_rim_joist_height",
+                  "value" : 9.25
+               },
+               {
+                  "name" : "geometry_attic_type",
+                  "value" : "UnventedAttic"
+               },
+               {
+                  "name" : "geometry_roof_type",
+                  "value" : "gable"
+               },
+               {
+                  "name" : "geometry_roof_pitch",
+                  "value" : "6:12"
+               },
+               {
+                  "name" : "geometry_eaves_depth",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "neighbor_front_distance",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "neighbor_back_distance",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "neighbor_left_distance",
+                  "value" : 10.0
+               },
+               {
+                  "name" : "neighbor_right_distance",
+                  "value" : 10.0
+               },
+               {
+                  "name" : "floor_over_foundation_assembly_r",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "floor_over_garage_assembly_r",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "floor_type",
+                  "value" : "WoodFrame"
+               },
+               {
+                  "name" : "foundation_wall_insulation_r",
+                  "value" : 8.9000000000000004
+               },
+               {
+                  "name" : "foundation_wall_insulation_location",
+                  "value" : "exterior"
+               },
+               {
+                  "name" : "rim_joist_assembly_r",
+                  "value" : 23.0
+               },
+               {
+                  "name" : "slab_perimeter_insulation_r",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "slab_perimeter_insulation_depth",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "slab_under_insulation_r",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "slab_under_insulation_width",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "ceiling_assembly_r",
+                  "value" : 39.299999999999997
+               },
+               {
+                  "name" : "roof_assembly_r",
+                  "value" : 2.2999999999999998
+               },
+               {
+                  "name" : "wall_type",
+                  "value" : "WoodStud"
+               },
+               {
+                  "name" : "wall_assembly_r",
+                  "value" : 23.0
+               },
+               {
+                  "name" : "window_front_wwr",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "window_back_wwr",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "window_left_wwr",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "window_right_wwr",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "window_area_front",
+                  "value" : 108.0
+               },
+               {
+                  "name" : "window_area_back",
+                  "value" : 108.0
+               },
+               {
+                  "name" : "window_area_left",
+                  "value" : 72.0
+               },
+               {
+                  "name" : "window_area_right",
+                  "value" : 72.0
+               },
+               {
+                  "name" : "window_aspect_ratio",
+                  "value" : 1.333
+               },
+               {
+                  "name" : "window_ufactor",
+                  "value" : 0.33000000000000002
+               },
+               {
+                  "name" : "window_shgc",
+                  "value" : 0.45000000000000001
+               },
+               {
+                  "name" : "overhangs_front_depth",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "overhangs_front_distance_to_top_of_window",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "overhangs_front_distance_to_bottom_of_window",
+                  "value" : 4.0
+               },
+               {
+                  "name" : "overhangs_back_depth",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "overhangs_back_distance_to_top_of_window",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "overhangs_back_distance_to_bottom_of_window",
+                  "value" : 4.0
+               },
+               {
+                  "name" : "overhangs_left_depth",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "overhangs_left_distance_to_top_of_window",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "overhangs_left_distance_to_bottom_of_window",
+                  "value" : 4.0
+               },
+               {
+                  "name" : "overhangs_right_depth",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "overhangs_right_distance_to_top_of_window",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "overhangs_right_distance_to_bottom_of_window",
+                  "value" : 4.0
+               },
+               {
+                  "name" : "skylight_area_front",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "skylight_area_back",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "skylight_area_left",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "skylight_area_right",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "skylight_ufactor",
+                  "value" : 0.33000000000000002
+               },
+               {
+                  "name" : "skylight_shgc",
+                  "value" : 0.45000000000000001
+               },
+               {
+                  "name" : "door_area",
+                  "value" : 40.0
+               },
+               {
+                  "name" : "door_rvalue",
+                  "value" : 4.4000000000000004
+               },
+               {
+                  "name" : "air_leakage_leakiness_description",
+                  "value" : "average"
+               },
+               {
+                  "name" : "air_leakage_units",
+                  "value" : "ACH"
+               },
+               {
+                  "name" : "air_leakage_house_pressure",
+                  "value" : 50.0
+               },
+               {
+                  "name" : "air_leakage_value",
+                  "value" : 3.0
+               },
+               {
+                  "name" : "heating_system_type",
+                  "value" : "Furnace"
+               },
+               {
+                  "name" : "heating_system_fuel",
+                  "value" : "natural gas"
+               },
+               {
+                  "name" : "heating_system_heating_efficiency",
+                  "value" : 0.92000000000000004
+               },
+               {
+                  "name" : "heating_system_heating_capacity",
+                  "value" : 36000.0
+               },
+               {
+                  "name" : "heating_system_fraction_heat_load_served",
+                  "value" : 1.0
+               },
+               {
+                  "name" : "cooling_system_type",
+                  "value" : "central air conditioner"
+               },
+               {
+                  "name" : "cooling_system_cooling_efficiency_type",
+                  "value" : "SEER"
+               },
+               {
+                  "name" : "cooling_system_cooling_efficiency",
+                  "value" : 13.0
+               },
+               {
+                  "name" : "cooling_system_cooling_compressor_type",
+                  "value" : "single stage"
+               },
+               {
+                  "name" : "cooling_system_cooling_capacity",
+                  "value" : 24000.0
+               },
+               {
+                  "name" : "cooling_system_fraction_cool_load_served",
+                  "value" : 1.0
+               },
+               {
+                  "name" : "cooling_system_is_ducted",
+                  "value" : false
+               },
+               {
+                  "name" : "heat_pump_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "heat_pump_heating_efficiency_type",
+                  "value" : "HSPF"
+               },
+               {
+                  "name" : "heat_pump_heating_efficiency",
+                  "value" : 7.7000000000000002
+               },
+               {
+                  "name" : "heat_pump_cooling_efficiency_type",
+                  "value" : "SEER"
+               },
+               {
+                  "name" : "heat_pump_cooling_efficiency",
+                  "value" : 13.0
+               },
+               {
+                  "name" : "heat_pump_fraction_heat_load_served",
+                  "value" : 1.0
+               },
+               {
+                  "name" : "heat_pump_fraction_cool_load_served",
+                  "value" : 1.0
+               },
+               {
+                  "name" : "heat_pump_backup_type",
+                  "value" : "integrated"
+               },
+               {
+                  "name" : "heat_pump_backup_fuel",
+                  "value" : "electricity"
+               },
+               {
+                  "name" : "heat_pump_backup_heating_efficiency",
+                  "value" : 1.0
+               },
+               {
+                  "name" : "heating_system_2_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "heating_system_2_fuel",
+                  "value" : "electricity"
+               },
+               {
+                  "name" : "heating_system_2_heating_efficiency",
+                  "value" : 1.0
+               },
+               {
+                  "name" : "heating_system_2_fraction_heat_load_served",
+                  "value" : 0.25
+               },
+               {
+                  "name" : "hvac_control_heating_weekday_setpoint",
+                  "value" : "68"
+               },
+               {
+                  "name" : "hvac_control_heating_weekend_setpoint",
+                  "value" : "68"
+               },
+               {
+                  "name" : "hvac_control_cooling_weekday_setpoint",
+                  "value" : "78"
+               },
+               {
+                  "name" : "hvac_control_cooling_weekend_setpoint",
+                  "value" : "78"
+               },
+               {
+                  "name" : "ducts_leakage_units",
+                  "value" : "CFM25"
+               },
+               {
+                  "name" : "ducts_supply_leakage_to_outside_value",
+                  "value" : 75.0
+               },
+               {
+                  "name" : "ducts_supply_location",
+                  "value" : "attic - unvented"
+               },
+               {
+                  "name" : "ducts_supply_insulation_r",
+                  "value" : 4.0
+               },
+               {
+                  "name" : "ducts_supply_surface_area",
+                  "value" : 150.0
+               },
+               {
+                  "name" : "ducts_return_leakage_to_outside_value",
+                  "value" : 25.0
+               },
+               {
+                  "name" : "ducts_return_location",
+                  "value" : "attic - unvented"
+               },
+               {
+                  "name" : "ducts_return_insulation_r",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "ducts_return_surface_area",
+                  "value" : 50.0
+               },
+               {
+                  "name" : "mech_vent_fan_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "mech_vent_recovery_efficiency_type",
+                  "value" : "Unadjusted"
+               },
+               {
+                  "name" : "mech_vent_total_recovery_efficiency",
+                  "value" : 0.47999999999999998
+               },
+               {
+                  "name" : "mech_vent_sensible_recovery_efficiency",
+                  "value" : 0.71999999999999997
+               },
+               {
+                  "name" : "mech_vent_num_units_served",
+                  "value" : 1
+               },
+               {
+                  "name" : "mech_vent_2_fan_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "mech_vent_2_flow_rate",
+                  "value" : 110.0
+               },
+               {
+                  "name" : "mech_vent_2_hours_in_operation",
+                  "value" : 24.0
+               },
+               {
+                  "name" : "mech_vent_2_recovery_efficiency_type",
+                  "value" : "Unadjusted"
+               },
+               {
+                  "name" : "mech_vent_2_total_recovery_efficiency",
+                  "value" : 0.47999999999999998
+               },
+               {
+                  "name" : "mech_vent_2_sensible_recovery_efficiency",
+                  "value" : 0.71999999999999997
+               },
+               {
+                  "name" : "mech_vent_2_fan_power",
+                  "value" : 30.0
+               },
+               {
+                  "name" : "whole_house_fan_present",
+                  "value" : false
+               },
+               {
+                  "name" : "water_heater_type",
+                  "value" : "storage water heater"
+               },
+               {
+                  "name" : "water_heater_fuel_type",
+                  "value" : "electricity"
+               },
+               {
+                  "name" : "water_heater_tank_volume",
+                  "value" : 40.0
+               },
+               {
+                  "name" : "water_heater_efficiency_type",
+                  "value" : "EnergyFactor"
+               },
+               {
+                  "name" : "water_heater_efficiency",
+                  "value" : 0.94999999999999996
+               },
+               {
+                  "name" : "hot_water_distribution_system_type",
+                  "value" : "Standard"
+               },
+               {
+                  "name" : "hot_water_distribution_recirc_control_type",
+                  "value" : "no control"
+               },
+               {
+                  "name" : "dwhr_facilities_connected",
+                  "value" : "none"
+               },
+               {
+                  "name" : "dwhr_equal_flow",
+                  "value" : true
+               },
+               {
+                  "name" : "dwhr_efficiency",
+                  "value" : 0.55000000000000004
+               },
+               {
+                  "name" : "water_fixtures_shower_low_flow",
+                  "value" : false
+               },
+               {
+                  "name" : "water_fixtures_sink_low_flow",
+                  "value" : false
+               },
+               {
+                  "name" : "solar_thermal_system_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "solar_thermal_collector_area",
+                  "value" : 40.0
+               },
+               {
+                  "name" : "solar_thermal_collector_loop_type",
+                  "value" : "liquid direct"
+               },
+               {
+                  "name" : "solar_thermal_collector_type",
+                  "value" : "evacuated tube"
+               },
+               {
+                  "name" : "solar_thermal_collector_azimuth",
+                  "value" : 180.0
+               },
+               {
+                  "name" : "solar_thermal_collector_tilt",
+                  "value" : "RoofPitch"
+               },
+               {
+                  "name" : "solar_thermal_collector_rated_optical_efficiency",
+                  "value" : 0.5
+               },
+               {
+                  "name" : "solar_thermal_collector_rated_thermal_losses",
+                  "value" : 0.27989999999999998
+               },
+               {
+                  "name" : "solar_thermal_solar_fraction",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "pv_system_present",
+                  "value" : false
+               },
+               {
+                  "name" : "pv_system_array_azimuth",
+                  "value" : 180.0
+               },
+               {
+                  "name" : "pv_system_array_tilt",
+                  "value" : "RoofPitch"
+               },
+               {
+                  "name" : "pv_system_max_power_output",
+                  "value" : 4000.0
+               },
+               {
+                  "name" : "pv_system_2_present",
+                  "value" : false
+               },
+               {
+                  "name" : "pv_system_2_array_azimuth",
+                  "value" : 180.0
+               },
+               {
+                  "name" : "pv_system_2_array_tilt",
+                  "value" : "RoofPitch"
+               },
+               {
+                  "name" : "pv_system_2_max_power_output",
+                  "value" : 4000.0
+               },
+               {
+                  "name" : "battery_present",
+                  "value" : false
+               },
+               {
+                  "name" : "vehicle_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "ev_charger_present",
+                  "value" : false
+               },
+               {
+                  "name" : "lighting_present",
+                  "value" : true
+               },
+               {
+                  "name" : "lighting_interior_fraction_cfl",
+                  "value" : 0.10000000000000001
+               },
+               {
+                  "name" : "lighting_interior_fraction_lfl",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "lighting_interior_fraction_led",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "lighting_exterior_fraction_cfl",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "lighting_exterior_fraction_lfl",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "lighting_exterior_fraction_led",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "lighting_garage_fraction_cfl",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "lighting_garage_fraction_lfl",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "lighting_garage_fraction_led",
+                  "value" : 0.0
+               },
+               {
+                  "name" : "holiday_lighting_present",
+                  "value" : false
+               },
+               {
+                  "name" : "dehumidifier_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "dehumidifier_efficiency_type",
+                  "value" : "IntegratedEnergyFactor"
+               },
+               {
+                  "name" : "dehumidifier_efficiency",
+                  "value" : 1.5
+               },
+               {
+                  "name" : "dehumidifier_capacity",
+                  "value" : 40.0
+               },
+               {
+                  "name" : "dehumidifier_rh_setpoint",
+                  "value" : 0.5
+               },
+               {
+                  "name" : "dehumidifier_fraction_dehumidification_load_served",
+                  "value" : 1.0
+               },
+               {
+                  "name" : "clothes_washer_present",
+                  "value" : true
+               },
+               {
+                  "name" : "clothes_washer_efficiency_type",
+                  "value" : "IntegratedModifiedEnergyFactor"
+               },
+               {
+                  "name" : "clothes_dryer_present",
+                  "value" : true
+               },
+               {
+                  "name" : "clothes_dryer_fuel_type",
+                  "value" : "natural gas"
+               },
+               {
+                  "name" : "clothes_dryer_efficiency_type",
+                  "value" : "CombinedEnergyFactor"
+               },
+               {
+                  "name" : "dishwasher_present",
+                  "value" : true
+               },
+               {
+                  "name" : "dishwasher_efficiency_type",
+                  "value" : "RatedAnnualkWh"
+               },
+               {
+                  "name" : "refrigerator_present",
+                  "value" : true
+               },
+               {
+                  "name" : "extra_refrigerator_present",
+                  "value" : false
+               },
+               {
+                  "name" : "freezer_present",
+                  "value" : false
+               },
+               {
+                  "name" : "cooking_range_oven_present",
+                  "value" : true
+               },
+               {
+                  "name" : "cooking_range_oven_fuel_type",
+                  "value" : "natural gas"
+               },
+               {
+                  "name" : "ceiling_fan_present",
+                  "value" : true
+               },
+               {
+                  "name" : "misc_plug_loads_television_present",
+                  "value" : true
+               },
+               {
+                  "name" : "misc_plug_loads_well_pump_present",
+                  "value" : false
+               },
+               {
+                  "name" : "misc_plug_loads_vehicle_present",
+                  "value" : false
+               },
+               {
+                  "name" : "misc_fuel_loads_grill_present",
+                  "value" : false
+               },
+               {
+                  "name" : "misc_fuel_loads_grill_fuel_type",
+                  "value" : "natural gas"
+               },
+               {
+                  "name" : "misc_fuel_loads_lighting_present",
+                  "value" : false
+               },
+               {
+                  "name" : "misc_fuel_loads_lighting_fuel_type",
+                  "value" : "natural gas"
+               },
+               {
+                  "name" : "misc_fuel_loads_fireplace_present",
+                  "value" : false
+               },
+               {
+                  "name" : "misc_fuel_loads_fireplace_fuel_type",
+                  "value" : "natural gas"
+               },
+               {
+                  "name" : "pool_present",
+                  "value" : false
+               },
+               {
+                  "name" : "pool_heater_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "permanent_spa_present",
+                  "value" : false
+               },
+               {
+                  "name" : "permanent_spa_heater_type",
+                  "value" : "none"
+               },
+               {
+                  "name" : "combine_like_surfaces",
+                  "value" : false
+               },
+               {
+                  "name" : "apply_defaults",
+                  "value" : false
+               },
+               {
+                  "name" : "apply_validation",
+                  "value" : false
+               }
+            ],
+            "step_warnings" : 
+            [
+               "The model contains existing objects and is being reset."
+            ]
+         }
+      }
+   ],
+   "updated_at" : "20250623T152756Z",
+   "weather_file" : "../2020s_CAN_QC_Montreal-McTavish.716120_CWEC2016.epw"
+}

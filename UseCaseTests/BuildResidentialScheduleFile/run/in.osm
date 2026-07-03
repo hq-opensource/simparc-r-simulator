@@ -1,0 +1,101 @@
+
+OS:Version,
+  {1abbf621-1b73-4826-944f-8cd80a0d244c}, !- Handle
+  3.9.0;                                  !- Version Identifier
+
+OS:Building,
+  {17abc62d-3133-4238-b1b0-8af3fef53b0e}, !- Handle
+  Building 1,                             !- Name
+  ,                                       !- Building Sector Type
+  ,                                       !- North Axis {deg}
+  ,                                       !- Nominal Floor to Floor Height {m}
+  ,                                       !- Space Type Name
+  ,                                       !- Default Construction Set Name
+  ;                                       !- Default Schedule Set Name
+
+OS:Facility,
+  {5ce9be8d-724c-4f3e-959a-3bc24e7f172d}; !- Handle
+
+OS:Site,
+  {f440acf1-46b6-4b36-89fd-a862bf55fa96}, !- Handle
+  Site 1,                                 !- Name
+  ,                                       !- Latitude {deg}
+  ,                                       !- Longitude {deg}
+  ,                                       !- Time Zone {hr}
+  ,                                       !- Elevation {m}
+  ;                                       !- Terrain
+
+OS:SimulationControl,
+  {bf70d165-fb63-4fd2-9639-e7686a5257f1}; !- Handle
+
+OS:Sizing:Parameters,
+  {8bf98b1a-1681-4383-bc39-8b699ebd5e3e}, !- Handle
+  1.25,                                   !- Heating Sizing Factor
+  1.15;                                   !- Cooling Sizing Factor
+
+OS:Timestep,
+  {6b98dd9e-d1a2-45af-aed3-1d9f4fa94912}, !- Handle
+  6;                                      !- Number of Timesteps per Hour
+
+OS:ShadowCalculation,
+  {bde97375-b738-4fd6-81c4-41b2387d1a6b}, !- Handle
+  PolygonClipping,                        !- Shading Calculation Method
+  ,                                       !- Shading Calculation Update Frequency Method
+  20,                                     !- Shading Calculation Update Frequency
+  15000,                                  !- Maximum Figures in Shadow Overlap Calculations
+  ,                                       !- Polygon Clipping Algorithm
+  512,                                    !- Pixel Counting Resolution
+  ,                                       !- Sky Diffuse Modeling Algorithm
+  No,                                     !- Output External Shading Calculation Results
+  No,                                     !- Disable Self-Shading Within Shading Zone Groups
+  No;                                     !- Disable Self-Shading From Shading Zone Groups to Other Zones
+
+OS:HeatBalanceAlgorithm,
+  {2d6b8878-70e2-4153-a4ca-66f31d93aba1}, !- Handle
+  ConductionTransferFunction,             !- Algorithm
+  200;                                    !- Surface Temperature Upper Limit {C}
+
+OS:RunPeriod,
+  {a1eb645c-d446-490d-a90d-9567bc923e9a}, !- Handle
+  Run Period 1,                           !- Name
+  1,                                      !- Begin Month
+  1,                                      !- Begin Day of Month
+  12,                                     !- End Month
+  31,                                     !- End Day of Month
+  ,                                       !- Use Weather File Holidays and Special Days
+  ,                                       !- Use Weather File Daylight Saving Period
+  ,                                       !- Apply Weekend Holiday Rule
+  ,                                       !- Use Weather File Rain Indicators
+  ,                                       !- Use Weather File Snow Indicators
+  ;                                       !- Number of Times Runperiod to be Repeated
+
+OS:LifeCycleCost:Parameters,
+  {5ea0f4bd-dbe3-43c0-9755-6a0a3415fc82}, !- Handle
+  ,                                       !- Analysis Type
+  ,                                       !- Discounting Convention
+  ,                                       !- Inflation Approach
+  ,                                       !- Real Discount Rate
+  ,                                       !- Nominal Discount Rate
+  ,                                       !- Inflation
+  ,                                       !- Base Date Month
+  ,                                       !- Base Date Year
+  ,                                       !- Service Date Month
+  ,                                       !- Service Date Year
+  ;                                       !- Length of Study Period in Years
+
+OS:WeatherFile,
+  {918497af-42e5-406f-b3c4-823db5832030}, !- Handle
+  Montreal-McTavish,                      !- City
+  QC,                                     !- State Province Region
+  CAN,                                    !- Country
+  CWEC2016,                               !- Data Source
+  716120,                                 !- WMO Number
+  45.5,                                   !- Latitude {deg}
+  -73.58,                                 !- Longitude {deg}
+  -5,                                     !- Time Zone {hr}
+  72.8,                                   !- Elevation {m}
+  /home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/2020s_CAN_QC_Montreal-McTavish.716120_CWEC2016.epw, !- Url
+  7B9BF2A6,                               !- Checksum
+  ,                                       !- Start Date Actual Year
+  Sunday;                                 !- Start Day of Week
+

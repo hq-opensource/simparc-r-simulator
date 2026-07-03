@@ -1,0 +1,2 @@
+[15:45:08.922036 WARN] [openstudio.measure.OSRunner] The model contains existing objects and is being reset.
+[15:45:11.259124 WARN] [openstudio.workflow.OSWorkflow] Unable to find sql file at /home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/run/eplusout.sql

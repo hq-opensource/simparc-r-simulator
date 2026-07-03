@@ -1,0 +1,1 @@
+/home/benoit/Documents/openstudio-3.9.0/bin/openstudio run -w /home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/test.osw

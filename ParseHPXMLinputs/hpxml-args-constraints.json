@@ -1,0 +1,3961 @@
+{
+    "hpxml_path": {
+        "Type": "String",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "existing_hpxml_path": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "whole_sfa_or_mf_building_sim": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": NaN
+    },
+    "software_info_program_used": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "software_info_program_version": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "schedules_filepaths": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "schedules_unavailable_period_types": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "schedules_unavailable_period_dates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "schedules_unavailable_period_window_natvent_availabilities": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "simulation_control_timestep": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "simulation_control_run_period": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "simulation_control_run_period_calendar_year": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "simulation_control_daylight_saving_enabled": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": NaN
+    },
+    "simulation_control_daylight_saving_period": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "simulation_control_temperature_capacitance_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "simulation_control_defrost_model_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "standard",
+            "advanced"
+        ],
+        "Default Value": NaN
+    },
+    "simulation_control_ground_to_air_heat_pump_model_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "standard",
+            "experimental"
+        ],
+        "Default Value": NaN
+    },
+    "simulation_control_onoff_thermostat_deadband": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "simulation_control_heat_pump_backup_heating_capacity_increment": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "site_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "suburban",
+            "urban",
+            "rural"
+        ],
+        "Default Value": NaN
+    },
+    "site_shielding_of_home": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "exposed",
+            "normal",
+            "well-shielded"
+        ],
+        "Default Value": NaN
+    },
+    "site_soil_and_moisture_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "clay, dry",
+            "clay, mixed",
+            "clay, wet",
+            "gravel, dry",
+            "gravel, mixed",
+            "gravel, wet",
+            "loam, dry",
+            "loam, mixed",
+            "loam, wet",
+            "sand, dry",
+            "sand, mixed",
+            "sand, wet",
+            "silt, dry",
+            "silt, mixed",
+            "silt, wet",
+            "unknown, dry",
+            "unknown, mixed",
+            "unknown, wet"
+        ],
+        "Default Value": NaN
+    },
+    "site_ground_conductivity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "site_ground_diffusivity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "site_iecc_zone": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "1A",
+            "1B",
+            "1C",
+            "2A",
+            "2B",
+            "2C",
+            "3A",
+            "3B",
+            "3C",
+            "4A",
+            "4B",
+            "4C",
+            "5A",
+            "5B",
+            "5C",
+            "6A",
+            "6B",
+            "6C",
+            "7",
+            "8"
+        ],
+        "Default Value": NaN
+    },
+    "site_city": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "site_state_code": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "AK",
+            "AL",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+        ],
+        "Default Value": NaN
+    },
+    "site_zip_code": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "site_time_zone_utc_offset": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "site_elevation": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "site_latitude": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "site_longitude": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "weather_station_epw_filepath": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "year_built": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "unit_multiplier": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geometry_unit_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "single-family detached",
+            "single-family attached",
+            "apartment unit",
+            "manufactured home"
+        ],
+        "Default Value": "single-family detached"
+    },
+    "geometry_unit_left_wall_is_adiabatic": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "geometry_unit_right_wall_is_adiabatic": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "geometry_unit_front_wall_is_adiabatic": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "geometry_unit_back_wall_is_adiabatic": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "geometry_unit_num_floors_above_grade": {
+        "Type": "Integer",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 2
+    },
+    "geometry_unit_cfa": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 2000.0
+    },
+    "geometry_unit_aspect_ratio": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 2.0
+    },
+    "geometry_unit_orientation": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 180.0
+    },
+    "geometry_unit_num_bedrooms": {
+        "Type": "Integer",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 3
+    },
+    "geometry_unit_num_bathrooms": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geometry_unit_num_occupants": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geometry_building_num_units": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geometry_average_ceiling_height": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 8.0
+    },
+    "geometry_unit_height_above_grade": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geometry_garage_width": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "geometry_garage_depth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 20.0
+    },
+    "geometry_garage_protrusion": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "geometry_garage_position": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "Right",
+            "Left"
+        ],
+        "Default Value": "Right"
+    },
+    "geometry_foundation_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "SlabOnGrade",
+            "VentedCrawlspace",
+            "UnventedCrawlspace",
+            "ConditionedCrawlspace",
+            "UnconditionedBasement",
+            "ConditionedBasement",
+            "Ambient",
+            "AboveApartment",
+            "BellyAndWingWithSkirt",
+            "BellyAndWingNoSkirt"
+        ],
+        "Default Value": "SlabOnGrade"
+    },
+    "geometry_foundation_height": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "geometry_foundation_height_above_grade": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "geometry_rim_joist_height": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geometry_attic_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "FlatRoof",
+            "VentedAttic",
+            "UnventedAttic",
+            "ConditionedAttic",
+            "BelowApartment"
+        ],
+        "Default Value": "VentedAttic"
+    },
+    "geometry_roof_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "gable",
+            "hip"
+        ],
+        "Default Value": "gable"
+    },
+    "geometry_roof_pitch": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "1:12",
+            "2:12",
+            "3:12",
+            "4:12",
+            "5:12",
+            "6:12",
+            "7:12",
+            "8:12",
+            "9:12",
+            "10:12",
+            "11:12",
+            "12:12"
+        ],
+        "Default Value": "6:12"
+    },
+    "geometry_eaves_depth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 2.0
+    },
+    "neighbor_front_distance": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "neighbor_back_distance": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "neighbor_left_distance": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 10.0
+    },
+    "neighbor_right_distance": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 10.0
+    },
+    "neighbor_front_height": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "neighbor_back_height": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "neighbor_left_height": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "neighbor_right_height": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "floor_over_foundation_assembly_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 28.1
+    },
+    "floor_over_garage_assembly_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 28.1
+    },
+    "floor_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "WoodFrame",
+            "StructuralInsulatedPanel",
+            "SolidConcrete",
+            "SteelFrame"
+        ],
+        "Default Value": "WoodFrame"
+    },
+    "foundation_wall_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "solid concrete",
+            "concrete block",
+            "concrete block foam core",
+            "concrete block perlite core",
+            "concrete block vermiculite core",
+            "concrete block solid core",
+            "double brick",
+            "wood"
+        ],
+        "Default Value": NaN
+    },
+    "foundation_wall_thickness": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "foundation_wall_insulation_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "foundation_wall_insulation_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "interior",
+            "exterior"
+        ],
+        "Default Value": "exterior"
+    },
+    "foundation_wall_insulation_distance_to_top": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "foundation_wall_insulation_distance_to_bottom": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "foundation_wall_assembly_r": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "rim_joist_assembly_r": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "slab_perimeter_insulation_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "slab_perimeter_insulation_depth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "slab_exterior_horizontal_insulation_r": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "slab_exterior_horizontal_insulation_width": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "slab_exterior_horizontal_insulation_depth_below_grade": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "slab_under_insulation_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "slab_under_insulation_width": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "slab_thickness": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "slab_carpet_fraction": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "slab_carpet_r": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ceiling_assembly_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 31.6
+    },
+    "roof_material_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "asphalt or fiberglass shingles",
+            "concrete",
+            "cool roof",
+            "slate or tile shingles",
+            "expanded polystyrene sheathing",
+            "metal surfacing",
+            "plastic/rubber/synthetic sheeting",
+            "shingles",
+            "wood shingles or shakes"
+        ],
+        "Default Value": NaN
+    },
+    "roof_color": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "dark",
+            "light",
+            "medium",
+            "medium dark",
+            "reflective"
+        ],
+        "Default Value": NaN
+    },
+    "roof_assembly_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 2.3
+    },
+    "radiant_barrier_attic_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "none",
+            "Attic roof only",
+            "Attic roof and gable walls",
+            "Attic floor"
+        ],
+        "Default Value": NaN
+    },
+    "radiant_barrier_grade": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "1",
+            "2",
+            "3"
+        ],
+        "Default Value": NaN
+    },
+    "wall_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "WoodStud",
+            "ConcreteMasonryUnit",
+            "DoubleWoodStud",
+            "InsulatedConcreteForms",
+            "LogWall",
+            "StructuralInsulatedPanel",
+            "SolidConcrete",
+            "SteelFrame",
+            "Stone",
+            "StrawBale",
+            "StructuralBrick"
+        ],
+        "Default Value": "WoodStud"
+    },
+    "wall_siding_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "aluminum siding",
+            "asbestos siding",
+            "brick veneer",
+            "composite shingle siding",
+            "fiber cement siding",
+            "masonite siding",
+            "none",
+            "stucco",
+            "synthetic stucco",
+            "vinyl siding",
+            "wood siding"
+        ],
+        "Default Value": NaN
+    },
+    "wall_color": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "dark",
+            "light",
+            "medium",
+            "medium dark",
+            "reflective"
+        ],
+        "Default Value": NaN
+    },
+    "wall_assembly_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 11.9
+    },
+    "window_front_wwr": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.18
+    },
+    "window_back_wwr": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.18
+    },
+    "window_left_wwr": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.18
+    },
+    "window_right_wwr": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.18
+    },
+    "window_area_front": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "window_area_back": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "window_area_left": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "window_area_right": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "window_aspect_ratio": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.333
+    },
+    "window_fraction_operable": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "window_natvent_availability": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "window_ufactor": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.37
+    },
+    "window_shgc": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.3
+    },
+    "window_interior_shading_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "light curtains",
+            "light shades",
+            "light blinds",
+            "medium curtains",
+            "medium shades",
+            "medium blinds",
+            "dark curtains",
+            "dark shades",
+            "dark blinds",
+            "none"
+        ],
+        "Default Value": NaN
+    },
+    "window_interior_shading_winter": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "window_interior_shading_summer": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "window_exterior_shading_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "solar film",
+            "solar screens",
+            "none"
+        ],
+        "Default Value": NaN
+    },
+    "window_exterior_shading_winter": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "window_exterior_shading_summer": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "window_shading_summer_season": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "window_insect_screens": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "none",
+            "exterior",
+            "interior"
+        ],
+        "Default Value": NaN
+    },
+    "window_storm_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "clear",
+            "low-e"
+        ],
+        "Default Value": NaN
+    },
+    "overhangs_front_depth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "overhangs_front_distance_to_top_of_window": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "overhangs_front_distance_to_bottom_of_window": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 4.0
+    },
+    "overhangs_back_depth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "overhangs_back_distance_to_top_of_window": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "overhangs_back_distance_to_bottom_of_window": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 4.0
+    },
+    "overhangs_left_depth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "overhangs_left_distance_to_top_of_window": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "overhangs_left_distance_to_bottom_of_window": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 4.0
+    },
+    "overhangs_right_depth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "overhangs_right_distance_to_top_of_window": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "overhangs_right_distance_to_bottom_of_window": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 4.0
+    },
+    "skylight_area_front": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "skylight_area_back": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "skylight_area_left": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "skylight_area_right": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "skylight_ufactor": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.33
+    },
+    "skylight_shgc": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.45
+    },
+    "skylight_storm_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "clear",
+            "low-e"
+        ],
+        "Default Value": NaN
+    },
+    "door_area": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 20.0
+    },
+    "door_rvalue": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 4.4
+    },
+    "air_leakage_leakiness_description": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "very tight",
+            "tight",
+            "average",
+            "leaky",
+            "very leaky"
+        ],
+        "Default Value": "average"
+    },
+    "air_leakage_units": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "ACH",
+            "CFM",
+            "ACHnatural",
+            "CFMnatural",
+            "EffectiveLeakageArea"
+        ],
+        "Default Value": NaN
+    },
+    "air_leakage_house_pressure": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "air_leakage_value": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "air_leakage_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "unit total",
+            "unit exterior only"
+        ],
+        "Default Value": NaN
+    },
+    "air_leakage_has_flue_or_chimney_in_conditioned_space": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": NaN
+    },
+    "heating_system_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "Furnace",
+            "WallFurnace",
+            "FloorFurnace",
+            "Boiler",
+            "ElectricResistance",
+            "Stove",
+            "SpaceHeater",
+            "Fireplace",
+            "Shared Boiler w/ Baseboard",
+            "Shared Boiler w/ Ductless Fan Coil"
+        ],
+        "Default Value": "Furnace"
+    },
+    "heating_system_fuel": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "electricity",
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "wood pellets",
+            "coal"
+        ],
+        "Default Value": "natural gas"
+    },
+    "heating_system_heating_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.78
+    },
+    "heating_system_heating_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heating_system_heating_autosizing_factor": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heating_system_heating_autosizing_limit": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heating_system_fraction_heat_load_served": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.0
+    },
+    "heating_system_pilot_light": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heating_system_airflow_defect_ratio": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "central air conditioner",
+            "room air conditioner",
+            "evaporative cooler",
+            "mini-split",
+            "packaged terminal air conditioner"
+        ],
+        "Default Value": "central air conditioner"
+    },
+    "cooling_system_cooling_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "SEER",
+            "SEER2",
+            "EER",
+            "CEER"
+        ],
+        "Default Value": "SEER"
+    },
+    "cooling_system_cooling_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 13.0
+    },
+    "cooling_system_cooling_compressor_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "single stage",
+            "two stage",
+            "variable speed"
+        ],
+        "Default Value": NaN
+    },
+    "cooling_system_cooling_sensible_heat_fraction": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_cooling_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_cooling_autosizing_factor": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_cooling_autosizing_limit": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_fraction_cool_load_served": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.0
+    },
+    "cooling_system_is_ducted": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "cooling_system_airflow_defect_ratio": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_charge_defect_ratio": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_crankcase_heater_watts": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_integrated_heating_system_fuel": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "electricity",
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "wood pellets",
+            "coal"
+        ],
+        "Default Value": NaN
+    },
+    "cooling_system_integrated_heating_system_efficiency_percent": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_integrated_heating_system_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooling_system_integrated_heating_system_fraction_heat_load_served": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "air-to-air",
+            "mini-split",
+            "ground-to-air",
+            "packaged terminal heat pump",
+            "room air conditioner with reverse cycle"
+        ],
+        "Default Value": "none"
+    },
+    "heat_pump_heating_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "HSPF",
+            "HSPF2",
+            "COP"
+        ],
+        "Default Value": "HSPF"
+    },
+    "heat_pump_heating_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 7.7
+    },
+    "heat_pump_cooling_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "SEER",
+            "SEER2",
+            "EER",
+            "CEER"
+        ],
+        "Default Value": "SEER"
+    },
+    "heat_pump_cooling_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 13.0
+    },
+    "heat_pump_cooling_compressor_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "single stage",
+            "two stage",
+            "variable speed"
+        ],
+        "Default Value": NaN
+    },
+    "heat_pump_cooling_sensible_heat_fraction": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_heating_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_heating_autosizing_factor": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_heating_autosizing_limit": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_heating_capacity_retention_fraction": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_heating_capacity_retention_temp": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_cooling_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_cooling_autosizing_factor": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_cooling_autosizing_limit": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_fraction_heat_load_served": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.0
+    },
+    "heat_pump_fraction_cool_load_served": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.0
+    },
+    "heat_pump_compressor_lockout_temp": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_backup_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "integrated",
+            "separate"
+        ],
+        "Default Value": "integrated"
+    },
+    "heat_pump_backup_heating_autosizing_factor": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_backup_heating_autosizing_limit": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_backup_fuel": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "electricity",
+            "natural gas",
+            "fuel oil",
+            "propane"
+        ],
+        "Default Value": "electricity"
+    },
+    "heat_pump_backup_heating_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.0
+    },
+    "heat_pump_backup_heating_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_backup_heating_lockout_temp": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_sizing_methodology": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "ACCA",
+            "HERS",
+            "MaxLoad"
+        ],
+        "Default Value": NaN
+    },
+    "heat_pump_backup_sizing_methodology": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "emergency",
+            "supplemental"
+        ],
+        "Default Value": NaN
+    },
+    "heat_pump_is_ducted": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": NaN
+    },
+    "heat_pump_airflow_defect_ratio": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_charge_defect_ratio": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heat_pump_crankcase_heater_watts": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_capacity_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "Absolute capacities",
+            "Normalized capacity fractions"
+        ],
+        "Default Value": NaN
+    },
+    "hvac_perf_data_heating_outdoor_temperatures": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_heating_min_speed_capacities": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_heating_max_speed_capacities": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_heating_min_speed_cops": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_heating_max_speed_cops": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_cooling_outdoor_temperatures": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_cooling_min_speed_capacities": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_cooling_max_speed_capacities": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_cooling_min_speed_cops": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_perf_data_cooling_max_speed_cops": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geothermal_loop_configuration": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "none",
+            "vertical"
+        ],
+        "Default Value": NaN
+    },
+    "geothermal_loop_borefield_configuration": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "Rectangle",
+            "Open Rectangle",
+            "C",
+            "L",
+            "U",
+            "Lopsided U"
+        ],
+        "Default Value": NaN
+    },
+    "geothermal_loop_loop_flow": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geothermal_loop_boreholes_count": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geothermal_loop_boreholes_length": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geothermal_loop_boreholes_spacing": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geothermal_loop_boreholes_diameter": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "geothermal_loop_grout_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "standard",
+            "thermally enhanced"
+        ],
+        "Default Value": NaN
+    },
+    "geothermal_loop_pipe_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "standard",
+            "thermally enhanced"
+        ],
+        "Default Value": NaN
+    },
+    "geothermal_loop_pipe_diameter": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "3/4\" pipe",
+            "1\" pipe",
+            "1-1/4\" pipe"
+        ],
+        "Default Value": NaN
+    },
+    "heating_system_2_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "Furnace",
+            "WallFurnace",
+            "FloorFurnace",
+            "Boiler",
+            "ElectricResistance",
+            "Stove",
+            "SpaceHeater",
+            "Fireplace"
+        ],
+        "Default Value": "none"
+    },
+    "heating_system_2_fuel": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "electricity",
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "wood pellets",
+            "coal"
+        ],
+        "Default Value": "electricity"
+    },
+    "heating_system_2_heating_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.0
+    },
+    "heating_system_2_heating_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heating_system_2_heating_autosizing_factor": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heating_system_2_heating_autosizing_limit": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "heating_system_2_fraction_heat_load_served": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.25
+    },
+    "hvac_control_heating_weekday_setpoint": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_control_heating_weekend_setpoint": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_control_cooling_weekday_setpoint": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_control_cooling_weekend_setpoint": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_control_heating_season_period": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_control_cooling_season_period": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hvac_blower_fan_watts_per_cfm": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ducts_leakage_units": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "CFM25",
+            "CFM50",
+            "Percent"
+        ],
+        "Default Value": "Percent"
+    },
+    "ducts_supply_leakage_to_outside_value": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.1
+    },
+    "ducts_supply_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "crawlspace",
+            "crawlspace - vented",
+            "crawlspace - unvented",
+            "crawlspace - conditioned",
+            "attic",
+            "attic - vented",
+            "attic - unvented",
+            "garage",
+            "exterior wall",
+            "under slab",
+            "roof deck",
+            "outside",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space",
+            "manufactured home belly"
+        ],
+        "Default Value": NaN
+    },
+    "ducts_supply_insulation_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "ducts_supply_buried_insulation_level": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "not buried",
+            "partially buried",
+            "fully buried",
+            "deeply buried"
+        ],
+        "Default Value": NaN
+    },
+    "ducts_supply_surface_area": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ducts_supply_surface_area_fraction": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ducts_supply_fraction_rectangular": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ducts_return_leakage_to_outside_value": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.1
+    },
+    "ducts_return_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "crawlspace",
+            "crawlspace - vented",
+            "crawlspace - unvented",
+            "crawlspace - conditioned",
+            "attic",
+            "attic - vented",
+            "attic - unvented",
+            "garage",
+            "exterior wall",
+            "under slab",
+            "roof deck",
+            "outside",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space",
+            "manufactured home belly"
+        ],
+        "Default Value": NaN
+    },
+    "ducts_return_insulation_r": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "ducts_return_buried_insulation_level": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "not buried",
+            "partially buried",
+            "fully buried",
+            "deeply buried"
+        ],
+        "Default Value": NaN
+    },
+    "ducts_return_surface_area": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ducts_return_surface_area_fraction": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ducts_number_of_return_registers": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ducts_return_fraction_rectangular": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_fan_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "exhaust only",
+            "supply only",
+            "energy recovery ventilator",
+            "heat recovery ventilator",
+            "balanced",
+            "central fan integrated supply"
+        ],
+        "Default Value": "none"
+    },
+    "mech_vent_flow_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_hours_in_operation": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_recovery_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "Unadjusted",
+            "Adjusted"
+        ],
+        "Default Value": "Unadjusted"
+    },
+    "mech_vent_total_recovery_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.48
+    },
+    "mech_vent_sensible_recovery_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.72
+    },
+    "mech_vent_fan_power": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_num_units_served": {
+        "Type": "Integer",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1
+    },
+    "mech_vent_shared_frac_recirculation": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_shared_preheating_fuel": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "electricity",
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "wood pellets",
+            "coal"
+        ],
+        "Default Value": NaN
+    },
+    "mech_vent_shared_preheating_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_shared_preheating_fraction_heat_load_served": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_shared_precooling_fuel": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "electricity"
+        ],
+        "Default Value": NaN
+    },
+    "mech_vent_shared_precooling_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_shared_precooling_fraction_cool_load_served": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "mech_vent_2_fan_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "exhaust only",
+            "supply only",
+            "energy recovery ventilator",
+            "heat recovery ventilator",
+            "balanced"
+        ],
+        "Default Value": "none"
+    },
+    "mech_vent_2_flow_rate": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 110.0
+    },
+    "mech_vent_2_hours_in_operation": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 24.0
+    },
+    "mech_vent_2_recovery_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "Unadjusted",
+            "Adjusted"
+        ],
+        "Default Value": "Unadjusted"
+    },
+    "mech_vent_2_total_recovery_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.48
+    },
+    "mech_vent_2_sensible_recovery_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.72
+    },
+    "mech_vent_2_fan_power": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 30.0
+    },
+    "kitchen_fans_quantity": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "kitchen_fans_flow_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "kitchen_fans_hours_in_operation": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "kitchen_fans_power": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "kitchen_fans_start_hour": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "bathroom_fans_quantity": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "bathroom_fans_flow_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "bathroom_fans_hours_in_operation": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "bathroom_fans_power": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "bathroom_fans_start_hour": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "whole_house_fan_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "whole_house_fan_flow_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "whole_house_fan_power": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "storage water heater",
+            "instantaneous water heater",
+            "heat pump water heater",
+            "space-heating boiler with storage tank",
+            "space-heating boiler with tankless coil"
+        ],
+        "Default Value": "storage water heater"
+    },
+    "water_heater_fuel_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "electricity",
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "coal"
+        ],
+        "Default Value": "natural gas"
+    },
+    "water_heater_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "garage",
+            "attic",
+            "attic - vented",
+            "attic - unvented",
+            "crawlspace",
+            "crawlspace - vented",
+            "crawlspace - unvented",
+            "crawlspace - conditioned",
+            "other exterior",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space"
+        ],
+        "Default Value": NaN
+    },
+    "water_heater_tank_volume": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "EnergyFactor",
+            "UniformEnergyFactor"
+        ],
+        "Default Value": "EnergyFactor"
+    },
+    "water_heater_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.67
+    },
+    "water_heater_usage_bin": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "very small",
+            "low",
+            "medium",
+            "high"
+        ],
+        "Default Value": NaN
+    },
+    "water_heater_recovery_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_heating_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_backup_heating_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_standby_loss": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_jacket_rvalue": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_setpoint_temperature": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_num_bedrooms_served": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "water_heater_uses_desuperheater": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": NaN
+    },
+    "water_heater_tank_model_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "mixed",
+            "stratified"
+        ],
+        "Default Value": NaN
+    },
+    "water_heater_operating_mode": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "hybrid/auto",
+            "heat pump only"
+        ],
+        "Default Value": NaN
+    },
+    "hot_water_distribution_system_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "Standard",
+            "Recirculation"
+        ],
+        "Default Value": "Standard"
+    },
+    "hot_water_distribution_standard_piping_length": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hot_water_distribution_recirc_control_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "no control",
+            "timer",
+            "temperature",
+            "presence sensor demand control",
+            "manual demand control"
+        ],
+        "Default Value": "no control"
+    },
+    "hot_water_distribution_recirc_piping_length": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hot_water_distribution_recirc_branch_piping_length": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hot_water_distribution_recirc_pump_power": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "hot_water_distribution_pipe_r": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dwhr_facilities_connected": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "one",
+            "all"
+        ],
+        "Default Value": "none"
+    },
+    "dwhr_equal_flow": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "dwhr_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": 0.55
+    },
+    "water_fixtures_shower_low_flow": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "water_fixtures_sink_low_flow": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "water_fixtures_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "general_water_use_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "solar_thermal_system_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "hot water"
+        ],
+        "Default Value": "none"
+    },
+    "solar_thermal_collector_area": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 40.0
+    },
+    "solar_thermal_collector_loop_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "liquid direct",
+            "liquid indirect",
+            "passive thermosyphon"
+        ],
+        "Default Value": "liquid direct"
+    },
+    "solar_thermal_collector_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "evacuated tube",
+            "single glazing black",
+            "double glazing black",
+            "integrated collector storage"
+        ],
+        "Default Value": "evacuated tube"
+    },
+    "solar_thermal_collector_azimuth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 180.0
+    },
+    "solar_thermal_collector_tilt": {
+        "Type": "String",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": "RoofPitch"
+    },
+    "solar_thermal_collector_rated_optical_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.5
+    },
+    "solar_thermal_collector_rated_thermal_losses": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.2799
+    },
+    "solar_thermal_storage_volume": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "solar_thermal_solar_fraction": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "pv_system_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "pv_system_module_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "standard",
+            "premium",
+            "thin film"
+        ],
+        "Default Value": NaN
+    },
+    "pv_system_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "roof",
+            "ground"
+        ],
+        "Default Value": NaN
+    },
+    "pv_system_tracking": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "fixed",
+            "1-axis",
+            "1-axis backtracked",
+            "2-axis"
+        ],
+        "Default Value": NaN
+    },
+    "pv_system_array_azimuth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 180.0
+    },
+    "pv_system_array_tilt": {
+        "Type": "String",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": "RoofPitch"
+    },
+    "pv_system_max_power_output": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 4000.0
+    },
+    "pv_system_inverter_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "pv_system_system_losses_fraction": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "pv_system_num_bedrooms_served": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "pv_system_2_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "pv_system_2_module_type": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "standard",
+            "premium",
+            "thin film"
+        ],
+        "Default Value": NaN
+    },
+    "pv_system_2_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "roof",
+            "ground"
+        ],
+        "Default Value": NaN
+    },
+    "pv_system_2_tracking": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "fixed",
+            "1-axis",
+            "1-axis backtracked",
+            "2-axis"
+        ],
+        "Default Value": NaN
+    },
+    "pv_system_2_array_azimuth": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 180.0
+    },
+    "pv_system_2_array_tilt": {
+        "Type": "String",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": "RoofPitch"
+    },
+    "pv_system_2_max_power_output": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 4000.0
+    },
+    "battery_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "battery_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "crawlspace",
+            "crawlspace - vented",
+            "crawlspace - unvented",
+            "crawlspace - conditioned",
+            "attic",
+            "attic - vented",
+            "attic - unvented",
+            "garage",
+            "outside"
+        ],
+        "Default Value": NaN
+    },
+    "battery_power": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "battery_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "battery_usable_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "battery_round_trip_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "battery_num_bedrooms_served": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "vehicle_type": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": "none"
+    },
+    "vehicle_battery_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "vehicle_battery_usable_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "vehicle_fuel_economy_units": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "kWh/mile",
+            "mile/kWh",
+            "mpge",
+            "mpg"
+        ],
+        "Default Value": NaN
+    },
+    "vehicle_fuel_economy_combined": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "vehicle_miles_driven_per_year": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "vehicle_hours_driven_per_week": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "vehicle_fraction_charged_home": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ev_charger_present": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "ev_charger_level": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "1",
+            "2",
+            "3"
+        ],
+        "Default Value": NaN
+    },
+    "ev_charger_power": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "lighting_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "lighting_interior_fraction_cfl": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.1
+    },
+    "lighting_interior_fraction_lfl": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "lighting_interior_fraction_led": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "lighting_interior_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "lighting_exterior_fraction_cfl": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "lighting_exterior_fraction_lfl": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "lighting_exterior_fraction_led": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "lighting_exterior_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "lighting_garage_fraction_cfl": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "lighting_garage_fraction_lfl": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "lighting_garage_fraction_led": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.0
+    },
+    "lighting_garage_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "holiday_lighting_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "holiday_lighting_daily_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "holiday_lighting_period": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dehumidifier_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "portable",
+            "whole-home"
+        ],
+        "Default Value": "none"
+    },
+    "dehumidifier_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "EnergyFactor",
+            "IntegratedEnergyFactor"
+        ],
+        "Default Value": "IntegratedEnergyFactor"
+    },
+    "dehumidifier_efficiency": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.5
+    },
+    "dehumidifier_capacity": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 40.0
+    },
+    "dehumidifier_rh_setpoint": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 0.5
+    },
+    "dehumidifier_fraction_dehumidification_load_served": {
+        "Type": "Double",
+        "Required": true,
+        "Choices": NaN,
+        "Default Value": 1.0
+    },
+    "clothes_washer_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "clothes_washer_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "garage",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space"
+        ],
+        "Default Value": NaN
+    },
+    "clothes_washer_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "ModifiedEnergyFactor",
+            "IntegratedModifiedEnergyFactor"
+        ],
+        "Default Value": "IntegratedModifiedEnergyFactor"
+    },
+    "clothes_washer_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_washer_rated_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_washer_label_electric_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_washer_label_gas_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_washer_label_annual_gas_cost": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_washer_label_usage": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_washer_capacity": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_washer_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_dryer_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "clothes_dryer_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "garage",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space"
+        ],
+        "Default Value": NaN
+    },
+    "clothes_dryer_fuel_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "electricity",
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "coal"
+        ],
+        "Default Value": "natural gas"
+    },
+    "clothes_dryer_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "EnergyFactor",
+            "CombinedEnergyFactor"
+        ],
+        "Default Value": "CombinedEnergyFactor"
+    },
+    "clothes_dryer_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_dryer_vented_flow_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "clothes_dryer_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dishwasher_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "dishwasher_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "garage",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space"
+        ],
+        "Default Value": NaN
+    },
+    "dishwasher_efficiency_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "RatedAnnualkWh",
+            "EnergyFactor"
+        ],
+        "Default Value": "RatedAnnualkWh"
+    },
+    "dishwasher_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dishwasher_label_electric_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dishwasher_label_gas_rate": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dishwasher_label_annual_gas_cost": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dishwasher_label_usage": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dishwasher_place_setting_capacity": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "dishwasher_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "refrigerator_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "refrigerator_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "garage",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space"
+        ],
+        "Default Value": NaN
+    },
+    "refrigerator_rated_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "refrigerator_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "extra_refrigerator_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "extra_refrigerator_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "garage",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space"
+        ],
+        "Default Value": NaN
+    },
+    "extra_refrigerator_rated_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "extra_refrigerator_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "freezer_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "freezer_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "garage",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space"
+        ],
+        "Default Value": NaN
+    },
+    "freezer_rated_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "freezer_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "cooking_range_oven_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "cooking_range_oven_location": {
+        "Type": "Choice",
+        "Required": false,
+        "Choices": [
+            "conditioned space",
+            "basement - conditioned",
+            "basement - unconditioned",
+            "garage",
+            "other housing unit",
+            "other heated space",
+            "other multifamily buffer space",
+            "other non-freezing space"
+        ],
+        "Default Value": NaN
+    },
+    "cooking_range_oven_fuel_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "electricity",
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "coal"
+        ],
+        "Default Value": "natural gas"
+    },
+    "cooking_range_oven_is_induction": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": NaN
+    },
+    "cooking_range_oven_is_convection": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": NaN
+    },
+    "cooking_range_oven_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ceiling_fan_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "ceiling_fan_label_energy_use": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ceiling_fan_efficiency": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ceiling_fan_quantity": {
+        "Type": "Integer",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "ceiling_fan_cooling_setpoint_temp_offset": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_television_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "misc_plug_loads_television_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_television_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_other_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_other_frac_sensible": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_other_frac_latent": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_other_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_well_pump_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "misc_plug_loads_well_pump_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_well_pump_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_vehicle_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "misc_plug_loads_vehicle_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_plug_loads_vehicle_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_fuel_loads_grill_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "misc_fuel_loads_grill_fuel_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "wood pellets"
+        ],
+        "Default Value": "natural gas"
+    },
+    "misc_fuel_loads_grill_annual_therm": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_fuel_loads_grill_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_fuel_loads_lighting_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "misc_fuel_loads_lighting_fuel_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "wood pellets"
+        ],
+        "Default Value": "natural gas"
+    },
+    "misc_fuel_loads_lighting_annual_therm": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_fuel_loads_lighting_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_fuel_loads_fireplace_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "misc_fuel_loads_fireplace_fuel_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "natural gas",
+            "fuel oil",
+            "propane",
+            "wood",
+            "wood pellets"
+        ],
+        "Default Value": "natural gas"
+    },
+    "misc_fuel_loads_fireplace_annual_therm": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_fuel_loads_fireplace_frac_sensible": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_fuel_loads_fireplace_frac_latent": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "misc_fuel_loads_fireplace_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "pool_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "pool_pump_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "pool_pump_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "pool_heater_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "electric resistance",
+            "gas fired",
+            "heat pump"
+        ],
+        "Default Value": "none"
+    },
+    "pool_heater_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "pool_heater_annual_therm": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "pool_heater_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "permanent_spa_present": {
+        "Type": "Boolean",
+        "Required": true,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "permanent_spa_pump_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "permanent_spa_pump_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "permanent_spa_heater_type": {
+        "Type": "Choice",
+        "Required": true,
+        "Choices": [
+            "none",
+            "electric resistance",
+            "gas fired",
+            "heat pump"
+        ],
+        "Default Value": "none"
+    },
+    "permanent_spa_heater_annual_kwh": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "permanent_spa_heater_annual_therm": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "permanent_spa_heater_usage_multiplier": {
+        "Type": "Double",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_scenario_names": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_types": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_electricity_units": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_electricity_values_or_filepaths": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_electricity_number_of_header_rows": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_electricity_column_numbers": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_fossil_fuel_units": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_natural_gas_values": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_propane_values": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_fuel_oil_values": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_coal_values": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_wood_values": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "emissions_wood_pellets_values": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_scenario_names": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_electricity_filepaths": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_electricity_fixed_charges": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_natural_gas_fixed_charges": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_propane_fixed_charges": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_fuel_oil_fixed_charges": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_coal_fixed_charges": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_wood_fixed_charges": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_wood_pellets_fixed_charges": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_electricity_marginal_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_natural_gas_marginal_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_propane_marginal_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_fuel_oil_marginal_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_coal_marginal_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_wood_marginal_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_wood_pellets_marginal_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_pv_compensation_types": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_pv_net_metering_annual_excess_sellback_rate_types": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_pv_net_metering_annual_excess_sellback_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_pv_feed_in_tariff_rates": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_pv_monthly_grid_connection_fee_units": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "utility_bill_pv_monthly_grid_connection_fees": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "additional_properties": {
+        "Type": "String",
+        "Required": false,
+        "Choices": NaN,
+        "Default Value": NaN
+    },
+    "combine_like_surfaces": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "apply_defaults": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    },
+    "apply_validation": {
+        "Type": "Boolean",
+        "Required": false,
+        "Choices": [
+            "true",
+            "false"
+        ],
+        "Default Value": true
+    }
+}

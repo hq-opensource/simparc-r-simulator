@@ -1,0 +1,324 @@
+SCHEMA_VERSION : "0.1"
+
+SAMPLE_FILE : test-building-stock-csv/building-test-hp.csv
+
+HPXML_SCHEMA_FILE : measures/BuildResidentialHPXML/measure.xml
+
+SEED : 100
+# Define parallel processing settings
+N_JOBS : 20 # Number of parallel jobs (null = auto-detect based on CPU count)
+
+# Define the simulation settings
+SIMULATION_TIMESTEP : 15 # minutes - must be integer and a divisor of 60 
+SIMULATION_YEAR : 2023
+SIMULATION_RUN_PERIOD : "Jan 1 - Dec 31" # Define the simulation run using the same format (First 3 letters of month and day number) e.g., "Jan 1 - Dec 31", "Jun 1 - Aug 31"
+WEATHER_FILE_TYPE : "AMY" # Options: "AMY" for actual weather files (2022-2023) or "CWEC" for typical weather files (2020) or "PCIC" for projected future weather files (2020, 2050, 2080)
+
+# Define the output settings
+ADD_COMPONENT_LOADS : False # If true, adds the calculation of heating/cooling component loads (not enabled by default for faster performance).
+SKIP_VALIDATION : False # If true, skips the validation of the HPXML file for faster performance.
+DEBUG_MODE : False # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
+BATCH_MODE : True
+INCLUDE_ANNUAL_TOTAL_CONSUMPTIONS : True
+INCLUDE_ANNUAL_FUEL_CONSUMPTIONS : True
+INCLUDE_ANNUAL_END_USE_CONSUMPTIONS : True
+INCLUDE_ANNUAL_SYSTEM_USE_CONSUMPTIONS : True
+INCLUDE_ANNUAL_EMISSIONS : False
+INCLUDE_ANNUAL_EMISSION_FUELS : False
+INCLUDE_ANNUAL_EMISSION_END_USES : False
+INCLUDE_ANNUAL_TOTAL_LOADS : True
+INCLUDE_ANNUAL_UNMET_HOURS : True
+INCLUDE_ANNUAL_PEAK_FUELS : True
+INCLUDE_ANNUAL_PEAK_LOADS : True
+INCLUDE_ANNUAL_COMPONENT_LOADS : True
+INCLUDE_ANNUAL_HOT_WATER_USES : True
+INCLUDE_ANNUAL_HVAC_SUMMARY : True
+INCLUDE_ANNUAL_RESILIENCE : True
+TIMESERIES_FREQUENCY : "timestep" # Options: "none", "timestep", "hourly", "daily", "monthly"
+INCLUDE_TIMESERIES_TOTAL_CONSUMPTIONS : True
+INCLUDE_TIMESERIES_FUEL_CONSUMPTIONS : True
+INCLUDE_TIMESERIES_END_USE_CONSUMPTIONS : True
+INCLUDE_TIMESERIES_SYSTEM_USE_CONSUMPTIONS : False
+INCLUDE_TIMESERIES_EMISSIONS : False
+INCLUDE_TIMESERIES_EMISSION_FUELS : False
+INCLUDE_TIMESERIES_EMISSION_END_USES : False
+INCLUDE_TIMESERIES_HOT_WATER_USES : False
+INCLUDE_TIMESERIES_TOTAL_LOADS : False
+INCLUDE_TIMESERIES_COMPONENT_LOADS : False
+INCLUDE_TIMESERIES_UNMET_HOURS : False
+INCLUDE_TIMESERIES_ZONE_TEMPERATURES : True
+INCLUDE_TIMESERIES_ZONE_CONDITIONS : False
+INCLUDE_TIMESERIES_AIRFLOWS : False
+INCLUDE_TIMESERIES_WEATHER : True
+INCLUDE_TIMESERIES_RESILIENCE : False
+TIMESERIES_TIMESTAMP_CONVENTION : "start" # Options: "start", "end"
+ADD_TIMESERIES_DST_COLUMN : False # If true, adds a column for Daylight Saving Time (DST) in the timeseries output.
+ADD_TIMESERIES_UTC_COLUMN : True # If true, adds a column for UTC time in the timeseries output.
+USER_OUTPUT_VARIABLES : "" # Comma-separated list of user-defined output variables to include
+USER_OUTPUT_METERS : "" # Comma-separated list of user-defined output meters to include
+
+# Definition of upgrading settings
+#UPGRADES_SETTINGS : null
+UPGRADES_SETTINGS :
+  Set of upgrades 1 :
+    Name : "Isolation au toit R=42.59 - R < 11.64" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Mode_Occupation", "==", "Proprietaire"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Maison"]
+        - ["ceiling_assembly_r", "<", 11.64]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Set ceiling insulation :
+        insulation_set : 42.59 # new R-value
+  Set of upgrades 2 :
+    Name : "Isolation au toit R=42.59 - 11.64 <= R < 17.89" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Mode_Occupation", "==", "Proprietaire"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Maison"]
+        - ["ceiling_assembly_r", ">=", 11.64]
+        - ["ceiling_assembly_r", "<", 17.89]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Set ceiling insulation :
+        insulation_set : 42.59 # new R-value
+  Set of upgrades 3 :
+    Name : "Isolation au toit R=42.59 - 17.89 <= R < 23" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Mode_Occupation", "==", "Proprietaire"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Maison"]
+        - ["ceiling_assembly_r", ">=", 17.89]
+        - ["ceiling_assembly_r", "<", 23]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Set ceiling insulation :
+        insulation_set : 42.59 # new R-value
+  Set of upgrades 4 :
+    Name : "Isolation au toit R=42.59 - 23 <= R < 27.54" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Mode_Occupation", "==", "Proprietaire"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Maison"]
+        - ["ceiling_assembly_r", ">=", 23]
+        - ["ceiling_assembly_r", "<", 27.54]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Set ceiling insulation :
+        insulation_set : 42.59 # new R-value
+  Set of upgrades 5 :
+    Name : "Isolation au toit R=42.59 - 27.54 <= R < 42.59" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Mode_Occupation", "==", "Proprietaire"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Maison"]
+        - ["ceiling_assembly_r", ">=", 27.54]
+        - ["ceiling_assembly_r", "<", 42.59]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Set ceiling insulation :
+        insulation_set : 42.59 # new R-value
+  Set of upgrades 6 :
+    Name : "Réduction de l'infiltation de 12.5%" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Mode_Occupation", "==", "Proprietaire"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Maison"]
+        - ["air_leakage_value", ">", 6.25]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Air leakage :
+        improvement_rate : 0.125 # Fractional improvement rate for air leakage
+  Set of upgrades 7 :
+    Name : "Abaissement de la consigne de température de chauffage - Maison" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Maison"]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Heating setpoint decrease :
+        decrease_value : 1 # Temperature decrease in degrees Celsius for the heating setpoint
+  Set of upgrades 8 :
+    Name : "Abaissement de la consigne de température de chauffage - Plex" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Plex"]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Heating setpoint decrease :
+        decrease_value : 1 # Temperature decrease in degrees Celsius for the heating setpoint
+  Set of upgrades 9 :
+    Name : "Abaissement de la consigne de température de chauffage - Collective" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Type_Batiment", "==", "Collective"]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      Heating setpoint decrease :
+        decrease_value : 1 # Temperature decrease in degrees Celsius for the heating setpoint
+  Set of upgrades 10 :
+    Name : "ASHP - Thermopompe air-air centrale - SEER2 17 - HSPF2 8.5" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["HVAC Has Ducts", "==", "Yes"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Chauffage_Logement", "not in", ["Thermopompe géothermique seule", 
+                                            "Thermopompe géothermique et Plinthes électriques",
+                                            "Thermopompe géothermique et Fournaise",
+                                            "Thermopompe et Système central à air chaud",
+                                            "Thermopompe et Système central à eau chaude",
+                                            "Thermopompe murale",
+                                            "Thermopompe murale et Plinthes électriques",
+                                            "Thermopompe murale et Fournaise",
+                                            "Fournaise ou poêle à bois et Thermopompe murale"]]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      ASHP :
+        seer2 : 17 # SEER2 rating for the ASHP
+        hspf2 : 8.5 # HSPF2 rating for the ASHP
+  Set of upgrades 11 :
+    Name : "GSHP - Thermopompe géothermique centrale - EER 20.5 - COP 4.0" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["HVAC Has Ducts", "==", "Yes"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Chauffage_Logement", "not in", ["Thermopompe géothermique seule", 
+                                            "Thermopompe géothermique et Plinthes électriques",
+                                            "Thermopompe géothermique et Fournaise",
+                                            "Thermopompe et Système central à air chaud",
+                                            "Thermopompe et Système central à eau chaude",
+                                            "Thermopompe murale",
+                                            "Thermopompe murale et Plinthes électriques",
+                                            "Thermopompe murale et Fournaise",
+                                            "Fournaise ou poêle à bois et Thermopompe murale"]]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      GSHP :
+        eer : 20.5 # EER rating for the GSHP
+        cop : 4.0 # COP rating for the GSHP
+  Set of upgrades 12 :
+    Name : "MSHP - Thermopompe murale - SEER2 21.0 - HSPF2 10.0" # Name of the set of upgrades
+    Filters : # List of filters to select the targeted buildings for the upgrades
+      all:
+        - ["HVAC Has Ducts", "==", "No"]
+        - ["Source_Energie_Chauf", "==", "Electricite"]
+        - ["Chauffage_Logement", "not in", ["Thermopompe géothermique seule", 
+                                            "Thermopompe géothermique et Plinthes électriques",
+                                            "Thermopompe géothermique et Fournaise",
+                                            "Thermopompe et Système central à air chaud",
+                                            "Thermopompe et Système central à eau chaude",
+                                            "Thermopompe murale",
+                                            "Thermopompe murale et Plinthes électriques",
+                                            "Thermopompe murale et Fournaise",
+                                            "Fournaise ou poêle à bois et Thermopompe murale"]]
+    Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+    Upgrades :
+      MSHP :
+        seer2 : 21.0 # SEER2 rating for the MSHP
+        hspf2 : 10.0 # HSPF2 rating for the MSHP
+
+  # Set of upgrades 1 :
+  #   Name : "Ajout isolation R16 au toit" # Name of the set of upgrades
+  #   Filters : # List of filters to select the targeted buildings for the upgrades
+  #     all:
+  #       - ["Mode_Occupation", "==", "Proprietaire"]
+  #       - ["Source_Energie_Chauf", "==", "Electricite"]
+  #       - ["Type_Batiment", "==", "Maison"]
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Added roof or ceiling insulation :
+  #       insulation_added : 16 # R-value of the added insulation
+  # Set of upgrades 1 :
+  #   Name : "Building Code 2020 QC" # Name of the set of upgrades
+  #   Filters : [] # List of filters to select the targeted buildings for the upgrades
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Set wall insulation to standard :
+  #       standard_name : "Building Code 2020 QC" 
+  # Set of upgrades 2 :
+  #   Name : "Novoclimat 2024" # Name of the set of upgrades
+  #   Filters : [] # List of filters to select the targeted buildings for the upgrades
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Set wall insulation to standard :
+  #       standard_name : "Novoclimat 2024" 
+  # Set of upgrades 3 :
+  #   Name : "PassivHaus" # Name of the set of upgrades
+  #   Filters : [] # List of filters to select the targeted buildings for the upgrades
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Set wall insulation to standard :
+  #       standard_name : "PassivHaus"
+  # Set of upgrades 1 :
+  #   Name : "Upgrade 1" # Name of the set of upgrades
+  #   Filters : [] # List of filters to select the targeted buildings for the upgrades
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Wall insulation :
+  #       improvement_rate : 0.2 # Fractional improvement rate for wall insulation
+  #     Window properties :
+  #       improvement_rate_uvalue : 0.3 # Fractional improvement rate for U-value
+  #       improvement_rate_shgc : 0.15 # Fractional improvement rate for SHGC
+  #     Air leakage :
+  #       improvement_rate : 0.25 # Fractional improvement rate for air leakage
+  # Set of upgrades 2 :
+  #   Name : "Upgrade 2" # Name of the set of upgrades
+  #   Filters : # List of filters to select the targeted buildings for the upgrades
+  #     all: 
+  #       - ["geometry_unit_type", "==", "single-family detached"]
+  #       - ["geometry_unit_num_bedrooms", ">=", 3]
+  #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Wall insulation :
+  #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
+  #     Window properties :
+  #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
+  #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
+  #     Air leakage :
+  #       improvement_rate : 0.2 # Fractional improvement rate for air leakage
+  # Set of upgrades 3 :
+  #   Name : "Upgrade 3" # Name of the set of upgrades  
+  #   Filters : # List of filters to select the targeted buildings for the upgrades
+  #     all:
+  #       - ["geometry_unit_type", "==", "single-family detached"]
+  #       - any:
+  #           - ["geometry_unit_num_bedrooms", ">=", 3]
+  #           - ["geometry_unit_cfa", ">", 1400]
+  #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Wall insulation :
+  #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
+  #     Window properties :
+  #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
+  #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
+  #     Air leakage :
+  #       improvement_rate : 0.2 # Fractional improvement rate for air leakage
+  # Set of upgrades 4 :
+  #   Name : "Upgrade 4" # Name of the set of upgrades
+  #   Filters : # List of filters to select the targeted buildings for the upgrades
+  #     all:
+  #       - any:
+  #           - ["geometry_unit_type", "==", "single-family detached"]
+  #           - ["geometry_unit_type", "==", "single-family attached"]
+  #       - ["geometry_unit_num_bedrooms", ">=", 3]
+  #       - not:
+  #           - ["heating_system_fuel", "==", "fuel oil"]
+  #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Wall insulation :
+  #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
+  #     Window properties :
+  #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
+  #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
+  #     Air leakage :
+  #       improvement_rate : 0.2 # Fractional improvement rate for air leakage

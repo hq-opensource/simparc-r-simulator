@@ -1,0 +1,14 @@
+{
+  "HPXMLtoOpenStudio" : 
+  {
+    "add_component_loads" : false,
+    "annual_output_file_name" : "results_annual",
+    "applicable" : true,
+    "debug" : false,
+    "design_load_details_output_file_name" : "results_design_load_details",
+    "hpxml_path" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/base.xml",
+    "output_dir" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/output/",
+    "output_format" : "csv",
+    "skip_validation" : false
+  }
+}

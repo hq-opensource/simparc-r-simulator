@@ -1,0 +1,94 @@
+{
+   "completed_at" : "20250512T194511Z",
+   "completed_status" : "Success",
+   "current_step" : 1,
+   "eplusout_err" : "Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2025.05.12 15:45,\n   ** Warning ** Timestep: Requested number (1) is less than the suggested minimum of 4.\n   **   ~~~   ** Please see entry for Timestep in Input/Output Reference for discussion of considerations.\n   ** Warning ** PerformancePrecisionTradeoffs: Carroll MRT radiant exchange method is selected.\n   ************* Note that the following warning(s) may/will occur if you have not enclosed your zone completely.\n   ** Warning ** Entered Zone Volumes differ from calculated zone volume(s).\n   **   ~~~   ** ...use Output:Diagnostics,DisplayExtraWarnings; to show more details on individual zones.\n   ** Warning ** CalculateZoneVolume: 2 zones are not fully enclosed. For more details use:  Output:Diagnostics,DisplayExtrawarnings; \n   ** Warning ** Check input. Pump nominal power or motor efficiency is set to 0, for pump=DHW LOOP PUMP\n   ** Warning ** Output:Meter: invalid Key Name=\"DISTRICTHEATINGWATER:FACILITY\" - not found.\n   ** Warning ** Output:Meter: invalid Key Name=\"DISTRICTCOOLING:FACILITY\" - not found.\n   ** Warning ** Output:Meter:MeterFileOnly requested for \"Electricity:Facility\" (TimeStep), already on \"Output:Meter\". Will report to both eplusout.eso and eplusout.mtr\n   ************* Testing Individual Branch Integrity\n   ************* All Branches passed integrity testing\n   ************* Testing Individual Supply Air Path Integrity\n   ************* All Supply Air Paths passed integrity testing\n   ************* Testing Individual Return Air Path Integrity\n   ************* All Return Air Paths passed integrity testing\n   ************* No node connection errors were found.\n   ************* Beginning Simulation\n   ** Warning ** Processing Monthly Tabular Reports: Variable names not valid for this simulation\n   **   ~~~   ** ...use Output:Diagnostics,DisplayExtraWarnings; to show more details on individual variables.\n   ** Warning ** The resource referenced by LifeCycleCost:UsePriceEscalation= \"U.S. AVG  COMMERCIAL-ELECTRICITY\" has no energy cost. \n   **   ~~~   ** ... It is likely that the wrong resource is used. The resource should match the meter used in Utility:Tariff.\n   ** Warning ** The resource referenced by LifeCycleCost:UsePriceEscalation= \"U.S. AVG  COMMERCIAL-DISTILLATE OIL\" has no energy cost. \n   **   ~~~   ** ... It is likely that the wrong resource is used. The resource should match the meter used in Utility:Tariff.\n   ** Warning ** The resource referenced by LifeCycleCost:UsePriceEscalation= \"U.S. AVG  COMMERCIAL-RESIDUAL OIL\" has no energy cost. \n   **   ~~~   ** ... It is likely that the wrong resource is used. The resource should match the meter used in Utility:Tariff.\n   ** Warning ** The resource referenced by LifeCycleCost:UsePriceEscalation= \"U.S. AVG  COMMERCIAL-NATURAL GAS\" has no energy cost. \n   **   ~~~   ** ... It is likely that the wrong resource is used. The resource should match the meter used in Utility:Tariff.\n   ** Warning ** The resource referenced by LifeCycleCost:UsePriceEscalation= \"U.S. AVG  COMMERCIAL-COAL\" has no energy cost. \n   **   ~~~   ** ... It is likely that the wrong resource is used. The resource should match the meter used in Utility:Tariff.\n   ************* Simulation Error Summary *************\n   ************* There are 1 unused objects in input.\n   ************* Use Output:Diagnostics,DisplayUnusedObjects; to see them.\n   ************* There are 1 unused schedules in input.\n   ************* There are 1 unused week schedules in input.\n   ************* There are 1 unused day schedules in input.\n   ************* Use Output:Diagnostics,DisplayUnusedSchedules; to see them.\n   ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.\n   ************* EnergyPlus Sizing Error Summary. During Sizing: 0 Warning; 0 Severe Errors.\n   ************* EnergyPlus Completed Successfully-- 14 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  1.11sec\n",
+   "file_paths" : 
+   [
+      "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/generated_files",
+      "./files",
+      "./weather",
+      "../../files",
+      "../../weather",
+      "./"
+   ],
+   "hash" : "6B505694",
+   "measure_paths" : 
+   [
+      "/home/benoit/Documents/OpenStudio-HPXML/"
+   ],
+   "run_options" : null,
+   "started_at" : "20250512T194508Z",
+   "steps" : 
+   [
+      {
+         "arguments" : 
+         {
+            "hpxml_path" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/base.xml",
+            "output_dir" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/output/"
+         },
+         "measure_dir_name" : "HPXMLtoOpenStudio",
+         "result" : 
+         {
+            "completed_at" : "20250512T194509Z",
+            "measure_class_name" : "HPXMLtoOpenStudio",
+            "measure_display_name" : "HPXML to OpenStudio Translator",
+            "measure_name" : "hpxm_lto_openstudio",
+            "measure_taxonomy" : "Whole Building.Space Types",
+            "measure_type" : "ModelMeasure",
+            "measure_uid" : "b1543b30-9465-45ff-ba04-1d1f85e763bc",
+            "measure_version_id" : "0592bc1d-12fb-4c44-b4ca-540dc6a3251c",
+            "measure_version_modified" : "20250508T030904Z",
+            "measure_xml_checksum" : "D8922A73",
+            "started_at" : "20250512T194508Z",
+            "stderr" : "",
+            "stdout" : "",
+            "step_errors" : [],
+            "step_files" : [],
+            "step_info" : [],
+            "step_result" : "Success",
+            "step_values" : 
+            [
+               {
+                  "name" : "hpxml_path",
+                  "value" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/base.xml"
+               },
+               {
+                  "name" : "output_dir",
+                  "value" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/output/"
+               },
+               {
+                  "name" : "output_format",
+                  "value" : "csv"
+               },
+               {
+                  "name" : "annual_output_file_name",
+                  "value" : "results_annual"
+               },
+               {
+                  "name" : "design_load_details_output_file_name",
+                  "value" : "results_design_load_details"
+               },
+               {
+                  "name" : "add_component_loads",
+                  "value" : false
+               },
+               {
+                  "name" : "skip_validation",
+                  "value" : false
+               },
+               {
+                  "name" : "debug",
+                  "value" : false
+               }
+            ],
+            "step_warnings" : 
+            [
+               "The model contains existing objects and is being reset."
+            ]
+         }
+      }
+   ],
+   "updated_at" : "20250512T194511Z",
+   "weather_file" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/2020s_CAN_QC_Montreal-McTavish.716120_CWEC2016.epw"
+}

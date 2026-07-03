@@ -1,0 +1,11 @@
+{
+  "measure_paths": ["/home/benoit/Documents/OpenStudio-HPXML/"],
+  "weather_file": "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/2020s_CAN_QC_Montreal-McTavish.716120_CWEC2016.epw",
+  "steps": [
+    {
+      "measure_dir_name": "HPXMLtoOpenStudio",
+      "arguments": {"hpxml_path": "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/base.xml",
+	  				"output_dir": "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/HPXMLtoOpenStudio/output/"}
+    }
+  ]
+}

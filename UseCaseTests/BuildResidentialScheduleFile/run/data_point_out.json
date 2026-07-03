@@ -1,0 +1,11 @@
+{
+  "BuildResidentialScheduleFile" : 
+  {
+    "append_output" : false,
+    "applicable" : true,
+    "debug" : false,
+    "hpxml_output_path" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/built-stochastic-schedules.xml",
+    "hpxml_path" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/built.xml",
+    "output_csv_path" : "/home/benoit/Documents/OpenStudioCLI-Test/UseCaseTests/BuildResidentialScheduleFile/stochastic.csv"
+  }
+}

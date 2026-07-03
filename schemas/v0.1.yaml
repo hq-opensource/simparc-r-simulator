@@ -1,0 +1,62 @@
+SCHEMA_VERSION : enum('0.1')
+
+SAMPLE_FILE : str(required=True)
+
+HPXML_SCHEMA_FILE : str(required=True)
+
+SEED : int(required=False)
+
+# Define parallel processing settings
+N_JOBS : int(required=False) # Number of parallel jobs (null = auto-detect based on CPU count)
+
+# Define the simulation settings
+SIMULATION_TIMESTEP : int(required=True) # minutes - must be integer and a divisor of 60 
+SIMULATION_YEAR : int(required=True) # Define the simulation run using the same format (First 3 letters of month and day number) e.g., "Jan 1 - Dec 31", "Jun 1 - Aug 31"
+SIMULATION_RUN_PERIOD : str(required=True) # Define the simulation run using the same format (First 3 letters of month and day number) e.g., "Jan 1 - Dec 31", "Jun 1 - Aug 31"
+WEATHER_FILE_TYPE : str(required=True) # Options: "AMY" for actual weather files (2022-2023) or "CWEC" for typical weather files (2020) or "PCIC" for projected future weather files (2020, 2050, 2080)
+
+# Define the output settings
+ADD_COMPONENT_LOADS : bool(required=True) # If true, adds the calculation of heating/cooling component loads (not enabled by default for faster performance).
+SKIP_VALIDATION : bool(required=True) # If true, skips the validation of the HPXML file for faster performance.
+DEBUG_MODE : bool(required=True) # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
+BATCH_MODE : bool(required=True)
+INCLUDE_ANNUAL_TOTAL_CONSUMPTIONS : bool(required=True)
+INCLUDE_ANNUAL_FUEL_CONSUMPTIONS : bool(required=True)
+INCLUDE_ANNUAL_END_USE_CONSUMPTIONS : bool(required=True)
+INCLUDE_ANNUAL_SYSTEM_USE_CONSUMPTIONS : bool(required=True)
+INCLUDE_ANNUAL_EMISSIONS : bool(required=True)
+INCLUDE_ANNUAL_EMISSION_FUELS : bool(required=True)
+INCLUDE_ANNUAL_EMISSION_END_USES : bool(required=True)
+INCLUDE_ANNUAL_TOTAL_LOADS : bool(required=True)
+INCLUDE_ANNUAL_UNMET_HOURS : bool(required=True)
+INCLUDE_ANNUAL_PEAK_FUELS : bool(required=True)
+INCLUDE_ANNUAL_PEAK_LOADS : bool(required=True)
+INCLUDE_ANNUAL_COMPONENT_LOADS : bool(required=True)
+INCLUDE_ANNUAL_HOT_WATER_USES : bool(required=True)
+INCLUDE_ANNUAL_HVAC_SUMMARY : bool(required=True)
+INCLUDE_ANNUAL_RESILIENCE : bool(required=True)
+TIMESERIES_FREQUENCY : str(required=True) # Options: "none", "timestep", "hourly", "daily", "monthly"
+INCLUDE_TIMESERIES_TOTAL_CONSUMPTIONS : bool(required=True)
+INCLUDE_TIMESERIES_FUEL_CONSUMPTIONS : bool(required=True)
+INCLUDE_TIMESERIES_END_USE_CONSUMPTIONS : bool(required=True)
+INCLUDE_TIMESERIES_SYSTEM_USE_CONSUMPTIONS : bool(required=True)
+INCLUDE_TIMESERIES_EMISSIONS : bool(required=True)
+INCLUDE_TIMESERIES_EMISSION_FUELS : bool(required=True)
+INCLUDE_TIMESERIES_EMISSION_END_USES : bool(required=True)
+INCLUDE_TIMESERIES_HOT_WATER_USES : bool(required=True)
+INCLUDE_TIMESERIES_TOTAL_LOADS : bool(required=True)
+INCLUDE_TIMESERIES_COMPONENT_LOADS : bool(required=True)
+INCLUDE_TIMESERIES_UNMET_HOURS : bool(required=True)
+INCLUDE_TIMESERIES_ZONE_TEMPERATURES : bool(required=True)
+INCLUDE_TIMESERIES_ZONE_CONDITIONS : bool(required=True)
+INCLUDE_TIMESERIES_AIRFLOWS : bool(required=True)
+INCLUDE_TIMESERIES_WEATHER : bool(required=True)
+INCLUDE_TIMESERIES_RESILIENCE : bool(required=True)
+TIMESERIES_TIMESTAMP_CONVENTION : str(required=True) # Options: "start", "end"
+ADD_TIMESERIES_DST_COLUMN : bool(required=True) # If true, adds a column for Daylight Saving Time (DST) in the timeseries output.
+ADD_TIMESERIES_UTC_COLUMN : bool(required=True) # If true, adds a column for UTC time in the timeseries output.
+USER_OUTPUT_VARIABLES : str(required=True) # Comma-separated list of user-defined output variables to include
+USER_OUTPUT_METERS : str(required=True) # Comma-separated list of user-defined output meters to include
+
+# Definition of upgrading settings
+UPGRADES_SETTINGS : map(required=False)

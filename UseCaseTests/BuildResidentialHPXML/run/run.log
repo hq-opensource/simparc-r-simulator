@@ -1,0 +1,8 @@
+[11:27:56.212843 WARN] [openstudio.measure.OSRunner] The model contains existing objects and is being reset.
+[11:27:56.298922 ERROR] [openstudio.energyplus.ForwardTranslator] No construction for either surface 'Surface 6', and 'Surface 7'
+[11:27:56.298966 ERROR] [openstudio.energyplus.ForwardTranslator] No construction for either surface 'Surface 1', and 'Surface 23'
+[11:27:56.313268 ERROR] [openstudio.model.YearDescription] 'UseWeatherFile' is selected in YearDescription, but there are no weather file set for the model.
+[11:27:56.313311 ERROR] [openstudio.model.YearDescription] 'UseWeatherFile' is selected in YearDescription, but there are no weather file set for the model.
+[11:27:56.578851 WARN] [openstudio.workflow.OSWorkflow] EnergyPlus returned a non-zero exit code (1). Check the stdout-energyplus log
+[11:27:56.580723 FATAL] [openstudio.workflow.OSWorkflow] EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.
+[11:27:56.580764 ERROR] [openstudio.workflow.OSWorkflow] Found error in state 'EnergyPlus' with message: '/srv/jenkins/openstudio/git/nightly/ubuntu_2404/Openstudio/src/workflow/RunEnergyPlus.cpp@310 : EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'

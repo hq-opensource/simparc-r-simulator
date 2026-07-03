@@ -1,0 +1,19 @@
+[project]
+name = "openstudiocli-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dask[complete]>=2025.5.1",
+    "ipykernel>=6.29.5",
+    "joblib==1.5.2",
+    "pandas>=2.2.3",
+    "plotly>=6.6.0",
+    "pyarrow>=20.0.0",
+    "ruamel-yaml>=0.18.16",
+    "scipy>=1.16.3",
+    "statsmodels>=0.14.6",
+    "tqdm>=4.67.1",
+    "yamale>=6.1.0",
+]
