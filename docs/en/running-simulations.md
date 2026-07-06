@@ -6,12 +6,6 @@
 uv run local.py project.yaml
 ```
 
-## Run post-processing only
-
-```bash
-uv run local.py project.yaml --postprocessonly
-```
-
 ## What happens during a run
 
 1. The YAML config is loaded and validated.

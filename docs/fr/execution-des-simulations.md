@@ -6,12 +6,6 @@
 uv run local.py project.yaml
 ```
 
-## Lancer seulement le post-traitement
-
-```bash
-uv run local.py project.yaml --postprocessonly
-```
-
 ## Ce qui se passe pendant l'execution
 
 1. La configuration YAML est chargee et validee.

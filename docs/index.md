@@ -4,6 +4,8 @@ Welcome / Bienvenue.
 
 This documentation is available in both English and French.
 
+Cette documentation est disponible en anglais et français.
+
 - English documentation: start with [Overview](en/overview.md)
 - Documentation francaise: commencer par [Apercu](fr/apercu.md)
 
