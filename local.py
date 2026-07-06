@@ -2,6 +2,7 @@
 import pandas as pd
 import argparse, yamale, gzip, json, sys
 import time, subprocess
+import os
 from fsspec.implementations.local import LocalFileSystem
 from datetime import timedelta
 from joblib import Parallel, delayed, parallel_config
@@ -100,7 +101,15 @@ class LocalBatch(BuildStockBatchBase):
                 if container_aware:
                     subprocess.run(["openstudio", "run", "-w", building_dir / "in.osw"],**subprocess_kw) # with devcontainer
                 else:
-                    subprocess.run([os.environ["OPENSTUDIO_EXE"], "run", "-w", building_dir / "in.osw"],**subprocess_kw) # with OpenStudio SDK configured as env var
+                    openstudio_exe = os.environ.get("OPENSTUDIO_EXE", "").strip().strip('"')
+                    if not openstudio_exe:
+                        openstudio_exe = shutil.which("openstudio")
+                    if not openstudio_exe:
+                        raise EnvironmentError(
+                            "OPENSTUDIO_EXE is not defined and 'openstudio' is not available in PATH. "
+                            "Set OPENSTUDIO_EXE (absolute path to openstudio executable) or add OpenStudio bin to PATH."
+                        )
+                    subprocess.run([openstudio_exe, "run", "-w", building_dir / "in.osw"],**subprocess_kw) # with OpenStudio SDK configured as env var or PATH
             except subprocess.TimeoutExpired as e:
                 print(str(building_dir))
                 print(str(e))

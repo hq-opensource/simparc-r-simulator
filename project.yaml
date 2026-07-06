@@ -1,6 +1,6 @@
 SCHEMA_VERSION : "0.1"
 
-SAMPLE_FILE : test-building-stock-csv/building-test-hp.csv
+SAMPLE_FILE : test-building-stock-csv/building-stock-example.csv
 
 HPXML_SCHEMA_FILE : measures/BuildResidentialHPXML/measure.xml
 
