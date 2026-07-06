@@ -1,0 +1,39 @@
+site_name: SimParc-R Simulator Documentation
+site_description: Bilingual documentation for the SimParc-R residential stock simulator
+site_url: https://hq-opensource.github.io/simparc-r-simulator/
+repo_url: https://github.com/hq-opensource/simparc-r-simulator
+repo_name: hq-opensource/simparc-r-simulator
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - English:
+      - Overview: en/overview.md
+      - Installation: en/installation.md
+      - Configuration: en/configuration.md
+      - Running Simulations: en/running-simulations.md
+      - Results and Outputs: en/results.md
+  - Francais:
+      - Apercu: fr/apercu.md
+      - Installation: fr/installation.md
+      - Configuration: fr/configuration.md
+      - Execution des simulations: fr/execution-des-simulations.md
+      - Resultats et sorties: fr/resultats.md
