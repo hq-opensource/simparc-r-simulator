@@ -1,5 +1,9 @@
 # SimParc-R Documentation
 
+<p align="center">
+	<img src="figures/logo.png" alt="SimParc-R logo" width="180">
+</p>
+
 Welcome / Bienvenue.
 
 This documentation is available in both English and French.
