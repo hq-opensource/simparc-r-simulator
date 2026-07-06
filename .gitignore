@@ -20,3 +20,6 @@ openstudio-3.9.0
 
 # Ignore devcontainer internal files
 .devcontainer/internal
+
+# ignore the folder "site"
+site

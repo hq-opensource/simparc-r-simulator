@@ -6,6 +6,7 @@ repo_name: hq-opensource/simparc-r-simulator
 
 theme:
   name: material
+  logo: figures/logo.png
   features:
     - navigation.sections
     - navigation.top
