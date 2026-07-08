@@ -1,6 +1,12 @@
 # SimParc-R Simulator
 
-Français en premier. English is following.
+<p align="center">
+	<img src="docs/figures/logo.png" alt="SimParc-R logo" width="180">
+</p>
+
+La première section est en français et la documentation complète est [ici](https://hq-opensource.github.io/simparc-r-simulator/).  
+  
+English is following and full documentation is [here](https://hq-opensource.github.io/simparc-r-simulator/).
 
 ## Français
 
