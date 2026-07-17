@@ -192,6 +192,19 @@ Le fichier CSV listant les bâtiments du parc à simuler peut être préparé gr
 
 Voir `LICENSE`.
 
+### Remerciements et logiciels sous-jacents
+
+Cet outil s'appuie sur les projets open source ResStock et BuildStockBatch développés par
+l'Alliance for Energy Innovation, LLC.
+
+Ces 2 outils sont distribués sous leurs propres licences dont des copies sont disponibles dans le répertoire [ici](third_party_licenses). Vous pouvez également consulter les dépôts officiels et les conditions de licence dans les dépôts GitHub suivants:
+
+- https://github.com/NatLabRockies/resstock
+- https://github.com/NatLabRockies/buildstockbatch
+
+Ce projet n'est pas affilié, approuvé ou endossé par les auteurs de
+ResStock et BuildStockBatch.
+
 ---
 
 ## English
@@ -377,4 +390,17 @@ The CSV file listing the buildings in the stock to simulate can be prepared usin
 ### License
 
 See `LICENSE`.
+ 
+### Acknowledgements and Underlying Software
+
+This tool relies on the open-source ResStock and BuildStockBatch projects developed by
+Alliance for Energy Innovation, LLC.
+
+These two tools are distributed under their own licenses, copies of which are available in the [third_party_licenses](third_party_licenses) directory. You can also consult the official repositories and license terms in the following GitHub repositories:
+
+- https://github.com/NatLabRockies/resstock
+- https://github.com/NatLabRockies/buildstockbatch
+
+This project is not affiliated with, approved by, or endorsed by the authors of
+ResStock and BuildStockBatch.
   
