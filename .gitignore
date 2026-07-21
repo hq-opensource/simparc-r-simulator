@@ -26,3 +26,6 @@ site
 
 # ignore uv.lock
 uv.lock
+
+# HVAC analysis outputs
+hvac_heating_summary.json
