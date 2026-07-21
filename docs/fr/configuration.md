@@ -1,27 +1,27 @@
 # Configuration
 
-Le comportement du simulateur est pilote par `project.yaml`.
+Le comportement du simulateur est piloté par `project.yaml`.
 
-## Parametres importants
+## Paramètres importants
 
-- `SCHEMA_VERSION`: version du schema pour la validation YAML.
-- `SAMPLE_FILE`: fichier CSV d'entree listant les batiments a simuler.
-- `HPXML_SCHEMA_FILE`: source XML utilisee pour extraire les contraintes d'arguments.
-- `N_JOBS`: nombre de workers paralleles.
+- `SCHEMA_VERSION`: version du schéma pour la validation YAML.
+- `SAMPLE_FILE`: fichier CSV d'entrée listant les bâtiments à simuler.
+- `HPXML_SCHEMA_FILE`: source XML utilisée pour extraire les contraintes d'arguments.
+- `N_JOBS`: nombre de workers parallèles.
 - `SIMULATION_TIMESTEP`, `SIMULATION_YEAR`, `SIMULATION_RUN_PERIOD`.
-- `WEATHER_FILE_TYPE`: mode de correspondance meteo (`AMY`, `CWEC`, `PCIC`).
-- `BATCH_MODE`: controle le post-traitement et le nettoyage immediats.
+- `WEATHER_FILE_TYPE`: mode de correspondance météo (`AMY`, `CWEC`, `PCIC`).
+- `BATCH_MODE`: contrôle le post-traitement et le nettoyage immédiats.
 
-## Scenarios de mesures
+## Scénarios de mesures
 
-`UPGRADES_SETTINGS` permet de definir des ensembles nommes avec:
+`UPGRADES_SETTINGS` permet de définir des ensembles nommés avec:
 
 - des `Filters` avec logique `all`, `any`, `not`;
 - un `Adoption rate`;
-- une ou plusieurs `Upgrades` parametrees.
+- une ou plusieurs `Upgrades` paramétrées.
 
-## Verification avant lancement
+## Vérification avant lancement
 
-1. Verifier que `project.yaml` pointe vers le bon CSV d'entree.
-2. Verifier la disponibilite de l'executable OpenStudio.
-3. Verifier la presence des fichiers meteo et de leur correspondance.
+1. Vérifier que `project.yaml` pointe vers le bon CSV d'entrée.
+2. Vérifier la disponibilité de l'exécutable OpenStudio.
+3. Vérifier la présence des fichiers météo et de leur correspondance.
