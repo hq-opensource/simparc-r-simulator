@@ -34,3 +34,6 @@ hvac_heating_prism.html
 hvac_heating_timeseries.png
 hvac_heating_prism.png
 Users/
+
+# Local backup spec file
+backup_SPEC.md
