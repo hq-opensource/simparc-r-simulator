@@ -147,12 +147,11 @@ class LocalBatch(BuildStockBatchBase):
         data, list_columns_hpxml = preprocess_data_types(data, self.cfg["ARGS_CONSTRAINTS"])
 
         # Apply upgrades
-        # data_upgrades = apply_upgrades(self,data)  # Apply upgrades to the building data
+        data_upgrades = apply_upgrades(self,data)  # Apply upgrades to the building data
 
         # Preprocess the data to get a dictionary
         dp_list = preprocess_data_to_dict(data, self.cfg["ARGS_CONSTRAINTS"], list_columns_hpxml)
-        # data_upgrades_dict = preprocess_data_to_dict(data_upgrades, self.cfg["ARGS_CONSTRAINTS"], list_columns_hpxml)
-        data_upgrades_dict = None
+        data_upgrades_dict = preprocess_data_to_dict(data_upgrades, self.cfg["ARGS_CONSTRAINTS"], list_columns_hpxml)
         
         # Create a new folder named 'results' in current_dir
         results_dir = os.path.join(self.cfg["CURRENT_PATH"], self.cfg["RESULTS_PATH"])
