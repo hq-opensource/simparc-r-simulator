@@ -18,6 +18,7 @@ WEATHER_FILE_TYPE : "AMY" # Options: "AMY" for actual weather files (2022-2023) 
 ADD_COMPONENT_LOADS : False # If true, adds the calculation of heating/cooling component loads (not enabled by default for faster performance).
 SKIP_VALIDATION : False # If true, skips the validation of the HPXML file for faster performance.
 DEBUG_MODE : False # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
+HEATING_CASCADE_ENABLED : False # If true, dispatches the two heating systems as a base-load/peaking cascade (system 1 = primary, system 2 = auxiliary) by overriding sequential heating fraction schedules to 1.0 after sizing. If false, stock proportional dispatch is used.
 BATCH_MODE : True
 INCLUDE_ANNUAL_TOTAL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_FUEL_CONSUMPTIONS : True
