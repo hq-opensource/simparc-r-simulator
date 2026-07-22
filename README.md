@@ -6,7 +6,7 @@
 
 La première section est en français et la documentation complète est [ici](https://hq-opensource.github.io/simparc-r-simulator/).  
   
-English is following and full documentation is [here](https://hq-opensource.github.io/simparc-r-simulator/).
+English is following [here](#english) and full documentation is [here](https://hq-opensource.github.io/simparc-r-simulator/).
 
 ## Français
 
@@ -211,7 +211,7 @@ ResStock et BuildStockBatch.
 
 ---
 
-## English
+## English {#english}
 
 ### Overview
 
