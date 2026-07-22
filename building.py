@@ -266,6 +266,18 @@ class Building:
             }}
         self.osw_content['steps'].append(step4)
 
+        # Step 4b - SetSequentialHeatingCascade (optional) - override sequential
+        # heating fraction schedules to 1.0 so heating is dispatched as a
+        # base-load/peaking cascade (system 1 = primary, system 2 = auxiliary).
+        # Runs after HPXMLtoOpenStudio (post-sizing) and before ReportSimulationOutput.
+        if self.cfg.get("HEATING_CASCADE_ENABLED", False):
+            step4b = {
+                'measure_dir_name': 'SetSequentialHeatingCascade',
+                'arguments': {
+                    "enabled": True
+                }}
+            self.osw_content['steps'].append(step4b)
+
         # Step 5 - ReportSimulationOutput
         step5 = {
             'measure_dir_name': 'ReportSimulationOutput',

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<measure>
+  <schema_version>3.1</schema_version>
+  <name>set_sequential_heating_cascade</name>
+  <uid>b7e3c1a2-6f4d-4c9e-9a1b-2d5e8f0c3a41</uid>
+  <version_id>5cf4800f-f754-4a8e-9f96-2efc8aa88393</version_id>
+  <version_modified>2026-07-17T21:35:02Z</version_modified>
+  <xml_checksum>A94076E7</xml_checksum>
+  <class_name>SetSequentialHeatingCascade</class_name>
+  <display_name>Set Sequential Heating Cascade</display_name>
+  <description>Overrides the sequential heating fraction schedules of the heating equipment to 1.0 so that heating is dispatched as a base-load + peaking capacity cascade (system 1 = primary/base-load served first, system 2 = auxiliary/peaking served second). Sizing (capacity split) is left untouched.</description>
+  <modeler_description>Runs after HPXMLtoOpenStudio (post-sizing). For every zone heating equipment that already has a sequential heating fraction schedule, replaces that schedule with a constant 1.0 schedule. Because the zone uses SequentialLoad distribution, the equipment in heating sequence 1 (system 1) then takes all the load it can up to its sized capacity (plateau) and the equipment in heating sequence 2 (system 2) picks up the residual, producing an emergent change point without modifying capacities, the HPXML schema, or using EMS.</modeler_description>
+  <arguments>
+    <argument>
+      <name>enabled</name>
+      <display_name>Enable Heating Cascade</display_name>
+      <description>If true, overrides sequential heating fraction schedules to 1.0 to produce the base-load/peaking cascade. If false, the measure does nothing (stock behavior is preserved).</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>true</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+  </arguments>
+  <outputs />
+  <provenances />
+  <tags>
+    <tag>HVAC.HVAC Controls</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Measure Type</name>
+      <value>ModelMeasure</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>OpenStudio Application</value>
+      <datatype>string</datatype>
+    </attribute>
+  </attributes>
+  <files>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>3.9.0</identifier>
+        <min_compatible>3.9.0</min_compatible>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>810EF5D2</checksum>
+    </file>
+  </files>
+</measure>

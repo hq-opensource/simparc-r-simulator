@@ -152,7 +152,7 @@ class LocalBatch(BuildStockBatchBase):
         # Preprocess the data to get a dictionary
         dp_list = preprocess_data_to_dict(data, self.cfg["ARGS_CONSTRAINTS"], list_columns_hpxml)
         data_upgrades_dict = preprocess_data_to_dict(data_upgrades, self.cfg["ARGS_CONSTRAINTS"], list_columns_hpxml)
-
+        
         # Create a new folder named 'results' in current_dir
         results_dir = os.path.join(self.cfg["CURRENT_PATH"], self.cfg["RESULTS_PATH"])
         if not os.path.exists(results_dir):
