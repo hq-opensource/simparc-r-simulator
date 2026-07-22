@@ -211,7 +211,7 @@ ResStock et BuildStockBatch.
 
 ---
 
-## English {#english}
+## English
 
 ### Overview
 
