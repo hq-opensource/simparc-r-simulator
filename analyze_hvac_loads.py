@@ -7,6 +7,7 @@ and extracts heating variables for electricity and natural gas.
 """
 
 import os
+import math
 import pandas as pd
 import json
 import numpy as np
@@ -15,6 +16,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+
+
+DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "generated" / "hvac_analysis"
 
 
 def load_metadata(results_dir: str = "results") -> pd.DataFrame:
@@ -163,6 +167,15 @@ def extract_annual_heating_from_metadata(metadata: pd.DataFrame) -> pd.DataFrame
     return result
 
 
+def _subplot_grid(n_plots: int, max_cols: int = 3) -> tuple[int, int]:
+    """
+    Compute a compact subplot grid for n_plots.
+    """
+    cols = min(max_cols, max(1, n_plots))
+    rows = math.ceil(n_plots / cols)
+    return rows, cols
+
+
 def plot_heating_timeseries(timeseries: pd.DataFrame, output_file: str = "hvac_heating_timeseries.png"):
     """
     Plot electricity and natural gas heating timeseries for each building.
@@ -182,9 +195,13 @@ def plot_heating_timeseries(timeseries: pd.DataFrame, output_file: str = "hvac_h
     building_ids = sorted(timeseries["building_id"].unique())
     n = len(building_ids)
 
-    fig, axes = plt.subplots(n, 1, figsize=(14, 4 * n), sharex=False)
-    if n == 1:
-        axes = [axes]
+    if n == 0:
+        print("No buildings found in timeseries; skipping timeseries plot")
+        return
+
+    rows, cols = _subplot_grid(n)
+    fig, axes = plt.subplots(rows, cols, figsize=(7 * cols, 3.8 * rows), sharex=False)
+    axes = np.array(axes).reshape(-1)
 
     legend_handles = []
     if elec_col:
@@ -193,7 +210,8 @@ def plot_heating_timeseries(timeseries: pd.DataFrame, output_file: str = "hvac_h
         legend_handles.append(mlines.Line2D([], [], color="firebrick", linewidth=1, label="Natural Gas Heating (kWh)"))
 
     kbtu_to_kwh = 0.293071
-    for ax, bid in zip(axes, building_ids):
+    for i, bid in enumerate(building_ids):
+        ax = axes[i]
         df = timeseries[timeseries["building_id"] == bid].sort_values(time_col or timeseries.columns[0])
         x = df[time_col] if time_col else df.index
 
@@ -205,6 +223,9 @@ def plot_heating_timeseries(timeseries: pd.DataFrame, output_file: str = "hvac_h
         ax.set_title(f"Building {bid}")
         ax.set_ylabel("Energy (kWh)")
         ax.tick_params(axis="x", rotation=30)
+
+    for ax in axes[n:]:
+        ax.set_visible(False)
 
     if legend_handles:
         fig.legend(handles=legend_handles, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.0))
@@ -312,9 +333,13 @@ def plot_prism_heating_signature(timeseries: pd.DataFrame, output_file: str = "h
     building_ids = sorted(working["building_id"].unique())
     n = len(building_ids)
 
-    fig, axes = plt.subplots(n, 1, figsize=(10, 5 * n))
-    if n == 1:
-        axes = [axes]
+    if n == 0:
+        print("No buildings found in timeseries; skipping PRISM plot")
+        return
+
+    rows, cols = _subplot_grid(n)
+    fig, axes = plt.subplots(rows, cols, figsize=(6.2 * cols, 4.8 * rows))
+    axes = np.array(axes).reshape(-1)
 
     legend_handles = [
         mlines.Line2D([], [], color="royalblue", marker="o", markersize=4, linestyle="None", alpha=0.6, label="Electricity Heating"),
@@ -323,7 +348,8 @@ def plot_prism_heating_signature(timeseries: pd.DataFrame, output_file: str = "h
         mlines.Line2D([], [], color="black", linewidth=2, label="PRISM fit"),
     ]
 
-    for ax, bid in zip(axes, building_ids):
+    for i, bid in enumerate(building_ids):
+        ax = axes[i]
         bdf = working[working["building_id"] == bid]
 
         daily = (
@@ -353,7 +379,11 @@ def plot_prism_heating_signature(timeseries: pd.DataFrame, output_file: str = "h
         ax.set_title(f"Building {bid}")
         ax.set_ylabel("Daily Heating Energy (kWh)")
 
-    axes[-1].set_xlabel("Outdoor Drybulb Temperature (°C)")
+    for i in range(n):
+        axes[i].set_xlabel("Outdoor Drybulb Temperature (°C)")
+
+    for ax in axes[n:]:
+        ax.set_visible(False)
 
     fig.legend(handles=legend_handles, loc="upper center", ncol=4, bbox_to_anchor=(0.5, 1.0))
     fig.suptitle("PRISM-style HVAC Heating Signature (Energy vs Outdoor Temperature)", y=1.02, fontsize=13)
@@ -415,13 +445,13 @@ def save_heating_summary(heating_vars: dict, output_file: str = "hvac_heating_su
     print(f"\nHeating summary saved to: {output_file}")
 
 
-def main(results_dir: str = "results", output_dir: str = "/workspace/Users/DM9316/Downloads"):
+def main(results_dir: str = "results", output_dir: str = str(DEFAULT_OUTPUT_DIR)):
     """
     Main function to analyze HVAC heating loads.
 
     Args:
         results_dir: Path to results directory
-        output_dir: Directory where PNG figures are saved (outside the repo by default)
+        output_dir: Directory where generated HVAC analysis artifacts are saved
     """
     output_dir = os.path.expanduser(output_dir)
     os.makedirs(output_dir, exist_ok=True)
@@ -447,7 +477,7 @@ def main(results_dir: str = "results", output_dir: str = "/workspace/Users/DM931
 
     # Print and save hourly summary
     print_heating_summary(heating_vars)
-    save_heating_summary(heating_vars)
+    save_heating_summary(heating_vars, output_file=os.path.join(output_dir, "hvac_heating_summary.json"))
 
     # Extract and print annual heating totals from metadata
     if not metadata.empty:
@@ -468,5 +498,5 @@ if __name__ == "__main__":
     import sys
 
     results_dir = sys.argv[1] if len(sys.argv) > 1 else "results"
-    output_dir = sys.argv[2] if len(sys.argv) > 2 else "/workspace/Users/DM9316/Downloads"
+    output_dir = sys.argv[2] if len(sys.argv) > 2 else str(DEFAULT_OUTPUT_DIR)
     main(results_dir, output_dir)

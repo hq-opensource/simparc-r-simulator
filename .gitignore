@@ -28,11 +28,7 @@ site
 uv.lock
 
 # HVAC analysis outputs
-hvac_heating_summary.json
-hvac_heating_timeseries.html
-hvac_heating_prism.html
-hvac_heating_timeseries.png
-hvac_heating_prism.png
+generated/hvac_analysis/
 Users/
 
 # Local backup spec file

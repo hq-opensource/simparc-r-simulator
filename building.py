@@ -37,6 +37,23 @@ class Building:
         self.cfg = cfg
         self.prof_gen = profile_generator(cfg)
 
+    @staticmethod
+    def _parse_bool(value, default=False):
+        """Parse common boolean representations from CSV/non-HPXML inputs."""
+        if value is None:
+            return default
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"true", "1", "yes", "y", "on"}:
+                return True
+            if normalized in {"false", "0", "no", "n", "off", ""}:
+                return False
+        return default
+
     def generate_stochastic_profile(self, building_dir: str):
         """
         Generate stochastic profiles based on the building's HPXML arguments.
@@ -270,7 +287,7 @@ class Building:
         # heating fraction schedules to 1.0 so heating is dispatched as a
         # base-load/peaking cascade (system 1 = primary, system 2 = auxiliary).
         # Runs after HPXMLtoOpenStudio (post-sizing) and before ReportSimulationOutput.
-        if self.cfg.get("HEATING_CASCADE_ENABLED", False):
+        if self._parse_bool(self.non_hpxml_args.get("staged_backup_mode"), default=False):
             step4b = {
                 'measure_dir_name': 'SetSequentialHeatingCascade',
                 'arguments': {
