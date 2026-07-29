@@ -23,6 +23,3 @@ openstudio-3.9.0
 
 # ignore the folder "site"
 site
-
-# ignore uv.lock
-uv.lock

@@ -341,7 +341,7 @@ class TChauffePiscine(MasterEquipment):
                 else :
                     FU = self.PuissanceDaily.data[k] / (dbElecPower * self.HOURPERDAY)
                     NbHour = int(round(FU * 24))
-                    arProfilT = self.dfMeteo.loc[ts.strftime("%Y-%m-%d"),'Text'].resample('1H').mean().values
+                    arProfilT = self.dfMeteo.loc[ts.strftime("%Y-%m-%d"),'Text'].resample('h').mean().values
                     arProfilDTNorm =  (self.diTsetMois[ts.month] - arProfilT) / np.max((self.diTsetMois[ts.month] - arProfilT ))
                     arProfilDTNorm = np.where(arProfilDTNorm > 0, arProfilDTNorm, 0)
                     arProfilDTNorm = arProfilDTNorm * np.random.rand(24)

@@ -98,7 +98,7 @@ class MeteoEPW(object):
         self.weather_data = pd.DataFrame(data_rows, columns=epw_columns)
         
         # Create datetime index
-        timestamps = pd.date_range(start=self.DateDebut, periods=len(self.weather_data), freq='H')
+        timestamps = pd.date_range(start=self.DateDebut, periods=len(self.weather_data), freq='h')
         # timestamps = []
         # for _, row in self.weather_data.iterrows():
         #     try:
