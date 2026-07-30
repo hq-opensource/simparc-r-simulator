@@ -83,7 +83,7 @@ def write_dataframe_as_parquet(df, fs, filename, schema=None):
         parquet.write_table(tbl, f)
 
 # Define the postprocessing function
-def postprocess_results(path):
+def postprocess_results(path, cfg=None):
     """
     This function is used to post-process the results of the simulation
     For now, it processes simulation status and error messages for each building.
@@ -135,11 +135,13 @@ def postprocess_results(path):
                                     for col in dfTimeseries.columns.values]
             
             # Calculate quantities of interest from timeseries data
-            try:
-                dict_quantites_interet = Quantite_interet(dfTimeseries)
-                i.update(dict_quantites_interet)
-            except Exception as e:
-                print(f"Warning: Failed to calculate quantities of interest for building {i['building_id']}: {e}")
+            if cfg is None or cfg.get("INCLUDE_KPI", True):
+                try:
+                    kpi_settings = cfg.get("KPI_SETTING", {}) if cfg else {}
+                    dict_quantites_interet = Quantite_interet(dfTimeseries, kpi_settings=kpi_settings)
+                    i.update(dict_quantites_interet)
+                except Exception as e:
+                    print(f"Warning: Failed to calculate quantities of interest for building {i['building_id']}: {e}")
             
             dfTimeseries['building_id'] = i['building_id']
             tableTimeseries = pa.Table.from_pandas(dfTimeseries)
@@ -148,8 +150,30 @@ def postprocess_results(path):
                                 partition_cols=['building_id'],
                                 existing_data_behavior='delete_matching')
         # Convert the dictionary to a pandas DataFrame and save it as a parquet file
+        # Serialize dict/list KPI values (e.g. Profil, Conso_mensuelle) to JSON strings
+        # before creating the DataFrame so all partitions share the same string type.
+        for k, v in i.items():
+            if isinstance(v, (dict, list)):
+                i[k] = json.dumps(v)
         dfMetadata = pd.DataFrame([i])
         dfMetadata[columns_to_be_str] = dfMetadata[columns_to_be_str].astype(str)
+        # KPI names whose calculator returns str or dict (serialized to JSON string).
+        # When these KPIs return None for a building, the column must stay object (string)
+        # dtype — NOT float64 — to avoid schema conflicts across partitions.
+        _NON_NUMERIC_KPI_NAMES = {"Profil", "Conso_mensuelle", "Variation_saisonniere", "Type_PRISM"}
+        for col in dfMetadata.columns:
+            if col not in columns_to_be_str:
+                kpi_name = col.split("__")[0] if "__" in col else ""
+                if kpi_name in _NON_NUMERIC_KPI_NAMES:
+                    # Use StringDtype so PyArrow always writes large_string (never null type),
+                    # preventing schema conflicts across partitions when the value is None.
+                    dfMetadata[col] = dfMetadata[col].astype(pd.StringDtype())
+                else:
+                    converted = pd.to_numeric(dfMetadata[col], errors="coerce")
+                    if not converted.isna().all() or dfMetadata[col].isna().all():
+                        dfMetadata[col] = converted
+                    if dfMetadata[col].isna().all():
+                        dfMetadata[col] = dfMetadata[col].astype("float64")
         tableMetadata = pa.Table.from_pandas(dfMetadata)
         pq.write_to_dataset(tableMetadata,
                             root_path=os.path.join(str(Path(path).parent), 'metadata.parquet'),

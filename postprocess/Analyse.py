@@ -1,398 +1,331 @@
-from postprocess.prism import Prism
-import time
-import pandas as pd
-
-import sys
 import warnings
+import pandas as pd
+from postprocess.kpi import ParametricKPICalculator
 
-warnings.simplefilter('ignore')
+warnings.simplefilter("ignore")
 
-class Quantite_interet_description():
-    dict_description = {
-        "Conso_annuelle_electricite" : {"Description": "La consommation annuelle d’électricité",
-                                        "Unité": "kWh"},
-        "Conso_annuelle_gaz" : {"Description": "La consommation annuelle de gaz",
-                                "Unité": "kWh ou m³"},
-        "Conso_annuelle_mazout" : {"Description": "La consommation annuelle de mazout",
-                                   "Unité": "kWh ou m³"},
-        "Conso_annuelle_bois_granules" : {"Description": "La consommation annuelle de bois ou granules",
-                                          "Unité": "kWh"},
-        "Conso_base_electricite" : {"Description": "La consommation électrique de base journalière (journées où la température moyenne journalière est entre 8 et 15°C)",
-                                    "Unité": "kWh/jour"},
-        "Pente_chauffage_electricite" : {"Description": "La pente de chauffage (électricité) (journées où la température moyenne journalière est ≤ 8°C) (profil électrique)",
-                                         "Unité": "W/K"},
-        "Pente_climatisation_electricite" : {"Description": "La pente de climatisation (électricité) (journées où la température moyenne journalière est ≥ 15°C) (profil électrique) ",
-                                             "Unité": "W/K"},
-        "Pente_chauffage_gaz" : {"Description": "La pente de chauffage (gaz – si des données mensuelles sont disponibles)",
-                                 "Unité": "W/K"},
-        "Pointe_hiver_am" : {"Description": "La pointe électrique d’hiver du matin, soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≤ 8°C;",
-                             "Unité": "kW"},
-        "Pointe_h_hiver_am" : {"Description": "L’heure de la pointe électrique d’hiver du matin (valeur entière entre 0 et 11, inclusivement) – à évaluer par rapport au profil moyen d’hiver;",
-                               "Unité": "h"},
-        "Pointe_hiver_pm" : {"Description": "La pointe électrique d’hiver du soir, soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≤ 8°C",
-                             "Unité": "kW"},
-        "Pointe_h_hiver_pm" : {"Description": "L’heure de la pointe électrique d’hiver du soir (valeur entière entre 12 et 23, inclusivement) – à évaluer par rapport au profil moyen d’hiver",
-                               "Unité": "h"},
-        "Pointe_ete_am" : {"Description": "La pointe électrique d’été du matin, soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≥ 15°C)",
-                           "Unité": "kW"},
-        "Pointe_h_ete_am" : {"Description": "L’heure de la pointe électrique d’été du matin (valeur entière entre 0 et 11, inclusivement) – à évaluer par rapport au profil moyen d’été", 
-                             "Unité": "h"},
-        "Pointe_ete_pm" : {"Description": "La pointe électrique d’été du soir, soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≥ 15°C)",
-                           "Unité": "kW"},
-        "Pointe_h_ete_pm" : {"Description": "L’heure de la pointe électrique d’été du soir (valeur entière entre 12 et 23, inclusivement) – à évaluer par rapport au profil moyen d’été",
-                             "Unité": "h"},
-        "EcartType_Quotidien_hiver" : {"Description": "L’écart-type journalier moyen de la consommation électrique durant les journées d’hiver où la température moyenne journalière est ≤ 8°C (idéalement pour des pas de temps de maximum 1h)",
-                                       "Unité": "kWh"},
-        "EcartType_Quotidien_ete" : {"Description": "L’écart-type journalier moyen de la consommation électrique durant les journées d’été où la température moyenne journalière est ≥ 15°C (idéalement pour des pas de temps de maximum 1h)",
-                                     "Unité": "kWh"},
-        "EcartType_Quotidien_misaison" : {"Description": "L’écart-type journalier moyen de la consommation électrique durant les journées de misaison où la température moyenne journalière est entre 8 et 15°C (idéalement pour des pas de temps de maximum 1h)",
-                                          "Unité": "kWh"},
-        "FU_Quotidien_hiver" : {"Description": "Le facteur d’utilisation en période hivernale où la température moyenne journalière est ≤ 8°C. Le facteur d’utilisation est le rapport entre la consommation électrique moyenne d’un pas de temps et la consommation électrique maximale d’un pas de temps. Idéalement, le pas de temps est de maximum 1h.",
-                                "Unité": "-"},
-        "FU_Quotidien_ete" : {"Description": "Le facteur d’utilisation en période estivale où la température moyenne journalière est ≥ 15°C",
-                              "Unité": "-"},
-        "FU_Quotidien_misaison" : {"Description": "Le facteur d’utilisation durant la mi-saison où la température moyenne journalière est entre 8 et 15°C",
-                                   "Unité": "-"},
-        "RatioJN_Quotidien_hiver" : {"Description": "Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant les journées d’hiver où la température moyenne journalière est ≤ 8°C",
-                                     "Unité": "-"},
-        "RatioJN_Quotidien_ete" : {"Description": "Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant les journées d’été où la température moyenne journalière est ≥ 15°C",
-                                   "Unité": "-"},
-        "RatioJN_Quotidien_misaison" : {"Description": "Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant la misaison où la température moyenne journalière est entre 8 et 15°C",
-                                        "Unité": "-"},
+_KBTU_TO_KWH = 0.293071
+
+# ---------------------------------------------------------------------------
+# Mapping des colonnes brutes (CSV timeseries apres jointure multi-header dans
+# postprocessing.py) vers les noms canoniques utilises par ParametricKPICalculator.
+# Source: loaders/loader_simparc.py (SIMPARC_CONFIG["column_mapping"])
+# ---------------------------------------------------------------------------
+_COLUMN_MAPPING = {
+    "Time":                                                             "dateinterval",
+    "TimeUTC":                                                          "dateinterval_utc",
+    "Weather: Drybulb Temperature_F":                                   "temperatureatmospherique",
+    "Energy Use: Total_kBtu":                                           "Energy Use Total",
+    "Energy Use: Net_kBtu":                                             "Energy Use Net",
+    "Fuel Use: Electricity: Total_kWh":                                 "Fuel Use Electricity Total",
+    "Fuel Use: Electricity: Net_kWh":                                   "Fuel Use Electricity Net",
+    "Fuel Use: Natural Gas: Total_kBtu":                                "Fuel Use Natural Gas Total",
+    "Fuel Use: Natural Gas: Net_kBtu":                                  "Fuel Use Natural Gas Net",
+    "Fuel Use: Fuel Oil: Total_kBtu":                                   "Fuel Use Fuel Oil Total",
+    "Fuel Use: Fuel Oil: Net_kBtu":                                     "Fuel Use Fuel Oil Net",
+    "Fuel Use: Propane: Total_kBtu":                                    "Fuel Use Propane Total",
+    "Fuel Use: Propane: Net_kBtu":                                      "Fuel Use Propane Net",
+    "Fuel Use: Wood Cord: Total_kBtu":                                  "Fuel Use Wood Cord Total",
+    "Fuel Use: Wood Cord: Net_kBtu":                                    "Fuel Use Wood Cord Net",
+    "Fuel Use: Wood Pellets: Total_kBtu":                               "Fuel Use Wood Pellets Total",
+    "Fuel Use: Wood Pellets: Net_kBtu":                                 "Fuel Use Wood Pellets Net",
+    "Fuel Use: Coal: Total_kBtu":                                       "Fuel Use Coal Total",
+    "Fuel Use: Coal: Net_kBtu":                                         "Fuel Use Coal Net",
+    # End Use electricity (kWh - pas de conversion)
+    "End Use: Electricity: Heating_kWh":                                "End Use Electricity Heating",
+    "End Use: Electricity: Heating Fans/Pumps_kWh":                     "End Use Electricity Heating FansPumps",
+    "End Use: Electricity: Heating Heat Pump Backup_kWh":               "End Use Electricity Heating Heat Pump Backup",
+    "End Use: Electricity: Heating Heat Pump Backup Fans/Pumps_kWh":    "End Use Electricity Heating Heat Pump Backup FansPumps",
+    "End Use: Electricity: Cooling_kWh":                                "End Use Electricity Cooling",
+    "End Use: Electricity: Cooling Fans/Pumps_kWh":                     "End Use Electricity Cooling FansPumps",
+    "End Use: Electricity: Hot Water_kWh":                              "End Use Electricity Hot Water",
+    "End Use: Electricity: Lighting Interior_kWh":                      "End Use Electricity Lighting Interior",
+    "End Use: Electricity: Lighting Exterior_kWh":                      "End Use Electricity Lighting Exterior",
+    "End Use: Electricity: Mech Vent_kWh":                              "End Use Electricity Mech Vent",
+    "End Use: Electricity: Refrigerator_kWh":                           "End Use Electricity Refrigerator",
+    "End Use: Electricity: Freezer_kWh":                                "End Use Electricity Freezer",
+    "End Use: Electricity: Dishwasher_kWh":                             "End Use Electricity Dishwasher",
+    "End Use: Electricity: Clothes Washer_kWh":                         "End Use Electricity Clothes Washer",
+    "End Use: Electricity: Clothes Dryer_kWh":                          "End Use Electricity Clothes Dryer",
+    "End Use: Electricity: Range/Oven_kWh":                             "End Use Electricity RangeOven",
+    "End Use: Electricity: Ceiling Fan_kWh":                            "End Use Electricity Ceiling Fan",
+    "End Use: Electricity: Television_kWh":                             "End Use Electricity Television",
+    "End Use: Electricity: Plug Loads_kWh":                             "End Use Electricity Plug Loads",
+    "End Use: Electricity: Pool Heater_kWh":                            "End Use Electricity Pool Heater",
+    "End Use: Electricity: Pool Pump_kWh":                              "End Use Electricity Pool Pump",
+    # End Use gaz naturel (kBtu - conversion en kWh)
+    "End Use: Natural Gas: Heating_kBtu":                               "End Use Natural Gas Heating",
+    "End Use: Natural Gas: Heating Heat Pump Backup_kBtu":              "End Use Natural Gas Heating Heat Pump Backup",
+    "End Use: Natural Gas: Hot Water_kBtu":                             "End Use Natural Gas Hot Water",
+    "End Use: Natural Gas: Clothes Dryer_kBtu":                         "End Use Natural Gas Clothes Dryer",
+    "End Use: Natural Gas: Range/Oven_kBtu":                            "End Use Natural Gas RangeOven",
+    "End Use: Natural Gas: Mech Vent Preheating_kBtu":                  "End Use Natural Gas Mech Vent Preheating",
+    "End Use: Natural Gas: Pool Heater_kBtu":                           "End Use Natural Gas Pool Heater",
+    "End Use: Natural Gas: Permanent Spa Heater_kBtu":                  "End Use Natural Gas Permanent Spa Heater",
+    "End Use: Natural Gas: Grill_kBtu":                                 "End Use Natural Gas Grill",
+    "End Use: Natural Gas: Lighting_kBtu":                              "End Use Natural Gas Lighting",
+    "End Use: Natural Gas: Fireplace_kBtu":                             "End Use Natural Gas Fireplace",
+    "End Use: Natural Gas: Generator_kBtu":                             "End Use Natural Gas Generator",
+    # End Use mazout (kBtu)
+    "End Use: Fuel Oil: Heating_kBtu":                                  "End Use Fuel Oil Heating",
+    "End Use: Fuel Oil: Heating Heat Pump Backup_kBtu":                 "End Use Fuel Oil Heating Heat Pump Backup",
+    "End Use: Fuel Oil: Hot Water_kBtu":                                "End Use Fuel Oil Hot Water",
+    "End Use: Fuel Oil: Clothes Dryer_kBtu":                            "End Use Fuel Oil Clothes Dryer",
+    "End Use: Fuel Oil: Range/Oven_kBtu":                               "End Use Fuel Oil RangeOven",
+    # End Use propane (kBtu)
+    "End Use: Propane: Heating_kBtu":                                   "End Use Propane Heating",
+    "End Use: Propane: Heating Heat Pump Backup_kBtu":                  "End Use Propane Heating Heat Pump Backup",
+    "End Use: Propane: Hot Water_kBtu":                                 "End Use Propane Hot Water",
+    "End Use: Propane: Clothes Dryer_kBtu":                             "End Use Propane Clothes Dryer",
+    "End Use: Propane: Range/Oven_kBtu":                                "End Use Propane RangeOven",
+    # End Use bois (kBtu)
+    "End Use: Wood Cord: Heating_kBtu":                                 "End Use Wood Cord Heating",
+    "End Use: Wood Cord: Hot Water_kBtu":                               "End Use Wood Cord Hot Water",
+    "End Use: Wood Pellets: Heating_kBtu":                              "End Use Wood Pellets Heating",
+    "End Use: Wood Pellets: Hot Water_kBtu":                            "End Use Wood Pellets Hot Water",
+}
+
+# Noms canoniques provenant de colonnes kBtu -> necessitent conversion
+_KBTU_CANONICAL = {canon for raw, canon in _COLUMN_MAPPING.items() if raw.endswith("_kBtu")}
+
+
+# ---------------------------------------------------------------------------
+# Helpers pour construire la liste de KPI
+# (miroir de source_kpi_config.py / loaders/source_kpi_config.py)
+# ---------------------------------------------------------------------------
+
+def _prism_kpis(column):
+    return [
+        {"name": "Pente_chauffage", "column": column, "params": {"type_jour": "Tous"}},
+        {"name": "Pente_clim",      "column": column, "params": {"type_jour": "Tous"}},
+        {"name": "Conso_base",      "column": column, "params": {"type_jour": "Tous"}},
+        {"name": "Type_PRISM",      "column": column, "params": {"type_jour": "Tous"}},
+    ]
+
+
+def _profils(column, pas_de_temps="1h"):
+    """Profils standard : Hiver/Ete/Annee x Tous/Semaine/FinDeSemaine."""
+    entries = []
+    for periode in ("Hiver", "Ete", "Annee"):
+        for type_jour in ("Tous", "Semaine", "FinDeSemaine"):
+            entries.append({
+                "name": "Profil",
+                "column": column,
+                "params": {"pas_de_temps": pas_de_temps, "periode": periode, "type_jour": type_jour},
+            })
+    return entries
+
+
+def _all_kpis_for_column(column, with_prism=True, pas_de_temps="1h"):
+    kpis = [
+        {"name": "Conso_annuelle",       "column": column, "params": {}},
+        {"name": "Conso_mensuelle",      "column": column, "params": {}},
+        {"name": "Variation_saisonniere","column": column, "params": {}},
+        *_profils(column, pas_de_temps=pas_de_temps),
+    ]
+    if with_prism:
+        kpis.extend(_prism_kpis(column))
+    return kpis
+
+
+def _kpis_without_profils(column, with_prism=False):
+    kpis = [
+        {"name": "Conso_annuelle",       "column": column, "params": {}},
+        {"name": "Conso_mensuelle",      "column": column, "params": {}},
+        {"name": "Variation_saisonniere","column": column, "params": {}},
+    ]
+    if with_prism:
+        kpis.extend(_prism_kpis(column))
+    return kpis
+
+
+def _end_use_focus_kpis(column, pas_de_temps="1h"):
+    return [
+        {"name": "Conso_annuelle",        "column": column, "params": {}},
+        {"name": "Variation_saisonniere", "column": column, "params": {}},
+        {"name": "Conso_mensuelle",       "column": column, "params": {}},
+        {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Hiver",     "type_jour": "Semaine"}},
+        {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Ete",       "type_jour": "Semaine"}},
+        {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Automne",   "type_jour": "Semaine"}},
+        {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Printemps", "type_jour": "Semaine"}},
+        {"name": "Profil", "column": column, "params": {
+            "pas_de_temps": pas_de_temps,
+            "periode":    "Janvier",
+            "type_jour":  "JourPreconfigure",
+            "jour_regle": "dernier_mercredi_janvier",
+        }},
+    ]
+
+
+_END_USE_COLUMNS = [
+    "End Use Electricity Heating",
+    "End Use Electricity Heating FansPumps",
+    "End Use Electricity Heating Heat Pump Backup",
+    "End Use Electricity Heating Heat Pump Backup FansPumps",
+    "End Use Electricity Cooling",
+    "End Use Electricity Cooling FansPumps",
+    "End Use Electricity Hot Water",
+    "End Use Electricity Lighting Interior",
+    "End Use Electricity Lighting Exterior",
+    "End Use Electricity Mech Vent",
+    "End Use Electricity Refrigerator",
+    "End Use Electricity Freezer",
+    "End Use Electricity Dishwasher",
+    "End Use Electricity Clothes Washer",
+    "End Use Electricity Clothes Dryer",
+    "End Use Electricity RangeOven",
+    "End Use Electricity Ceiling Fan",
+    "End Use Electricity Television",
+    "End Use Electricity Plug Loads",
+    "End Use Electricity Pool Heater",
+    "End Use Electricity Pool Pump",
+    "End Use Natural Gas Heating",
+    "End Use Natural Gas Heating Heat Pump Backup",
+    "End Use Natural Gas Hot Water",
+    "End Use Natural Gas Clothes Dryer",
+    "End Use Natural Gas RangeOven",
+    "End Use Natural Gas Mech Vent Preheating",
+    "End Use Natural Gas Pool Heater",
+    "End Use Natural Gas Permanent Spa Heater",
+    "End Use Natural Gas Grill",
+    "End Use Natural Gas Lighting",
+    "End Use Natural Gas Fireplace",
+    "End Use Natural Gas Generator",
+    "End Use Fuel Oil Heating",
+    "End Use Fuel Oil Heating Heat Pump Backup",
+    "End Use Fuel Oil Hot Water",
+    "End Use Fuel Oil Clothes Dryer",
+    "End Use Fuel Oil RangeOven",
+    "End Use Propane Heating",
+    "End Use Propane Heating Heat Pump Backup",
+    "End Use Propane Hot Water",
+    "End Use Propane Clothes Dryer",
+    "End Use Propane RangeOven",
+    "End Use Wood Cord Heating",
+    "End Use Wood Cord Hot Water",
+    "End Use Wood Pellets Heating",
+    "End Use Wood Pellets Hot Water",
+]
+
+_FUEL_OTHER_COLUMNS = [
+    "Fuel Use Natural Gas Total", "Fuel Use Natural Gas Net",
+    "Fuel Use Fuel Oil Total",    "Fuel Use Fuel Oil Net",
+    "Fuel Use Propane Total",     "Fuel Use Propane Net",
+    "Fuel Use Wood Cord Total",   "Fuel Use Wood Cord Net",
+    "Fuel Use Wood Pellets Total","Fuel Use Wood Pellets Net",
+    "Fuel Use Coal Total",        "Fuel Use Coal Net",
+]
+
+
+def _build_kpi_config(kpi_settings: dict) -> dict:
+    """
+    Construit la configuration KPI a partir des cles de KPI_SETTING:
+      timestep_h        (float)  : pas de temps en heures (defaut 0.25)
+      include_prism     (bool)   : PRISM sur Energy Use Total + Electricity Total
+      include_profils   (bool)   : Profil sur Energy Use Total + Electricity Total
+      include_fuel_totals (bool) : Conso + Mensuelle + Variation sur tous les combustibles
+      include_end_use   (bool)   : KPIs End Use
+    """
+    s = kpi_settings or {}
+    timestep_h       = float(s.get("timestep_h",        0.25))
+    include_prism    = bool(s.get("include_prism",     True))
+    include_profils  = bool(s.get("include_profils",   True))
+    include_fuel     = bool(s.get("include_fuel_totals", True))
+    include_end_use  = bool(s.get("include_end_use",   True))
+
+    kpis = []
+
+    # Energie totale et nette
+    kpis += _all_kpis_for_column(
+        "Energy Use Total",
+        with_prism=include_prism,
+        pas_de_temps="1h" if not include_profils else "1h",
+    ) if include_profils else _kpis_without_profils("Energy Use Total", with_prism=include_prism)
+    kpis += _all_kpis_for_column("Energy Use Net", with_prism=False, pas_de_temps="1h") \
+            if include_profils else _kpis_without_profils("Energy Use Net")
+
+    # Electricite totale et nette
+    kpis += _all_kpis_for_column(
+        "Fuel Use Electricity Total",
+        with_prism=include_prism,
+        pas_de_temps="1h",
+    ) if include_profils else _kpis_without_profils("Fuel Use Electricity Total", with_prism=include_prism)
+    kpis += _all_kpis_for_column("Fuel Use Electricity Net", with_prism=False, pas_de_temps="1h") \
+            if include_profils else _kpis_without_profils("Fuel Use Electricity Net")
+
+    # Autres combustibles
+    if include_fuel:
+        for col in _FUEL_OTHER_COLUMNS:
+            kpis += _kpis_without_profils(col)
+
+    # End Use
+    if include_end_use:
+        for col in _END_USE_COLUMNS:
+            kpis += _end_use_focus_kpis(col, pas_de_temps="1h")
+
+    return {
+        "datetime_column":    "dateinterval",
+        "temperature_column": "temperatureatmospherique",
+        "timestep_h":         timestep_h,
+        "kpis":               kpis,
     }
 
-def Quantite_interet(pd_Alldata_id):
-    #'Time_Unnamed: 0_level_1',
-    # 'TimeUTC_Unnamed: 1_level_1',
-     #  'Energy Use: Total_kBtu', 'Energy Use: Net_kBtu',
-     #  'Fuel Use: Electricity: Total_kWh', 'Fuel Use: Electricity: Net_kWh',
-     #  'End Use: Electricity: Heating_kWh',
-     #  'End Use: Electricity: Heating Fans/Pumps_kWh',
-     #  'End Use: Electricity: Cooling_kWh',
-     #  'End Use: Electricity: Cooling Fans/Pumps_kWh',
-     #  'End Use: Electricity: Hot Water_kWh',
-     #  'End Use: Electricity: Lighting Interior_kWh',
-     #  'End Use: Electricity: Lighting Exterior_kWh',
-     #  'End Use: Electricity: Mech Vent_kWh',
-     #  'End Use: Electricity: Refrigerator_kWh',
-     #  'End Use: Electricity: Freezer_kWh',
-     #  'End Use: Electricity: Dishwasher_kWh',
-     #  'End Use: Electricity: Range/Oven_kWh',
-     #  'End Use: Electricity: Ceiling Fan_kWh',
-     #  'End Use: Electricity: Television_kWh',
-     #  'End Use: Electricity: Plug Loads_kWh', 
-     # ...
-     #  'Temperature: Attic - Vented_F',
-     #  'Temperature: Conditioned Space_F', 'Temperature: Heating Setpoint_F',
-     #  'Temperature: Cooling Setpoint_F', 'Weather: Drybulb Temperature_F',
-     #  'Weather: Wetbulb Temperature_F', 'Weather: Relative Humidity_%',
-     #  'Weather: Wind Speed_mph',
-     #  'Weather: Diffuse Solar Radiation_Btu/(hr*ft^2)',
-     #  'Weather: Direct Solar Radiation_Btu/(hr*ft^2)'],
 
-    col_weather_temperature_F = "Weather: Drybulb Temperature_F" # °F
-    col_electricity_use = "Fuel Use: Electricity: Total_kWh" #kWh on timestep
-    col_time_local = "Time"
-    col_time_utc = "TimeUTC"
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
-    #convert Time columns to datetime
-    pd_Alldata_id[col_time_local] = pd.to_datetime(pd_Alldata_id[col_time_local])
-    pd_Alldata_id[col_time_utc] = pd.to_datetime(pd_Alldata_id[col_time_utc])
+def _normalize(df: pd.DataFrame) -> pd.DataFrame:
+    """Renomme les colonnes et convertit les unites (F→C, kBtu→kWh)."""
+    df = df.copy()
+    present = {raw: canon for raw, canon in _COLUMN_MAPPING.items() if raw in df.columns}
+    df = df[list(present.keys())].rename(columns=present)
 
-    pd_Alldata_id["Jourlocal"] = pd_Alldata_id[col_time_local].dt.date
-    pd_Alldata_id["Heurelocal"] = pd_Alldata_id[col_time_local].dt.hour
-    
-    # Convert °F to °C
-    col_weather_temperature_C = "Weather: Drybulb Temperature_C"
-    pd_Alldata_id[col_weather_temperature_C] = (pd_Alldata_id[col_weather_temperature_F] - 32) * 5.0/9.0
+    if "dateinterval" in df.columns:
+        df["dateinterval"] = pd.to_datetime(df["dateinterval"], errors="coerce")
 
-    # 
-    #Analyse Prism
-    pd_Alldata_id_Quo = pd_Alldata_id.groupby(pd_Alldata_id[col_time_local].dt.date).agg({col_electricity_use: 'sum',
-                                                                                          col_weather_temperature_C: 'mean'})\
-                                                                                            .reset_index()
-    list_P = pd_Alldata_id_Quo[col_electricity_use].to_list()#somme quotidienne de l'energie active livrée
-    list_T = pd_Alldata_id_Quo[col_weather_temperature_C].to_list()#moyenne quotidienne de la température au 15 minutes (Note : données sources sont horaires)
+    if "temperatureatmospherique" in df.columns:
+        df["temperatureatmospherique"] = (
+            pd.to_numeric(df["temperatureatmospherique"], errors="coerce").sub(32.0).mul(5.0 / 9.0)
+        )
 
-    InstClsPrism = Prism(QuotikWh = list_P, QuotiTemp = list_T)
-    res = InstClsPrism.calcul()
-    #print(InstClsPrism.param) #dict résultats
-    #InstClsPrism.trace() #trace le graphique
+    for col in _KBTU_CANONICAL:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce") * _KBTU_TO_KWH
 
-    dict_caracteristiques = {}
-
-    '''
-    La liste suggérée de ces quantités d’intérêt adresse les caractéristiques :
-    
-    - Des données annuelles :
-    (1) La consommation annuelle d’électricité [kWh];
-    (2) La consommation annuelle de gaz [kWh ou m³];
-    (3) La consommation annuelle de mazout [kWh ou m³];
-    (4) La consommation annuelle de bois ou granules [kWh];
-    (5) La consommation électrique de base journalière [kWh/jour] (journées où la température moyenne journalière est entre 8 et 15°C) – voir Figure 1;
-    (6) La pente de chauffage (électricité) [W/K] (journées où la température moyenne journalière est ≤ 8°C) (profil électrique) – voir Figure 1;
-    (7) La pente de climatisation (électricité) [W/K] (journées où la température moyenne journalière est ≥ 15°C) (profil électrique) – voir Figure 1;
-    (8) La pente de chauffage (gaz – si des données mensuelles sont disponibles) [W/K] – voir Figure 2;
-    
-    
-    - Du profil de charge électrique :
-    (9) La pointe électrique d’hiver du matin [kW], soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≤ 8°C;
-    (10) L’heure de la pointe électrique d’hiver du matin (valeur entière entre 0 et 11, inclusivement) – à évaluer par rapport au profil moyen d’hiver;
-    (11) La pointe électrique d’hiver du soir [kW], soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≤ 8°C;
-    (12) L’heure de la pointe électrique d’hiver du soir (valeur entière entre 12 et 23, inclusivement) – à évaluer par rapport au profil moyen d’hiver;
-    (13) La pointe électrique d’été du matin [kW], soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≥ 15°C);
-    (14) L’heure de la pointe électrique d’été du matin (valeur entière entre 0 et 11, inclusivement) – à évaluer par rapport au profil moyen d’été;
-    (15) La pointe électrique d’été du soir [kW], soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≥ 15°C);
-    (16) L’heure de la pointe électrique d’été du soir (valeur entière entre 12 et 23, inclusivement) – à évaluer par rapport au profil moyen d’été;
-    (17) L’écart-type journalier moyen de la consommation électrique durant les journées d’hiver où la température moyenne journalière est ≤ 8°C [kWh] (idéalement pour des pas de temps de maximum 1h);
-    (18) L’écart-type journalier moyen de la consommation électrique durant les journées d’été où la température moyenne journalière est ≥ 15°C [kWh] (idéalement pour des pas de temps de maximum 1h);
-    (19) L’écart-type journalier moyen de la consommation électrique durant les journées de misaison où la température moyenne journalière est entre 8 et 15°C [kWh] (idéalement pour des pas de temps de maximum 1h);
-    (20) Le facteur d’utilisation en période hivernale où la température moyenne journalière est ≤ 8°C [%]. Le facteur d’utilisation est le rapport entre la consommation électrique moyenne d’un pas de temps et la consommation électrique maximale d’un pas de temps. Idéalement, le pas de temps est de maximum 1h.
-    (21) Le facteur d’utilisation en période estivale où la température moyenne journalière est ≥ 15°C [%];
-    (22) Le facteur d’utilisation durant la mi-saison où la température moyenne journalière est entre 8 et 15°C [%];
-    (23) Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant les journées d’hiver où la température moyenne journalière est ≤ 8°C [-];
-    (24) Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant les journées d’été où la température moyenne journalière est ≥ 15°C [-];
-    (25) Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant la misaison où la température moyenne journalière est entre 8 et 15°C [-].
-
-    '''
-    #données des jours d'hiver
-    filter_h_T = (pd_Alldata_id_Quo[col_weather_temperature_C] <= 8)
-    tempopd_Alldata_id_Quo_h = pd_Alldata_id_Quo[filter_h_T][[col_time_local]].drop_duplicates()
-    tempopd_Alldata_id_Quo_h = tempopd_Alldata_id_Quo_h.rename(columns={col_time_local: "Jourlocal"})
-
-    filter_h_d = ((pd_Alldata_id[col_time_local].dt.month >= 12) | (pd_Alldata_id[col_time_local].dt.month  <= 4))
-    tempo_pd_Alldata_id_h = pd_Alldata_id[filter_h_d]
+    return df
 
 
-    pd_Alldata_id_h = pd.merge(tempo_pd_Alldata_id_h, tempopd_Alldata_id_Quo_h, on="Jourlocal", how='inner').reset_index()
-    
-    #données des jours d'été
-    filter_e_T = (pd_Alldata_id_Quo[col_weather_temperature_C] >= 15)
-    tempopd_Alldata_id_Quo_e = pd_Alldata_id_Quo[filter_e_T][[col_time_local]].drop_duplicates()
-    tempopd_Alldata_id_Quo_e = tempopd_Alldata_id_Quo_e.rename(columns={col_time_local: "Jourlocal"})
+# ---------------------------------------------------------------------------
+# API publique (compatible avec postprocessing.py)
+# ---------------------------------------------------------------------------
 
-    filter_e_d = ((pd_Alldata_id[col_time_local].dt.month >= 5) & (pd_Alldata_id[col_time_local].dt.month  <= 11))
-    tempo_pd_Alldata_id_e = pd_Alldata_id[filter_e_d]
+class Quantite_interet_description:
+    """
+    Descriptions des KPI produits par Quantite_interet().
+    Generees dynamiquement depuis ParametricKPICalculator.get_supported_kpis_metadata().
+    Cle = nom du KPI (ex: 'Conso_annuelle'), valeur = dict {Description, Unite, ...}.
+    """
+    dict_description = ParametricKPICalculator.get_supported_kpis_metadata()
 
-    pd_Alldata_id_e = pd.merge(tempo_pd_Alldata_id_e, tempopd_Alldata_id_Quo_e, on="Jourlocal", how='inner').reset_index()
-    
-    #données des jours de mi-saison
-    filter_ms_T = (pd_Alldata_id_Quo[col_weather_temperature_C] > 8) & (pd_Alldata_id_Quo[col_weather_temperature_C] < 15)
-    tempopd_Alldata_id_Quo_ms = pd_Alldata_id_Quo[filter_ms_T][[col_time_local]].drop_duplicates()
-    tempopd_Alldata_id_Quo_ms = tempopd_Alldata_id_Quo_ms.rename(columns={col_time_local: "Jourlocal"})
 
-    filter_ms_d = ((pd_Alldata_id[col_time_local].dt.month >= 4) & (pd_Alldata_id[col_time_local].dt.month  <= 6))\
-                    | ((pd_Alldata_id[col_time_local].dt.month >= 9) & (pd_Alldata_id[col_time_local].dt.month  <= 10))
-    tempo_pd_Alldata_id_ms = pd_Alldata_id[filter_ms_d]
+def Quantite_interet(dfTimeseries: pd.DataFrame, kpi_settings: dict = None) -> dict:
+    """
+    Calcule les quantites d'interet (KPI) a partir des series temporelles
+    SimParc brutes (post-jointure multi-header).
 
-    pd_Alldata_id_ms = pd.merge(tempo_pd_Alldata_id_ms, tempopd_Alldata_id_Quo_ms, on="Jourlocal", how='inner').reset_index()
+    kpi_settings : dict issu de KPI_SETTING dans project.yaml.
+                   Cle reconnue : 'timestep_h' (defaut: 1.0).
 
-    #_______________________________
-    #(1) La consommation annuelle d’électricité [kWh];
-    try:
-        dict_caracteristiques["Conso_annuelle_electricite"] = pd_Alldata_id_Quo[col_electricity_use].sum() #kwh
-    except:
-        dict_caracteristiques["Conso_annuelle_electricite"] = None
-    #_______________________________
-    #(2) La consommation annuelle de gaz [kWh ou m³];
-    dict_caracteristiques["Conso_annuelle_gaz"] = None
-    
-    #_______________________________
-    #(3) La consommation annuelle de mazout [kWh ou m³];
-    dict_caracteristiques["Conso_annuelle_mazout"] = None
-    
-    #_______________________________
-    #(4) La consommation annuelle de bois ou granules [kWh];
-    dict_caracteristiques["Conso_annuelle_bois_granules"] = None
-    
-    #_______________________________
-    #(5) La consommation électrique de base journalière [kWh/jour] (journées où la température moyenne journalière est entre 8 et 15°C) – voir Figure 1;
-    #filter_5 = (pd_Alldata_id_Quo[col_weather_temperature_C] >= 8) & (pd_Alldata_id_Quo[col_weather_temperature_C] <= 15)
-    #dict_caracteristiques["Conso_base_electricite"] = pd_Alldata_id_Quo[filter_5][col_electricity_use].mean()# [kWh/jour]
-    dict_caracteristiques["Conso_base_electricite"] = InstClsPrism.param["Base [kW]"]
-    
-    #_______________________________
-    #(6) La pente de chauffage (électricité) [W/K] (journées où la température moyenne journalière est ≤ 8°C) (profil électrique) – voir Figure 1;
-    #filter_6 = (pd_Alldata_id_Quo[col_weather_temperature_C] <= 8)
-    #dict_caracteristiques["Pente_chauffage_electricite"] = sm.WLS( pd_Alldata_id_Quo[filter_6][col_electricity_use]/24*1000,
-    #                                                               sm.tools.add_constant(pd_Alldata_id_Quo[filter_6][col_weather_temperature_C]))\
-    #                                                            .fit()\
-    #                                                            .params[1]
-    dict_caracteristiques["Pente_chauffage_electricite"] = InstClsPrism.param["kch [W/°C]"]
-    
-    #_______________________________
-    #(7) La pente de climatisation (électricité) [W/K] (journées où la température moyenne journalière est ≥ 15°C) (profil électrique) – voir Figure 1;
-    dict_caracteristiques["Pente_climatisation_electricite"] = InstClsPrism.param["kcl [W/°C]"]
-    
-    #_______________________________
-    #(8) La pente de chauffage (gaz – si des données mensuelles sont disponibles) [W/K] – voir Figure 2;
-    dict_caracteristiques["Pente_chauffage_gaz"] = None
-    
-    #_______________________________
-    #(9) La pointe électrique d’hiver du matin [kW], soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≤ 8°C;
-    #filtrage des données quotidiennes en fonction de la température extérieure
-    tempo_pd_Alldata_id = pd_Alldata_id_h[pd_Alldata_id_h["Heurelocal"]<=11].reset_index()
-
-    #Sélection du la valeur la plus élevée
-    try:
-        dict_caracteristiques["Pointe_hiver_am"] = tempo_pd_Alldata_id.iloc[tempo_pd_Alldata_id[col_electricity_use].idxmax()][col_electricity_use] * 4 # [kWh/15min] to kW
-    except:
-        dict_caracteristiques["Pointe_hiver_am"] = None
-    #_______________________________
-    #(10) L’heure de la pointe électrique d’hiver du matin (valeur entière entre 0 et 11, inclusivement) – à évaluer par rapport au profil moyen d’hiver;
-    try:
-        dict_caracteristiques["Pointe_h_hiver_am"] = tempo_pd_Alldata_id.iloc[tempo_pd_Alldata_id[col_electricity_use].idxmax()]["Heurelocal"]
-    except:
-        dict_caracteristiques["Pointe_h_hiver_am"] = None
-    #_______________________________
-    #(11) La pointe électrique d’hiver du soir [kW], soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≤ 8°C;
-    tempo_pd_Alldata_id = pd_Alldata_id_h[pd_Alldata_id_h["Heurelocal"]>=12].reset_index()
-    try:
-        dict_caracteristiques["Pointe_hiver_pm"] = tempo_pd_Alldata_id.iloc[tempo_pd_Alldata_id[col_electricity_use].idxmax()][col_electricity_use] * 4 # [kWh/15min] to kW
-    except:
-        dict_caracteristiques["Pointe_hiver_pm"] = None
-    #_______________________________       
-    #(12) L’heure de la pointe électrique d’hiver du soir (valeur entière entre 12 et 23, inclusivement) – à évaluer par rapport au profil moyen d’hiver;
-    try:
-        dict_caracteristiques["Pointe_h_hiver_pm"] = tempo_pd_Alldata_id.iloc[tempo_pd_Alldata_id[col_electricity_use].idxmax()]["Heurelocal"]
-    except:
-        dict_caracteristiques["Pointe_h_hiver_pm"] = None
-
-    #_______________________________       
-    #(13) La pointe électrique d’été du matin [kW], soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≥ 15°C);
-    tempo_pd_Alldata_id = pd_Alldata_id_e[pd_Alldata_id_e["Heurelocal"]<=11].reset_index()
-    try:
-        dict_caracteristiques["Pointe_ete_am"] = tempo_pd_Alldata_id.iloc[tempo_pd_Alldata_id[col_electricity_use].idxmax()][col_electricity_use] * 4 # [kWh/15min] to kW
-    except:
-        dict_caracteristiques["Pointe_ete_am"] = None      
-    #_______________________________
-    #(14) L’heure de la pointe électrique d’été du matin (valeur entière entre 0 et 11, inclusivement) – à évaluer par rapport au profil moyen d’été;
-    try:
-        dict_caracteristiques["Pointe_h_ete_am"] = tempo_pd_Alldata_id.iloc[tempo_pd_Alldata_id[col_electricity_use].idxmax()]["Heurelocal"]
-    except:
-        dict_caracteristiques["Pointe_h_ete_am"] = None
-    #_______________________________
-    #(15) La pointe électrique d’été du soir [kW], soit la valeur maximale de puissance moyenne appelée durant un pas de temps (idéalement de maximum 1h) pendant des journées où la température moyenne journalière est ≥ 15°C);
-    tempo_pd_Alldata_id = pd_Alldata_id_e[pd_Alldata_id_e["Heurelocal"]>=12].reset_index()
-    
-    try:
-        dict_caracteristiques["Pointe_ete_pm"] = tempo_pd_Alldata_id.iloc[tempo_pd_Alldata_id[col_electricity_use].idxmax()][col_electricity_use] * 4 # [kWh/15min] to kW
-    except:
-        dict_caracteristiques["Pointe_ete_pm"] = None
-    #_______________________________
-    #(16) L’heure de la pointe électrique d’été du soir (valeur entière entre 12 et 23, inclusivement) – à évaluer par rapport au profil moyen d’été;
-    try:
-        dict_caracteristiques["Pointe_h_ete_pm"] = tempo_pd_Alldata_id.iloc[tempo_pd_Alldata_id[col_electricity_use].idxmax()]["Heurelocal"]
-    except:
-        dict_caracteristiques["Pointe_h_ete_pm"] = None       
-    #_______________________________        
-    #(17) L’écart-type journalier moyen de la consommation électrique durant les journées d’hiver où la température moyenne journalière est ≤ 8°C [kWh] (idéalement pour des pas de temps de maximum 1h);
-    
-    #calcul de l'écart-type par jour puis moyenne des valeurs (kWh/15min)
-    try:
-        dict_caracteristiques["EcartType_Quotidien_hiver"] = pd_Alldata_id_h[["Jourlocal", col_electricity_use]].groupby("Jourlocal").std()[col_electricity_use].mean()
-    except:
-        dict_caracteristiques["EcartType_Quotidien_hiver"] = None
-    #_______________________________  
-    #(18) L’écart-type journalier moyen de la consommation électrique durant les journées d’été où la température moyenne journalière est ≥ 15°C [kWh] (idéalement pour des pas de temps de maximum 1h);
-    try:
-        dict_caracteristiques["EcartType_Quotidien_ete"] = pd_Alldata_id_e[["Jourlocal", col_electricity_use]].groupby("Jourlocal").std()[col_electricity_use].mean()
-    except:
-        dict_caracteristiques["EcartType_Quotidien_ete"] = None
-    #_______________________________  
-    #(19) L’écart-type journalier moyen de la consommation électrique durant les journées de mi-saison où la température moyenne journalière est entre 8 et 15°C [kWh] (idéalement pour des pas de temps de maximum 1h);
-    try:
-        dict_caracteristiques["EcartType_Quotidien_misaison"] = pd_Alldata_id_ms[["Jourlocal", col_electricity_use]].groupby("Jourlocal").std()[col_electricity_use].mean()
-    except:
-        dict_caracteristiques["EcartType_Quotidien_misaison"] = None
-    #_______________________________  
-    #(20) Le facteur d’utilisation en période hivernale où la température moyenne journalière est ≤ 8°C [%]. Le facteur d’utilisation est le rapport entre la consommation électrique moyenne d’un pas de temps et la consommation électrique maximale d’un pas de temps. Idéalement, le pas de temps est de maximum 1h.
-    #Moyenne des FU quotidiens ?
-    #calcul de l'écart-type par jour puis moyenne des valeurs (kWh/15min)
-    tempo_dfFU = pd_Alldata_id_h[["Jourlocal", col_electricity_use]].groupby("Jourlocal").agg({col_electricity_use: ['mean', 'min', 'max']})
-    
-    try:
-        tempo_dfFU["FU"] = tempo_dfFU[col_electricity_use]["mean"] / tempo_dfFU[col_electricity_use]["max"]
-    except:
-        tempo_dfFU["FU"] = None
-    try:
-        dict_caracteristiques["FU_Quotidien_hiver"] = tempo_dfFU["FU"].mean()
-    except:
-        dict_caracteristiques["FU_Quotidien_hiver"] = None
-    #_______________________________  
-    #(21) Le facteur d’utilisation en période estivale où la température moyenne journalière est ≥ 15°C [%];
-    #calcul de l'écart-type par jour puis moyenne des valeurs (kWh/15min)
-    tempo_dfFU = pd_Alldata_id_e[["Jourlocal", col_electricity_use]].groupby("Jourlocal").agg({col_electricity_use: ['mean', 'min', 'max']})
-    try:
-        tempo_dfFU["FU"] = tempo_dfFU[col_electricity_use]["mean"] / tempo_dfFU[col_electricity_use]["max"]
-    except:
-        tempo_dfFU["FU"] = None
-    try:
-        dict_caracteristiques["FU_Quotidien_ete"] = tempo_dfFU["FU"].mean()
-    except:
-        dict_caracteristiques["FU_Quotidien_ete"] = None
-    #_______________________________  
-    #(22) Le facteur d’utilisation durant la mi-saison où la température moyenne journalière est entre 8 et 15°C [%];
-    #calcul de l'écart-type par jour puis moyenne des valeurs (kWh/15min)
-    tempo_dfFU = pd_Alldata_id_ms[["Jourlocal", col_electricity_use]].groupby("Jourlocal").agg({col_electricity_use: ['mean', 'min', 'max']})
-    try:
-        tempo_dfFU["FU"] = tempo_dfFU[col_electricity_use]["mean"] / tempo_dfFU[col_electricity_use]["max"]
-    except:
-        tempo_dfFU["FU"] = None
-    try:
-        dict_caracteristiques["FU_Quotidien_misaison"] = tempo_dfFU["FU"].mean()
-    except:
-        dict_caracteristiques["FU_Quotidien_misaison"] = None
-    #_______________________________  
-    #(23) Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant les journées d’hiver où la température moyenne journalière est ≤ 8°C [-];
-
-    #calcul des consommation de jour et nuit
-    try:
-        filter_23_J_d = (pd_Alldata_id_h["Heurelocal"] >=6) & (pd_Alldata_id_h["Heurelocal"] <=21)
-        tempo_pd_Alldata_id_J = pd_Alldata_id_h[filter_23_J_d][["Jourlocal", col_electricity_use]].groupby("Jourlocal").mean()
-        tempo_pd_Alldata_id_J = tempo_pd_Alldata_id_J.rename(columns={col_electricity_use: "energieactivelivree_kwh_J"})
-        
-        filter_23_N_d = (pd_Alldata_id_h["Heurelocal"] <=5) | (pd_Alldata_id_h["Heurelocal"] >=22)
-        tempo_pd_Alldata_id_N = pd_Alldata_id_h[filter_23_N_d][["Jourlocal", col_electricity_use]].groupby("Jourlocal").mean()
-        tempo_pd_Alldata_id_N = tempo_pd_Alldata_id_N.rename(columns={col_electricity_use: "energieactivelivree_kwh_N"})
-
-        tempo_dfRatio = pd.merge(tempo_pd_Alldata_id_N, tempo_pd_Alldata_id_J, on="Jourlocal", how='inner')
-        dict_caracteristiques["RatioJN_Quotidien_hiver"] = (tempo_dfRatio["energieactivelivree_kwh_J"]/tempo_dfRatio["energieactivelivree_kwh_N"]).mean()
-    except:
-        dict_caracteristiques["RatioJN_Quotidien_hiver"] = None
-    #_______________________________  
-    #(24) Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant les journées d’été où la température moyenne journalière est ≥ 15°C [-];
-    #calcul des consommation de jour et nuit
-    try:
-        filter_23_J_d = (pd_Alldata_id_e["Heurelocal"] >=6) & (pd_Alldata_id_e["Heurelocal"] <=21)
-        tempo_pd_Alldata_id_J = pd_Alldata_id_e[filter_23_J_d][["Jourlocal", col_electricity_use]].groupby("Jourlocal").mean()
-        tempo_pd_Alldata_id_J = tempo_pd_Alldata_id_J.rename(columns={col_electricity_use: "energieactivelivree_kwh_J"})
-        
-        filter_23_N_d = (pd_Alldata_id_e["Heurelocal"] <=5) | (pd_Alldata_id_e["Heurelocal"] >=22)
-        tempo_pd_Alldata_id_N = pd_Alldata_id_e[filter_23_N_d][["Jourlocal", col_electricity_use]].groupby("Jourlocal").mean()
-        tempo_pd_Alldata_id_N = tempo_pd_Alldata_id_N.rename(columns={col_electricity_use: "energieactivelivree_kwh_N"})
-
-        tempo_dfRatio = pd.merge(tempo_pd_Alldata_id_N, tempo_pd_Alldata_id_J, on="Jourlocal", how='inner')
-
-        dict_caracteristiques["RatioJN_Quotidien_ete"] = (tempo_dfRatio["energieactivelivree_kwh_J"]/tempo_dfRatio["energieactivelivree_kwh_N"]).mean()
-    except:
-        dict_caracteristiques["RatioJN_Quotidien_ete"] = None
-    #_______________________________
-    #(25) Le ratio entre la consommation électrique moyenne de jour (6h à 22h) et de nuit durant la misaison où la température moyenne journalière est entre 8 et 15°C [-].
-    #calcul des consommation de jour et nuit
-    try:
-        filter_23_J_d = (pd_Alldata_id_ms["Heurelocal"] >=6) & (pd_Alldata_id_ms["Heurelocal"] <=21)
-        tempo_pd_Alldata_id_J = pd_Alldata_id_ms[filter_23_J_d][["Jourlocal", col_electricity_use]].groupby("Jourlocal").mean()
-        tempo_pd_Alldata_id_J = tempo_pd_Alldata_id_J.rename(columns={col_electricity_use: "energieactivelivree_kwh_J"})
-        
-        filter_23_N_d = (pd_Alldata_id_ms["Heurelocal"] <=5) | (pd_Alldata_id_ms["Heurelocal"] >=22)
-        tempo_pd_Alldata_id_N = pd_Alldata_id_ms[filter_23_N_d][["Jourlocal", col_electricity_use]].groupby("Jourlocal").mean()
-        tempo_pd_Alldata_id_N = tempo_pd_Alldata_id_N.rename(columns={col_electricity_use: "energieactivelivree_kwh_N"})
-
-        tempo_dfRatio = pd.merge(tempo_pd_Alldata_id_N, tempo_pd_Alldata_id_J, on="Jourlocal", how='inner')
-
-        dict_caracteristiques["RatioJN_Quotidien_misaison"] = (tempo_dfRatio["energieactivelivree_kwh_J"]/tempo_dfRatio["energieactivelivree_kwh_N"]).mean()
-    except:
-        dict_caracteristiques["RatioJN_Quotidien_misaison"] = None
-
-    return dict_caracteristiques
+    Retourne un dict plat {cle_kpi: valeur} pret a etre fusionne dans les
+    metadonnees du batiment.  Les cles suivent la convention:
+        {nom}__{colonne}__{params}
+    ex: "Conso_annuelle__Fuel_Use_Electricity_Total"
+        "Pente_chauffage__Fuel_Use_Electricity_Total__type_jour=Tous"
+    """
+    cfg = _build_kpi_config(kpi_settings)
+    df_norm = _normalize(dfTimeseries)
+    calculator = ParametricKPICalculator()
+    results = calculator.calculate(df_norm, identifiant="", config=cfg)
+    results.pop("Identifiant", None)
+    return results
