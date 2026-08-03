@@ -1,6 +1,6 @@
 import warnings
 import pandas as pd
-from postprocess.kpi import ParametricKPICalculator
+from .kpi import ParametricKPICalculator
 
 warnings.simplefilter("ignore")
 
@@ -116,24 +116,40 @@ def _profils(column, pas_de_temps="1h"):
     return entries
 
 
-def _all_kpis_for_column(column, with_prism=True, pas_de_temps="1h"):
+def _seasonal_daily_kpis(column, seasons=("Hiver", "Ete", "Misaison")):
+    """KPI quotidiens saisonniers parametriques (une entree par saison)."""
+    kpis = []
+    for saison in seasons:
+        kpis += [
+            {"name": "EcartType_Quotidien", "column": column, "params": {"saison": saison}},
+            {"name": "FU_Quotidien",        "column": column, "params": {"saison": saison}},
+            {"name": "RatioJN_Quotidien",   "column": column, "params": {"saison": saison}},
+        ]
+    return kpis
+
+
+def _all_kpis_for_column(column, with_prism=True, pas_de_temps="1h", with_seasonal=False):
     kpis = [
-        {"name": "Conso_annuelle",       "column": column, "params": {}},
-        {"name": "Conso_mensuelle",      "column": column, "params": {}},
-        {"name": "Variation_saisonniere","column": column, "params": {}},
-        *_profils(column, pas_de_temps=pas_de_temps),
+        {"name": "Conso_annuelle",        "column": column, "params": {}},
+        {"name": "Conso_mensuelle",       "column": column, "params": {}},
+        {"name": "Variation_saisonniere", "column": column, "params": {}},
     ]
+    if with_seasonal:
+        kpis.extend(_seasonal_daily_kpis(column))
+    kpis.extend(_profils(column, pas_de_temps=pas_de_temps))
     if with_prism:
         kpis.extend(_prism_kpis(column))
     return kpis
 
 
-def _kpis_without_profils(column, with_prism=False):
+def _kpis_without_profils(column, with_prism=False, with_seasonal=False):
     kpis = [
-        {"name": "Conso_annuelle",       "column": column, "params": {}},
-        {"name": "Conso_mensuelle",      "column": column, "params": {}},
-        {"name": "Variation_saisonniere","column": column, "params": {}},
+        {"name": "Conso_annuelle",        "column": column, "params": {}},
+        {"name": "Conso_mensuelle",       "column": column, "params": {}},
+        {"name": "Variation_saisonniere", "column": column, "params": {}},
     ]
+    if with_seasonal:
+        kpis.extend(_seasonal_daily_kpis(column))
     if with_prism:
         kpis.extend(_prism_kpis(column))
     return kpis
@@ -223,6 +239,7 @@ def _build_kpi_config(kpi_settings: dict) -> dict:
       timestep_h        (float)  : pas de temps en heures (defaut 0.25)
       include_prism     (bool)   : PRISM sur Energy Use Total + Electricity Total
       include_profils   (bool)   : Profil sur Energy Use Total + Electricity Total
+      include_seasonal  (bool)   : KPIs saisonniers (EcartType, FU, RatioJN) sur Electricity Total/Net
       include_fuel_totals (bool) : Conso + Mensuelle + Variation sur tous les combustibles
       include_end_use   (bool)   : KPIs End Use
     """
@@ -230,6 +247,7 @@ def _build_kpi_config(kpi_settings: dict) -> dict:
     timestep_h       = float(s.get("timestep_h",        0.25))
     include_prism    = bool(s.get("include_prism",     True))
     include_profils  = bool(s.get("include_profils",   True))
+    include_seasonal = bool(s.get("include_seasonal",  True))
     include_fuel     = bool(s.get("include_fuel_totals", True))
     include_end_use  = bool(s.get("include_end_use",   True))
 
@@ -249,9 +267,10 @@ def _build_kpi_config(kpi_settings: dict) -> dict:
         "Fuel Use Electricity Total",
         with_prism=include_prism,
         pas_de_temps="1h",
-    ) if include_profils else _kpis_without_profils("Fuel Use Electricity Total", with_prism=include_prism)
-    kpis += _all_kpis_for_column("Fuel Use Electricity Net", with_prism=False, pas_de_temps="1h") \
-            if include_profils else _kpis_without_profils("Fuel Use Electricity Net")
+        with_seasonal=include_seasonal,
+    ) if include_profils else _kpis_without_profils("Fuel Use Electricity Total", with_prism=include_prism, with_seasonal=include_seasonal)
+    kpis += _all_kpis_for_column("Fuel Use Electricity Net", with_prism=False, pas_de_temps="1h", with_seasonal=include_seasonal) \
+            if include_profils else _kpis_without_profils("Fuel Use Electricity Net", with_seasonal=include_seasonal)
 
     # Autres combustibles
     if include_fuel:

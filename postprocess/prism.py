@@ -26,6 +26,8 @@ import statsmodels.api as sm
 import copy
 import numpy as np
 
+#import matplotlib.pyplot as plt # need for trace. unuse in project
+
 class Prism():
     """
     A class representing a Prism object.
@@ -320,18 +322,26 @@ class Prism():
         >>> y = piecewise_linear_4seg(x, 2, 4, 8, 0, 5, 1, -1, 2)
         """
 
-        k1 = (y0-y1)/(x0-x1)
+        eps = 1e-12
+        denom = x0 - x1
+        if abs(denom) < eps:
+            denom = eps
+        k1 = (y0 - y1) / denom
         if(x1>x2):
-            tempo = (k1*x1-k2*x2)/(k1-k2)
-            x1, x2 =tempo, tempo
-            y1 = k1*(x1-x0)+y0
+            if abs(k1 - k2) >= eps:
+                tempo = (k1*x1-k2*x2)/(k1-k2)
+                x1, x2 = tempo, tempo
+                y1 = k1*(x1-x0)+y0
         if(k1>0):
             k1=0.0
         if(k2<0):
             k2=0.0
+        denom_piece = x0 - x1
+        if abs(denom_piece) < eps:
+            denom_piece = eps
         return np.piecewise(x, [x <= x0, ((x > x0) & (x <= x1)), x >= x2], \
         [lambda x:k0*(x-x0) + y0, \
-        lambda x:(y0-y1)*(x-x1)/(x0-x1) + y1, \
+        lambda x:(y0-y1)*(x-x1)/denom_piece + y1, \
         lambda x:k2*(x-x2) + y1, \
         lambda x:y1])
 
@@ -445,10 +455,14 @@ class Prism():
         
         if(k1>0):
             k1=0.0
+        eps = 1e-12
+        denom_piece = x0 - x1
+        if abs(denom_piece) < eps:
+            denom_piece = eps
         
         return np.piecewise(x, [x <= x0, ((x > x0) & (x <= x1))], \
         [lambda x:k0*(x-x0) + y0, \
-        lambda x:(y0-y1)*(x-x1)/(x0-x1) + y1, \
+        lambda x:(y0-y1)*(x-x1)/denom_piece + y1, \
         lambda x:y1])
 
     def Test_Fisher(self, SSE, num_params, nb_point, confiance):

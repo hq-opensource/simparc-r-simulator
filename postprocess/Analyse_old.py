@@ -1,4 +1,4 @@
-from postprocess.prism import Prism
+from .prism import Prism
 import time
 import pandas as pd
 
