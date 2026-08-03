@@ -65,6 +65,84 @@ def _find_end_use_heating_columns(timeseries: pd.DataFrame) -> dict[str, list[st
     }
 
 
+def _find_system_use_heating_columns(timeseries: pd.DataFrame) -> dict[str, list[str]]:
+    """
+    Return "System Use:" heating columns grouped by HPXML system id.
+
+    Column format is ``System Use: <sys_id>: <fuel>: <end_use>_<units>``
+    (e.g. ``System Use: HeatingSystem2: Electricity: Heating_kWh``). Only
+    heating-related end uses are kept — this covers primary heating, heat-pump
+    backup, and their fan/pump auxiliaries. Grouping by system id (rather than
+    fuel) lets us distinguish two systems that share the same energy source.
+    """
+    out: dict[str, list[str]] = {}
+    for c in timeseries.columns:
+        if not c.startswith("System Use: "):
+            continue
+        parts = c.split(": ")
+        if len(parts) < 4:
+            continue
+        sys_id = parts[1].strip()
+        end_use = parts[3].strip()  # e.g. "Heating_kWh", "Heating Heat Pump Backup_kBtu"
+        if end_use.startswith("Heating"):
+            out.setdefault(sys_id, []).append(c)
+    return out
+
+
+def _system_kwh_step(df: pd.DataFrame, cols: list[str]) -> pd.Series:
+    """
+    Sum the given "System Use:" columns to a common kWh basis per timestep.
+
+    Electricity columns (``_kWh``) are summed as-is; fuel columns (``_kBtu``)
+    are converted to kWh so systems on different fuels share a comparable basis.
+    """
+    if not cols:
+        return pd.Series(0.0, index=df.index)
+    total = pd.Series(0.0, index=df.index)
+    for c in cols:
+        vals = df[c].fillna(0.0)
+        if c.endswith("_kBtu"):
+            vals = vals * KBTU_TO_KWH
+        total = total + vals
+    return total
+
+
+def _split_primary_backup_kwh_step(
+    bdf: pd.DataFrame,
+    row: pd.Series,
+    sys_use_cols: dict[str, list[str]],
+    end_use_heating_cols: dict[str, list[str]],
+) -> tuple[pd.Series, pd.Series]:
+    """
+    Per-timestep (primary, backup) heating energy in kWh for one building.
+
+    Prefers per-system "System Use:" columns, which correctly separate System 1
+    and System 2 even when both use the same fuel (e.g. two electric systems).
+    Primary = ``HeatingSystem1`` + any ``HeatPump*``; backup = ``HeatingSystem2``.
+    Falls back to the fuel-based End Use split when this building carries no
+    System Use heating data (e.g. results predating the System Use export).
+    """
+    if sys_use_cols:
+        primary_ids = [s for s in sys_use_cols if s == "HeatingSystem1" or s.startswith("HeatPump")]
+        backup_ids = [s for s in sys_use_cols if s == "HeatingSystem2"]
+        primary_cols = [c for s in primary_ids for c in sys_use_cols[s]]
+        backup_cols = [c for s in backup_ids for c in sys_use_cols[s]]
+        all_cols = primary_cols + backup_cols
+        # Use System Use only when this building actually has data there; after an
+        # outer join, missing partitions surface as all-NaN columns.
+        if all_cols and bool(bdf[all_cols].notna().any().any()):
+            primary = _system_kwh_step(bdf, primary_cols)
+            backup = _system_kwh_step(bdf, backup_cols)
+            return primary, backup
+
+    # Fallback: fuel-based split (cannot separate systems sharing a fuel).
+    per_fuel = _per_fuel_kwh_step(bdf, end_use_heating_cols)
+    total = sum(per_fuel.values())
+    backup = _select_backup_series(row, per_fuel)
+    primary = (total - backup).clip(lower=0.0)
+    return primary, backup
+
+
 def _has_backup(value: object) -> bool:
     """True when a metadata field indicates a configured system/fuel."""
     s = str(value).strip().lower()
@@ -280,6 +358,13 @@ def load_timeseries(results_dir: str = "results") -> pd.DataFrame:
 
     # Concatenate with outer join so all columns are preserved across buildings
     timeseries = pd.concat(dfs, axis=0, join="outer", ignore_index=True)
+
+    # Parse the time column once here so downstream plots/reports don't each
+    # re-run pd.to_datetime over the whole frame.
+    time_col = next((c for c in ("Time", "TimeUTC") if c in timeseries.columns), None)
+    if time_col is not None and not pd.api.types.is_datetime64_any_dtype(timeseries[time_col]):
+        timeseries[time_col] = pd.to_datetime(timeseries[time_col], errors="coerce")
+
     print(f"Loaded timeseries: {timeseries.shape[0]} rows, {timeseries.shape[1]} columns (from {len(dfs)} buildings)")
     return timeseries
 
@@ -291,6 +376,24 @@ def _subplot_grid(n_plots: int, max_cols: int = 3) -> tuple[int, int]:
     cols = min(max_cols, max(1, n_plots))
     rows = math.ceil(n_plots / cols)
     return rows, cols
+
+
+def _group_by_building(df: pd.DataFrame) -> dict[int, pd.DataFrame]:
+    """
+    Split a timeseries frame into per-building sub-frames in a single pass.
+
+    Iterating this dict is far cheaper than repeatedly boolean-masking the full
+    frame with ``df[df["building_id"] == bid]`` (which rescans every row for each
+    building, i.e. O(buildings × rows)).
+    """
+    if "building_id" not in df.columns:
+        return {}
+    return {int(bid): g for bid, g in df.groupby("building_id", sort=True)}
+
+
+def _index_metadata(md: pd.DataFrame) -> pd.DataFrame:
+    """Return metadata indexed by building_id for O(1) row lookups."""
+    return md.set_index("building_id", drop=False)
 
 
 def _infer_timestep_hours(df: pd.DataFrame, time_col: str | None) -> float:
@@ -349,10 +452,11 @@ def plot_capacity_switch_vs_temperature(
         return
 
     heating_cols = _find_end_use_heating_columns(timeseries)
+    sys_use_cols = _find_system_use_heating_columns(timeseries)
     time_col = next((c for c in ["Time", "TimeUTC"] if c in timeseries.columns), None)
 
-    if not any(heating_cols.values()):
-        print("No heating end-use columns found; skipping capacity switch plot")
+    if not any(heating_cols.values()) and not sys_use_cols:
+        print("No heating end-use or system-use columns found; skipping capacity switch plot")
         return
 
     md = _prepare_metadata(metadata)
@@ -374,16 +478,17 @@ def plot_capacity_switch_vs_temperature(
     axes = np.array(axes).reshape(-1)
 
     tcap_by_bid: dict[int, float] = {}
+    groups = _group_by_building(timeseries)
+    md_indexed = _index_metadata(md)
 
     for i, bid in enumerate(backup_bids):
         ax = axes[i]
-        bdf = timeseries[timeseries["building_id"] == bid].copy()
-        if bdf.empty:
+        bdf = groups.get(bid)
+        if bdf is None or bdf.empty:
             ax.set_visible(False)
             continue
 
         if time_col:
-            bdf[time_col] = pd.to_datetime(bdf[time_col], errors="coerce")
             bdf = bdf.dropna(subset=[time_col]).sort_values(time_col)
 
         dt_h = _infer_timestep_hours(bdf, time_col)
@@ -393,16 +498,17 @@ def plot_capacity_switch_vs_temperature(
             ax.set_visible(True)
             continue
 
-        row = md.loc[md["building_id"] == bid]
-        if row.empty:
+        if bid not in md_indexed.index:
             ax.set_title(f"Building {bid} (missing metadata)")
             continue
-        row = row.iloc[0]
+        row = md_indexed.loc[bid]
+        if isinstance(row, pd.DataFrame):
+            row = row.iloc[0]
 
         per_fuel_kwh_step = _per_fuel_kwh_step(bdf, heating_cols)
-        total_kwh_step = sum(per_fuel_kwh_step.values())
-        backup_kwh_step = _select_backup_series(row, per_fuel_kwh_step)
-        primary_kwh_step = (total_kwh_step - backup_kwh_step).clip(lower=0.0)
+        primary_kwh_step, backup_kwh_step = _split_primary_backup_kwh_step(
+            bdf, row, sys_use_cols, heating_cols
+        )
 
         # Convert fuel-side energy to delivered capacity using source efficiency.
         # Heat-pump primaries are already excluded above, so a scalar efficiency
@@ -535,6 +641,7 @@ def report_primary_backup_split(
         return
 
     heating_cols = _find_end_use_heating_columns(timeseries)
+    sys_use_cols = _find_system_use_heating_columns(timeseries)
     md = _prepare_metadata(metadata)
     if "heating_system_2_type" not in md.columns:
         print("No heating_system_2_type in metadata; skipping primary/backup split report")
@@ -550,23 +657,28 @@ def report_primary_backup_split(
     print("=" * 80)
 
     results = []
+    groups = _group_by_building(timeseries)
+    md_indexed = _index_metadata(md)
     for bid in backup_bids:
-        bdf = timeseries[timeseries["building_id"] == bid]
-        if bdf.empty:
+        bdf = groups.get(bid)
+        if bdf is None or bdf.empty:
             continue
 
-        row = md.loc[md["building_id"] == bid]
-        if row.empty:
+        if bid not in md_indexed.index:
             continue
-        row = row.iloc[0]
+        row = md_indexed.loc[bid]
+        if isinstance(row, pd.DataFrame):
+            row = row.iloc[0]
 
-        per_fuel_kwh_step = _per_fuel_kwh_step(bdf, heating_cols)
-        total_kwh = float(sum(s.sum() for s in per_fuel_kwh_step.values()))
+        primary_kwh_step, backup_kwh_step = _split_primary_backup_kwh_step(
+            bdf, row, sys_use_cols, heating_cols
+        )
+        primary_kwh = float(primary_kwh_step.sum())
+        backup_kwh = float(backup_kwh_step.sum())
+        total_kwh = primary_kwh + backup_kwh
         if total_kwh <= 0:
             continue
 
-        backup_kwh = float(_select_backup_series(row, per_fuel_kwh_step).sum())
-        primary_kwh = max(0.0, total_kwh - backup_kwh)
         primary_frac = primary_kwh / total_kwh
         backup_frac = backup_kwh / total_kwh
 
@@ -646,12 +758,7 @@ def report_primary_backup_capacity_extreme_cold(
 
     dt_h = DEFAULT_TIMESTEP_HOURS
     heating_cols = _find_end_use_heating_columns(timeseries)
-
-    # Convert temperature to Celsius if needed
-    if temp_col.endswith("_F"):
-        temp_c = (timeseries[temp_col].astype(float) - 32.0) * 5.0 / 9.0
-    else:
-        temp_c = timeseries[temp_col].astype(float)
+    sys_use_cols = _find_system_use_heating_columns(timeseries)
 
     md = _prepare_metadata(metadata)
     if "heating_system_2_type" not in md.columns:
@@ -667,37 +774,39 @@ def report_primary_backup_capacity_extreme_cold(
     print(f"PRIMARY/BACKUP CAPACITY DURING EXTREME COLD ({temp_min}°C to {temp_max}°C)")
     print("=" * 80)
 
-    # Prepare working dataframe with temperature column
-    working = timeseries.copy()
-    working["outdoor_temp_c"] = temp_c
-
     results = []
+    groups = _group_by_building(timeseries)
+    md_indexed = _index_metadata(md)
     for bid in backup_bids:
-        bdf = working[working["building_id"] == bid]
-        if bdf.empty:
+        bdf = groups.get(bid)
+        if bdf is None or bdf.empty:
             continue
 
         # Filter to extreme cold timesteps
-        extreme_cold_mask = (bdf["outdoor_temp_c"] >= temp_min) & (bdf["outdoor_temp_c"] <= temp_max)
-        bdf_extreme = bdf[extreme_cold_mask]
+        temp_c = _outdoor_temp_c_series(bdf)
+        if temp_c is None:
+            continue
+        extreme_cold_mask = (temp_c >= temp_min) & (temp_c <= temp_max)
+        bdf_extreme = bdf[extreme_cold_mask.to_numpy()]
         if bdf_extreme.empty:
             continue
 
-        row = md.loc[md["building_id"] == bid]
-        if row.empty:
+        if bid not in md_indexed.index:
             continue
-        row = row.iloc[0]
+        row = md_indexed.loc[bid]
+        if isinstance(row, pd.DataFrame):
+            row = row.iloc[0]
 
-        # Mean instantaneous capacity (kW) per fuel over the extreme-cold window.
-        per_fuel_kwh_step = _per_fuel_kwh_step(bdf_extreme, heating_cols)
-        per_fuel_kw_mean = {fk: float((s / dt_h).mean()) for fk, s in per_fuel_kwh_step.items()}
-
-        total_kw_mean = sum(per_fuel_kw_mean.values())
+        # Mean instantaneous capacity (kW) per system over the extreme-cold window.
+        primary_kwh_step, backup_kwh_step = _split_primary_backup_kwh_step(
+            bdf_extreme, row, sys_use_cols, heating_cols
+        )
+        primary_kw_mean = float((primary_kwh_step / dt_h).mean())
+        backup_kw_mean = float((backup_kwh_step / dt_h).mean())
+        total_kw_mean = primary_kw_mean + backup_kw_mean
         if total_kw_mean <= 0:
             continue
 
-        backup_kw_mean = float((_select_backup_series(row, per_fuel_kwh_step) / dt_h).mean())
-        primary_kw_mean = max(0.0, total_kw_mean - backup_kw_mean)
         primary_frac = primary_kw_mean / total_kw_mean
         backup_frac = backup_kw_mean / total_kw_mean
 
@@ -780,6 +889,8 @@ def plot_heating_timeseries(timeseries: pd.DataFrame, output_file: str = "hvac_h
         print("No buildings found in timeseries; skipping timeseries plot")
         return
 
+    groups = _group_by_building(timeseries)
+
     rows, cols = _subplot_grid(n)
     fig, axes = plt.subplots(rows, cols, figsize=(7 * cols, 3.8 * rows), sharex=False)
     axes = np.array(axes).reshape(-1)
@@ -794,51 +905,39 @@ def plot_heating_timeseries(timeseries: pd.DataFrame, output_file: str = "hvac_h
     if oil_cols:
         legend_handles.append(mlines.Line2D([], [], color="maroon", linewidth=1, label="Fuel Oil Heating (kWh)"))
 
+    fuel_plot = (
+        ("elec", elec_cols, "royalblue"),
+        ("gas", gas_cols, "firebrick"),
+        ("wood", wood_cols, "darkorange"),
+        ("oil", oil_cols, "maroon"),
+    )
+
     for i, bid in enumerate(building_ids):
         ax = axes[i]
-        df = timeseries[timeseries["building_id"] == bid].copy()
+        df = groups[bid]
+
+        # Read only the fuel columns we need instead of copying the full slice.
+        series = {
+            "elec": _sum_cols(df, elec_cols),
+            "gas": _sum_cols(df, gas_cols) * KBTU_TO_KWH,
+            "wood": _sum_cols(df, wood_cols) * KBTU_TO_KWH,
+            "oil": _sum_cols(df, oil_cols) * KBTU_TO_KWH,
+        }
 
         if time_col and time_col in df.columns:
-            df[time_col] = pd.to_datetime(df[time_col], errors="coerce")
-            df = df.dropna(subset=[time_col]).sort_values(time_col)
-            df["date"] = df[time_col].dt.floor("D")
-            x = None
-        else:
-            df = df.sort_index()
-            x = df.index
-
-        elec = df[elec_cols].fillna(0.0).sum(axis=1) if elec_cols else pd.Series(0.0, index=df.index)
-        gas = df[gas_cols].fillna(0.0).sum(axis=1) * KBTU_TO_KWH if gas_cols else pd.Series(0.0, index=df.index)
-        wood = df[wood_cols].fillna(0.0).sum(axis=1) * KBTU_TO_KWH if wood_cols else pd.Series(0.0, index=df.index)
-        oil = df[oil_cols].fillna(0.0).sum(axis=1) * KBTU_TO_KWH if oil_cols else pd.Series(0.0, index=df.index)
-
-        if "date" in df.columns:
-            daily = pd.DataFrame({
-                "date": df["date"],
-                "elec": elec,
-                "gas": gas,
-                "wood": wood,
-                "oil": oil,
-            }).groupby("date", as_index=False).sum()
+            plot_df = pd.DataFrame(
+                {"date": df[time_col].dt.floor("D"), **series}
+            ).dropna(subset=["date"])
+            daily = plot_df.groupby("date", as_index=False).sum().sort_values("date")
             x = daily["date"]
-
-            if elec_cols:
-                ax.plot(x, daily["elec"], color="royalblue", linewidth=0.8)
-            if gas_cols:
-                ax.plot(x, daily["gas"], color="firebrick", linewidth=0.8)
-            if wood_cols:
-                ax.plot(x, daily["wood"], color="darkorange", linewidth=0.8)
-            if oil_cols:
-                ax.plot(x, daily["oil"], color="maroon", linewidth=0.8)
+            for key, fcols, color in fuel_plot:
+                if fcols:
+                    ax.plot(x, daily[key], color=color, linewidth=0.8)
         else:
-            if elec_cols:
-                ax.plot(x, elec, color="royalblue", linewidth=0.8)
-            if gas_cols:
-                ax.plot(x, gas, color="firebrick", linewidth=0.8)
-            if wood_cols:
-                ax.plot(x, wood, color="darkorange", linewidth=0.8)
-            if oil_cols:
-                ax.plot(x, oil, color="maroon", linewidth=0.8)
+            x = df.index
+            for key, fcols, color in fuel_plot:
+                if fcols:
+                    ax.plot(x, series[key], color=color, linewidth=0.8)
 
         ax.set_title(f"Building {bid}")
         ax.set_ylabel("Daily Energy (kWh/day)")
@@ -939,24 +1038,27 @@ def plot_prism_heating_signature(timeseries: pd.DataFrame, output_file: str = "h
         print("No heating columns found for PRISM plot")
         return
 
-    working = timeseries.copy()
-    working[time_col] = pd.to_datetime(working[time_col], errors="coerce")
-    working = working.dropna(subset=[time_col])
-
     if temp_col.endswith("_F"):
-        temp_c = (working[temp_col].astype(float) - 32.0) * 5.0 / 9.0
+        temp_c = (timeseries[temp_col].astype(float) - 32.0) * 5.0 / 9.0
     else:
-        temp_c = working[temp_col].astype(float)
+        temp_c = timeseries[temp_col].astype(float)
 
-    working["outdoor_temp_c"] = temp_c
-    working["elec_heating_kwh"] = working[elec_cols].fillna(0.0).sum(axis=1) if elec_cols else 0.0
-    gas_kwh = working[gas_cols].fillna(0.0).sum(axis=1) * KBTU_TO_KWH if gas_cols else 0.0
-    working["gas_heating_kwh"] = gas_kwh
-    wood_kwh = working[wood_cols].fillna(0.0).sum(axis=1) * KBTU_TO_KWH if wood_cols else 0.0
-    working["wood_heating_kwh"] = wood_kwh
-    oil_kwh = working[oil_cols].fillna(0.0).sum(axis=1) * KBTU_TO_KWH if oil_cols else 0.0
-    working["oil_heating_kwh"] = oil_kwh
-    working["total_heating_kwh"] = working["elec_heating_kwh"] + working["gas_heating_kwh"] + working["wood_heating_kwh"] + working["oil_heating_kwh"]
+    # Build a compact working frame (only the columns the plot needs) instead of
+    # copying the full ~500-column timeseries.
+    working = pd.DataFrame({
+        "building_id": timeseries["building_id"],
+        time_col: timeseries[time_col],
+        "outdoor_temp_c": temp_c,
+        "elec_heating_kwh": _sum_cols(timeseries, elec_cols),
+        "gas_heating_kwh": _sum_cols(timeseries, gas_cols) * KBTU_TO_KWH,
+        "wood_heating_kwh": _sum_cols(timeseries, wood_cols) * KBTU_TO_KWH,
+        "oil_heating_kwh": _sum_cols(timeseries, oil_cols) * KBTU_TO_KWH,
+    })
+    working = working.dropna(subset=[time_col])
+    working["total_heating_kwh"] = (
+        working["elec_heating_kwh"] + working["gas_heating_kwh"]
+        + working["wood_heating_kwh"] + working["oil_heating_kwh"]
+    )
     working["date"] = working[time_col].dt.date
 
     building_ids = sorted(working["building_id"].unique())
@@ -966,24 +1068,25 @@ def plot_prism_heating_signature(timeseries: pd.DataFrame, output_file: str = "h
         print("No buildings found in timeseries; skipping PRISM plot")
         return
 
+    groups = _group_by_building(working)
+
     rows, cols = _subplot_grid(n)
     fig, axes = plt.subplots(rows, cols, figsize=(6.2 * cols, 4.8 * rows))
     axes = np.array(axes).reshape(-1)
 
     tbase_by_bid: dict[int, float] = {}
 
-    legend_handles = [
-        mlines.Line2D([], [], color="royalblue", marker="o", markersize=4, linestyle="None", alpha=0.6, label="Electricity Heating"),
-        mlines.Line2D([], [], color="firebrick", marker="o", markersize=4, linestyle="None", alpha=0.6, label="Natural Gas Heating"),
-        mlines.Line2D([], [], color="darkorange", marker="o", markersize=4, linestyle="None", alpha=0.6, label="Wood Heating"),
-        mlines.Line2D([], [], color="maroon", marker="o", markersize=4, linestyle="None", alpha=0.6, label="Fuel Oil Heating"),
-        mlines.Line2D([], [], color="darkgreen", marker="o", markersize=4, linestyle="None", alpha=0.6, label="Total Heating"),
-        mlines.Line2D([], [], color="black", linewidth=2, label="PRISM fit"),
-    ]
+    SOURCE_META = {
+        "elec_heating_kwh":  ("royalblue",  "Electricity Heating"),
+        "gas_heating_kwh":   ("firebrick",   "Natural Gas Heating"),
+        "wood_heating_kwh":  ("darkorange",  "Wood Heating"),
+        "oil_heating_kwh":   ("maroon",      "Fuel Oil Heating"),
+    }
+    sources_present: set[str] = set()
 
     for i, bid in enumerate(building_ids):
         ax = axes[i]
-        bdf = working[working["building_id"] == bid]
+        bdf = groups[bid]
 
         daily = (
             bdf.groupby("date", as_index=False)
@@ -1003,10 +1106,10 @@ def plot_prism_heating_signature(timeseries: pd.DataFrame, output_file: str = "h
         if np.isfinite(fit["t_balance"]):
             tbase_by_bid[int(bid)] = fit["t_balance"]
 
-        ax.scatter(daily["outdoor_temp_c"], daily["elec_heating_kwh"], s=18, color="royalblue", alpha=0.45)
-        ax.scatter(daily["outdoor_temp_c"], daily["gas_heating_kwh"], s=18, color="firebrick", alpha=0.45)
-        ax.scatter(daily["outdoor_temp_c"], daily["wood_heating_kwh"], s=18, color="darkorange", alpha=0.45)
-        ax.scatter(daily["outdoor_temp_c"], daily["oil_heating_kwh"], s=18, color="maroon", alpha=0.45)
+        for src_col, (color, _) in SOURCE_META.items():
+            if daily[src_col].sum() > 0:
+                sources_present.add(src_col)
+                ax.scatter(daily["outdoor_temp_c"], daily[src_col], s=18, color=color, alpha=0.45)
         ax.scatter(daily["outdoor_temp_c"], daily["total_heating_kwh"], s=18, color="darkgreen", alpha=0.45)
 
         if len(fit["temp"]) > 0 and np.isfinite(fit["r2"]):
@@ -1024,7 +1127,15 @@ def plot_prism_heating_signature(timeseries: pd.DataFrame, output_file: str = "h
     for ax in axes[n:]:
         ax.set_visible(False)
 
-    fig.legend(handles=legend_handles, loc="upper center", ncol=6, bbox_to_anchor=(0.5, 1.0))
+    legend_handles = [
+        mlines.Line2D([], [], color=SOURCE_META[src][0], marker="o", markersize=4, linestyle="None", alpha=0.6, label=SOURCE_META[src][1])
+        for src in SOURCE_META
+        if src in sources_present
+    ] + [
+        mlines.Line2D([], [], color="darkgreen", marker="o", markersize=4, linestyle="None", alpha=0.6, label="Total Heating"),
+        mlines.Line2D([], [], color="black", linewidth=2, label="PRISM fit"),
+    ]
+    fig.legend(handles=legend_handles, loc="upper center", ncol=len(legend_handles), bbox_to_anchor=(0.5, 1.0))
     fig.suptitle("PRISM-style HVAC Heating Signature (Energy vs Outdoor Temperature)", y=1.02, fontsize=13)
     fig.tight_layout()
     fig.savefig(output_file, dpi=150, bbox_inches="tight")
