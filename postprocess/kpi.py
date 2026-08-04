@@ -7,7 +7,7 @@ import warnings
 
 import pandas as pd
 
-from .prism import Prism
+from src.prism import Prism
 
 
 class KPIMetadata:
@@ -708,21 +708,24 @@ class ParametricKPICalculator:
         freq_h_map = {"15min": 0.25, "30min": 0.5, "1h": 1.0}
         desired_ts_h = freq_h_map.get(pas_de_temps, timestep_h)
         valid_cols = [c for c in cols if c in sub.columns]
-        if timestep_h >= 1.0:
-            grouped = sub.groupby(sub[dt_col].dt.hour)[valid_cols].mean()
-            time_labels = [f"{int(h):02d}:00:00" for h in grouped.index]
-        else:
-            slot_min = int(round(timestep_h * 60))
-            gkey = sub[dt_col].dt.hour * (60 // slot_min) + sub[dt_col].dt.minute // slot_min
-            grouped = sub.groupby(gkey)[valid_cols].mean()
-            time_labels = [f"{s * slot_min // 60:02d}:{s * slot_min % 60:02d}:00" for s in grouped.index]
+        
+        # Step 1: Group by time-of-day (hour:minute:second) and compute mean
+        sub = sub.copy()
+        sub["_time"] = sub[dt_col].dt.strftime("%H:%M:%S")
+        grouped = sub.groupby("_time")[valid_cols].mean()
+        time_labels = grouped.index.tolist()
+        
+        # Step 2: Convert to Watts (divide by timestep_h in hours, multiply by 1000 to get W)
         profile_w = grouped / timestep_h * 1000.0
+        
+        # Step 3: Resample to desired output timestep if different
         if desired_ts_h != timestep_h:
-            freq = f"{int(timestep_h * 60)}min" if timestep_h < 1.0 else "h"
-            native_idx = pd.date_range("2000-01-01", periods=len(profile_w), freq=freq)
+            # Create an intraday index with source timestep, then resample
+            native_idx = pd.date_range("2000-01-01", periods=len(profile_w), freq=f"{int(timestep_h * 60)}min")
             out_freq = {0.25: "15min", 0.5: "30min", 1.0: "h"}.get(desired_ts_h, "h")
             profile_w = profile_w.set_index(native_idx).resample(out_freq).mean()
             time_labels = profile_w.index.strftime("%H:%M:%S").tolist()
+        
         result: Dict[str, Any] = {c: None for c in cols if c not in valid_cols}
         for col in valid_cols:
             result[col] = {t: round(float(v), 2) for t, v in zip(time_labels, profile_w[col]) if pd.notna(v)}
