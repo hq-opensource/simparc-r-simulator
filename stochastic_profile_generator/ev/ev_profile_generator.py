@@ -227,4 +227,4 @@ if __name__ == "__main__":
     year = 2022
     VE_Type = 'Hybrid'
 
-    ar = generateSingleAnnuelVEHourlyProfile(VE_Type, year)
+    ar = generateSingleAnnuelVEHourlyProfile(VE_Type, year, np.random.default_rng())
