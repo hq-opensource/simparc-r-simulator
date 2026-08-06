@@ -312,8 +312,10 @@ class ModifyStochasticFilePython(openstudio.measure.ModelMeasure):
 													pool_heater_profile['power_W'],
 													left=0, right=0)
 				# normalize the profile to have values between 0 and 1 and overwrite the existing profile
-                pool_heater_profile_normalized = pool_heater_profile_W / pool_heater_profile_W.max()
-                df['pool_heater'] = pool_heater_profile_normalized
+                max_val = pool_heater_profile_W.max()
+                if max_val > 0:
+                    pool_heater_profile_normalized = pool_heater_profile_W / max_val
+                    df['pool_heater'] = pool_heater_profile_normalized
 
 		# write the modified dataframe back to the CSV file
         try:
