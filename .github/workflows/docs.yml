@@ -31,9 +31,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
       - name: Install documentation dependencies
         run: |
           python -m pip install --upgrade pip
