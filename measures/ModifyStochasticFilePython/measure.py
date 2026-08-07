@@ -316,6 +316,8 @@ class ModifyStochasticFilePython(openstudio.measure.ModelMeasure):
                 if max_val > 0:
                     pool_heater_profile_normalized = pool_heater_profile_W / max_val
                     df['pool_heater'] = pool_heater_profile_normalized
+                else:
+                    runner.registerWarning(f"Pool heater profile has a maximum value of 0. No modification made to the 'pool_heater' column in the stochastic file.")
 
 		# write the modified dataframe back to the CSV file
         try:
