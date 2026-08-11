@@ -587,7 +587,9 @@ def plot_capacity_switch_vs_temperature(
 
         # Backup plateau box (top-left) — coloured by backup fuel.
         backup_color = FUEL_COLORS.get(sys2_fuel, _DEFAULT_COLOR)
+        primary_color = FUEL_COLORS.get(_normalize_fuel_key(row.get("heating_system_fuel")) or "", _DEFAULT_COLOR)
         cold_both = valid[(valid["temp_bin"] <= cap_temp if np.isfinite(cap_temp) else True) & valid["backup_q95"].notna()]
+        plateau_bottom = 0.97  # track vertical position for stacking boxes
         if not cold_both.empty:
             primary_plateau = float(cold_both["primary_q95"].median())
             backup_plateau = float(cold_both["backup_q95"].median())
@@ -595,12 +597,29 @@ def plot_capacity_switch_vs_temperature(
             if total_plateau > 0:
                 backup_frac = backup_plateau / total_plateau
                 ax.text(
-                    0.03, 0.97,
+                    0.03, plateau_bottom,
                     f"Backup plateau: {backup_frac*100:.0f}%\n({backup_plateau:.1f} / {total_plateau:.1f} kW)",
                     transform=ax.transAxes, fontsize=8, va="top", ha="left",
                     color=backup_color,
                     bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=backup_color, alpha=0.75),
                 )
+                plateau_bottom -= 0.18  # shift next box below
+
+        # Load split box — total seasonal energy (kWh) primary vs backup.
+        total_primary_kwh = float(primary_kwh_step.sum())
+        total_backup_kwh = float(backup_kwh_step.sum())
+        total_load_kwh = total_primary_kwh + total_backup_kwh
+        if total_load_kwh > 0:
+            prim_load_frac = total_primary_kwh / total_load_kwh
+            back_load_frac = total_backup_kwh / total_load_kwh
+            ax.text(
+                0.03, plateau_bottom,
+                f"Load: {prim_load_frac*100:.0f}% prim / {back_load_frac*100:.0f}% backup\n"
+                f"({total_primary_kwh/1000:.1f} / {total_backup_kwh/1000:.1f} MWh)",
+                transform=ax.transAxes, fontsize=8, va="top", ha="left",
+                color=primary_color,
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=primary_color, alpha=0.75),
+            )
 
         ax.set_title(f"Building {bid}")
         ax.set_xlabel("Outdoor Temperature (°C)")
