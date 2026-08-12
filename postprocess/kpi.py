@@ -7,7 +7,7 @@ import warnings
 
 import pandas as pd
 
-from src.prism import Prism
+from .prism import Prism
 
 
 class KPIMetadata:
@@ -232,6 +232,19 @@ class ParametricKPICalculator:
             required={"datetime", "temperature"},
             sources=None,
         ),
+        "Puissance_par_bin_temperature": KPIMetadata(
+            name="Puissance_par_bin_temperature",
+            description=(
+                "Puissance moyenne (W) par bin de temperature exterieure, "
+                "de -50C a 50C avec un pas de 5C"
+            ),
+            unit="W",
+            params={
+                "type_jour": "Type de jour utilise pour l'agregation journaliere : 'Tous' | 'Semaine' | 'FinDeSemaine'",
+            },
+            required={"datetime", "temperature"},
+            sources=None,
+        ),
         "EcartType_Quotidien_hiver": KPIMetadata(
             name="EcartType_Quotidien_hiver",
             description=(
@@ -384,6 +397,7 @@ class ParametricKPICalculator:
         "Pente_clim":            {"datetime", "temperature"},
         "Conso_base":            {"datetime", "temperature"},
         "Type_PRISM":            {"datetime", "temperature"},
+        "Puissance_par_bin_temperature": {"datetime", "temperature"},
         "EcartType_Quotidien_hiver":    {"datetime", "temperature"},
         "EcartType_Quotidien_ete":      {"datetime", "temperature"},
         "EcartType_Quotidien_misaison": {"datetime", "temperature"},
@@ -405,6 +419,8 @@ class ParametricKPICalculator:
         self._seasonal_dfs: Dict[str, pd.DataFrame] = {}
         # Cache for filtered dataframes to avoid re-filtering for repeated periode/type_jour
         self._filter_cache: Dict[tuple, pd.DataFrame] = {}
+        # Pas de temps natif detecte automatiquement (heures) pour le batiment courant.
+        self.timestep_h: float = 1.0
 
     @classmethod
     def get_supported_kpis_metadata(cls) -> Dict[str, Dict[str, str]]:
@@ -436,7 +452,7 @@ class ParametricKPICalculator:
             df          : DataFrame charge par un loader (colonnes energie + datetime + temp).
             identifiant : cle du profil (batiment), incluse dans le dict retourne.
             config      : dict source_kpi_config avec cles 'kpis', 'datetime_column',
-                          'temperature_column', 'timestep_h'.
+                          'temperature_column'.
 
         Returns:
             Dict plat {cle_kpi: valeur} ou cle_kpi = '{nom}__{colonne}__{params}'.
@@ -450,7 +466,6 @@ class ParametricKPICalculator:
 
         dt_col: Optional[str] = config.get("datetime_column")
         temp_col: Optional[str] = config.get("temperature_column")
-        timestep_h: float = float(config.get("timestep_h", 1.0))
 
         requested_cols = {e.get("column") for e in config.get("kpis", []) if isinstance(e.get("column"), str)}
         base_cols = set(requested_cols)
@@ -463,6 +478,7 @@ class ParametricKPICalculator:
         df_work = self._prepare(df[existing_cols].copy(), dt_col)
         has_dt = bool(dt_col and dt_col in df_work.columns)
         has_temp = bool(temp_col and temp_col in df_work.columns)
+        self.timestep_h = self._detect_timestep_h(df_work, dt_col)
 
         self._seasonal_dfs = (
             self._build_seasonal_dfs(df_work, temp_col) if has_temp and temp_col else {}
@@ -497,7 +513,7 @@ class ParametricKPICalculator:
             fn = getattr(self, f"_calc_{kpi_name}", None)
             try:
                 if fn is not None:
-                    for col, val in fn(df_work, cols, dt_col, temp_col, timestep_h, **params).items():
+                    for col, val in fn(df_work, cols, dt_col, temp_col, **params).items():
                         results[self._make_key(kpi_name, col, params)] = val
                 else:
                     for col in cols:
@@ -513,6 +529,35 @@ class ParametricKPICalculator:
         gc.collect()
 
         return results
+
+    @staticmethod
+    def _detect_timestep_h(df: pd.DataFrame, dt_col: Optional[str], default: float = 1.0) -> float:
+        """Detecte le pas temporel natif (en heures) a partir des datetime.
+
+        La detection est faite sur les ecarts positifs entre timestamps tries et uniques,
+        en prenant le mode (valeur la plus frequente) pour etre robuste aux trous de donnees.
+        """
+        if not dt_col or dt_col not in df.columns:
+            return default
+        dt = pd.to_datetime(df[dt_col], errors="coerce").dropna()
+        if dt.empty:
+            return default
+
+        dt = dt.sort_values().drop_duplicates()
+        if len(dt) < 2:
+            return default
+
+        delta_sec = dt.diff().dt.total_seconds().dropna()
+        delta_sec = delta_sec[delta_sec > 0]
+        if delta_sec.empty:
+            return default
+
+        mode_sec = delta_sec.round().mode()
+        if mode_sec.empty:
+            return default
+
+        timestep_h = float(mode_sec.iloc[0]) / 3600.0
+        return timestep_h if timestep_h > 0 else default
 
     def _prepare(self, df: pd.DataFrame, dt_col: Optional[str]) -> pd.DataFrame:
         df = df.copy()
@@ -582,7 +627,7 @@ class ParametricKPICalculator:
     # KPI functions: one per KPI type.
     #
     # Architecture:
-    #   - Signature uniforme: (df, cols, dt_col, temp_col, timestep_h, **params)
+    #   - Signature uniforme: (df, cols, dt_col, temp_col, **params)
     #     -> Dict[str, Any]  ou les cles sont les noms de colonnes.
     #   - Chaque fonction opere sur TOUTES les colonnes demandees en une seule
     #     operation pandas (groupby, sum, etc.), evitant N appels redondants.
@@ -591,7 +636,7 @@ class ParametricKPICalculator:
     #   - Les colonnes absentes du DataFrame retournent None sans lever d'exception.
     # ------------------------------------------------------------------
 
-    def _calc_Conso_annuelle(self, df, cols, dt_col, temp_col, timestep_h, **params) -> Dict[str, Any]:
+    def _calc_Conso_annuelle(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
         """Somme annuelle de l'energie (kWh) pour chaque colonne demandee.
 
         Une seule operation vectorisee df[valid].sum() couvre toutes les colonnes.
@@ -600,7 +645,7 @@ class ParametricKPICalculator:
         sums = df[valid].sum().round(2)
         return {**sums.to_dict(), **{c: None for c in cols if c not in valid}}
 
-    def _calc_Conso_mensuelle(self, df, cols, dt_col, temp_col, timestep_h,
+    def _calc_Conso_mensuelle(self, df, cols, dt_col, temp_col,
                               mois: Optional[int] = None, **params) -> Dict[str, Any]:
         """Somme mensuelle de l'energie (kWh) pour chaque mois (1-12).
         
@@ -621,7 +666,6 @@ class ParametricKPICalculator:
             cols: colonnes energie a sommer
             dt_col: (non utilise)
             temp_col: (non utilise)
-            timestep_h: (non utilise)
             mois: deprecated, ignore. Tous les mois sont toujours calcules.
             **params: parametres additionnels (ignores)
 
@@ -646,7 +690,7 @@ class ParametricKPICalculator:
         
         return result
 
-    def _calc_Variation_saisonniere(self, df, cols, dt_col, temp_col, timestep_h, **params) -> Dict[str, Any]:
+    def _calc_Variation_saisonniere(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
         """Ratio de la puissance mensuelle moyenne sur la moyenne annuelle (ref = 1.0).
 
         Algorithme (toutes colonnes en une seule passe):
@@ -657,7 +701,7 @@ class ParametricKPICalculator:
         Un mois absent du DataFrame produit None pour ce mois.
         """
         valid = [c for c in cols if c in df.columns]
-        monthly_w = df.groupby("_month")[valid].mean() / timestep_h * 1000.0
+        monthly_w = df.groupby("_month")[valid].mean() / self.timestep_h * 1000.0
         ref = monthly_w.mean().replace({0: float("nan")})
         ratios = monthly_w.div(ref).round(4).reindex(range(1, 13))
         result: Dict[str, Any] = {c: None for c in cols if c not in valid}
@@ -671,7 +715,7 @@ class ParametricKPICalculator:
                 }
         return result
 
-    def _calc_Profil(self, df, cols, dt_col, temp_col, timestep_h,
+    def _calc_Profil(self, df, cols, dt_col, temp_col,
                      pas_de_temps: str = "1h", periode: str = "Annee",
                      type_jour: str = "Tous", jour_regle: Optional[str] = None,
                      **params) -> Dict[str, Any]:
@@ -706,7 +750,7 @@ class ParametricKPICalculator:
         if sub.empty:
             return {col: None for col in cols}
         freq_h_map = {"15min": 0.25, "30min": 0.5, "1h": 1.0}
-        desired_ts_h = freq_h_map.get(pas_de_temps, timestep_h)
+        desired_ts_h = freq_h_map.get(pas_de_temps, self.timestep_h)
         valid_cols = [c for c in cols if c in sub.columns]
         
         # Step 1: Group by time-of-day (hour:minute:second) and compute mean
@@ -716,22 +760,20 @@ class ParametricKPICalculator:
         time_labels = grouped.index.tolist()
         
         # Step 2: Convert to Watts (divide by timestep_h in hours, multiply by 1000 to get W)
-        profile_w = grouped / timestep_h * 1000.0
+        profile_w = grouped / self.timestep_h * 1000.0
         
-        # Step 3: Resample to desired output timestep if different
-        if desired_ts_h != timestep_h:
-            # Create an intraday index with source timestep, then resample
-            native_idx = pd.date_range("2000-01-01", periods=len(profile_w), freq=f"{int(timestep_h * 60)}min")
-            out_freq = {0.25: "15min", 0.5: "30min", 1.0: "h"}.get(desired_ts_h, "h")
-            profile_w = profile_w.set_index(native_idx).resample(out_freq).mean()
-            time_labels = profile_w.index.strftime("%H:%M:%S").tolist()
+        # Step 3: Resample to desired output timestep
+        out_freq = {0.25: "15min", 0.5: "30min", 1.0: "h"}.get(desired_ts_h, f"{round(desired_ts_h * 60)}min")
+        profile_w.index = pd.to_datetime(profile_w.index, format="%H:%M:%S")
+        profile_w = profile_w.resample(out_freq).mean()
+        time_labels = profile_w.index.strftime("%H:%M:%S").tolist()
         
         result: Dict[str, Any] = {c: None for c in cols if c not in valid_cols}
         for col in valid_cols:
             result[col] = {t: round(float(v), 2) for t, v in zip(time_labels, profile_w[col]) if pd.notna(v)}
         return result
 
-    def _calc_EcartType_Quotidien(self, df, cols, dt_col, temp_col, timestep_h,
+    def _calc_EcartType_Quotidien(self, df, cols, dt_col, temp_col,
                                    saison: str = "Tous", **params) -> Dict[str, Any]:
         """Ecart-type journalier moyen de la consommation pour une saison donnee.
 
@@ -748,7 +790,7 @@ class ParametricKPICalculator:
         means = sub.groupby("_date")[valid].std().mean().round(4)
         return {**means.to_dict(), **{c: None for c in cols if c not in valid}}
 
-    def _calc_FU_Quotidien(self, df, cols, dt_col, temp_col, timestep_h,
+    def _calc_FU_Quotidien(self, df, cols, dt_col, temp_col,
                            saison: str = "Tous", **params) -> Dict[str, Any]:
         """Facteur d'utilisation quotidien moyen (mean/max par jour) pour une saison.
 
@@ -766,7 +808,7 @@ class ParametricKPICalculator:
         means = (grp.mean() / grp.max().replace({0: float("nan")})).mean().round(4)
         return {**means.to_dict(), **{c: None for c in cols if c not in valid}}
 
-    def _calc_RatioJN_Quotidien(self, df, cols, dt_col, temp_col, timestep_h,
+    def _calc_RatioJN_Quotidien(self, df, cols, dt_col, temp_col,
                                 saison: str = "Tous", **params) -> Dict[str, Any]:
         """Ratio consommation jour / nuit quotidien moyen pour une saison.
 
@@ -814,21 +856,59 @@ class ParametricKPICalculator:
         return self._calc_RatioJN_Quotidien(df, cols, *a, saison="Misaison", **kw)
 
     # PRISM — fitted per column, results collected into a dict.
-    def _calc_Pente_chauffage(self, df, cols, dt_col, temp_col, timestep_h, **params) -> Dict[str, Any]:
+    def _calc_Pente_chauffage(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
         return {col: self._get_prism_param_by_prefix(self._run_prism(df, col, temp_col), "kch") for col in cols}
-    def _calc_Pente_clim(self, df, cols, dt_col, temp_col, timestep_h, **params) -> Dict[str, Any]:
+    def _calc_Pente_clim(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
         return {col: self._get_prism_param_by_prefix(self._run_prism(df, col, temp_col), "kcl") for col in cols}
-    def _calc_Conso_base(self, df, cols, dt_col, temp_col, timestep_h, **params) -> Dict[str, Any]:
+    def _calc_Conso_base(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
         return {col: (self._run_prism(df, col, temp_col) or type("", (), {"param": {}})()).param.get("Base [kW]") for col in cols}
-    def _calc_Type_PRISM(self, df, cols, dt_col, temp_col, timestep_h, **params) -> Dict[str, Any]:
+    def _calc_Type_PRISM(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
         return {col: getattr(self._run_prism(df, col, temp_col), "model", None) for col in cols}
+    def _calc_Puissance_par_bin_temperature(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
+        """Puissance moyenne (W) par bin de temperature exterieure.
+
+        Bins fixes: [-50, -45], ..., [45, 50] (pas de 5C), retournes via les
+        centres de bins en cles de dict (-47.5, -42.5, ..., 47.5).
+        Le KPI est retourne uniquement si PRISM est calculable pour la colonne.
+        """
+        if not temp_col or temp_col not in df.columns:
+            return {col: None for col in cols}
+
+        valid_cols = [c for c in cols if c in df.columns]
+        result: Dict[str, Any] = {c: None for c in cols if c not in valid_cols}
+
+        bin_edges = list(range(-50, 55, 5))
+        bin_centers = [round((bin_edges[i] + bin_edges[i + 1]) / 2.0, 1) for i in range(len(bin_edges) - 1)]
+        interval_index = pd.IntervalIndex.from_breaks(bin_edges, closed="right")
+
+        for col in valid_cols:
+            prism = self._run_prism(df, col, temp_col)
+            if prism is None:
+                result[col] = None
+                continue
+
+            sub = df[[temp_col, col]].dropna()
+            if sub.empty or self.timestep_h <= 0:
+                result[col] = None
+                continue
+
+            binned = pd.cut(sub[temp_col], bins=bin_edges, include_lowest=True, right=True)
+            power_w = sub[col] / self.timestep_h * 1000.0
+            mean_power_by_bin = power_w.groupby(binned, observed=False).mean().reindex(interval_index)
+
+            result[col] = {
+                str(center): (round(float(v), 2) if pd.notna(v) else None)
+                for center, v in zip(bin_centers, mean_power_by_bin)
+            }
+
+        return result
 
     def _run_prism(self, df: pd.DataFrame, col: str, temp_col: str) -> Optional[Prism]:
         """Ajuste le modele PRISM sur les donnees journalieres d'une colonne.
 
         Le resultat est mis en cache (_prism_cache) par colonne: un seul ajustement
         par colonne et par appel a calculate(), reutilise par Pente_chauffage,
-        Pente_clim, Conso_base et Type_PRISM.
+        Pente_clim, Conso_base, Type_PRISM et Puissance_par_bin_temperature.
 
         Args:
             col     : nom de la colonne energie (kWh/pas).

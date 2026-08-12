@@ -72,17 +72,55 @@ _COLUMN_MAPPING = {
     "End Use: Fuel Oil: Hot Water_kBtu":                                "End Use Fuel Oil Hot Water",
     "End Use: Fuel Oil: Clothes Dryer_kBtu":                            "End Use Fuel Oil Clothes Dryer",
     "End Use: Fuel Oil: Range/Oven_kBtu":                               "End Use Fuel Oil RangeOven",
+    "End Use: Fuel Oil: Mech Vent Preheating_kBtu":                     "End Use Fuel Oil Mech Vent Preheating",
+    "End Use: Fuel Oil: Grill_kBtu":                                    "End Use Fuel Oil Grill",
+    "End Use: Fuel Oil: Lighting_kBtu":                                 "End Use Fuel Oil Lighting",
+    "End Use: Fuel Oil: Fireplace_kBtu":                                "End Use Fuel Oil Fireplace",
+    "End Use: Fuel Oil: Generator_kBtu":                                "End Use Fuel Oil Generator",
     # End Use propane (kBtu)
     "End Use: Propane: Heating_kBtu":                                   "End Use Propane Heating",
     "End Use: Propane: Heating Heat Pump Backup_kBtu":                  "End Use Propane Heating Heat Pump Backup",
     "End Use: Propane: Hot Water_kBtu":                                 "End Use Propane Hot Water",
     "End Use: Propane: Clothes Dryer_kBtu":                             "End Use Propane Clothes Dryer",
     "End Use: Propane: Range/Oven_kBtu":                                "End Use Propane RangeOven",
-    # End Use bois (kBtu)
+    "End Use: Propane: Mech Vent Preheating_kBtu":                      "End Use Propane Mech Vent Preheating",
+    "End Use: Propane: Grill_kBtu":                                     "End Use Propane Grill",
+    "End Use: Propane: Lighting_kBtu":                                  "End Use Propane Lighting",
+    "End Use: Propane: Fireplace_kBtu":                                 "End Use Propane Fireplace",
+    "End Use: Propane: Generator_kBtu":                                 "End Use Propane Generator",
+    # End Use bois cordes (kBtu)
     "End Use: Wood Cord: Heating_kBtu":                                 "End Use Wood Cord Heating",
+    "End Use: Wood Cord: Heating Heat Pump Backup_kBtu":                "End Use Wood Cord Heating Heat Pump Backup",
     "End Use: Wood Cord: Hot Water_kBtu":                               "End Use Wood Cord Hot Water",
+    "End Use: Wood Cord: Clothes Dryer_kBtu":                           "End Use Wood Cord Clothes Dryer",
+    "End Use: Wood Cord: Range/Oven_kBtu":                              "End Use Wood Cord RangeOven",
+    "End Use: Wood Cord: Mech Vent Preheating_kBtu":                    "End Use Wood Cord Mech Vent Preheating",
+    "End Use: Wood Cord: Grill_kBtu":                                   "End Use Wood Cord Grill",
+    "End Use: Wood Cord: Lighting_kBtu":                                "End Use Wood Cord Lighting",
+    "End Use: Wood Cord: Fireplace_kBtu":                               "End Use Wood Cord Fireplace",
+    "End Use: Wood Cord: Generator_kBtu":                               "End Use Wood Cord Generator",
+    # End Use granules de bois (kBtu)
     "End Use: Wood Pellets: Heating_kBtu":                              "End Use Wood Pellets Heating",
+    "End Use: Wood Pellets: Heating Heat Pump Backup_kBtu":             "End Use Wood Pellets Heating Heat Pump Backup",
     "End Use: Wood Pellets: Hot Water_kBtu":                            "End Use Wood Pellets Hot Water",
+    "End Use: Wood Pellets: Clothes Dryer_kBtu":                        "End Use Wood Pellets Clothes Dryer",
+    "End Use: Wood Pellets: Range/Oven_kBtu":                           "End Use Wood Pellets RangeOven",
+    "End Use: Wood Pellets: Mech Vent Preheating_kBtu":                 "End Use Wood Pellets Mech Vent Preheating",
+    "End Use: Wood Pellets: Grill_kBtu":                                "End Use Wood Pellets Grill",
+    "End Use: Wood Pellets: Lighting_kBtu":                             "End Use Wood Pellets Lighting",
+    "End Use: Wood Pellets: Fireplace_kBtu":                            "End Use Wood Pellets Fireplace",
+    "End Use: Wood Pellets: Generator_kBtu":                            "End Use Wood Pellets Generator",
+    # End Use charbon (kBtu)
+    "End Use: Coal: Heating_kBtu":                                      "End Use Coal Heating",
+    "End Use: Coal: Heating Heat Pump Backup_kBtu":                     "End Use Coal Heating Heat Pump Backup",
+    "End Use: Coal: Hot Water_kBtu":                                    "End Use Coal Hot Water",
+    "End Use: Coal: Clothes Dryer_kBtu":                                "End Use Coal Clothes Dryer",
+    "End Use: Coal: Range/Oven_kBtu":                                   "End Use Coal RangeOven",
+    "End Use: Coal: Mech Vent Preheating_kBtu":                         "End Use Coal Mech Vent Preheating",
+    "End Use: Coal: Grill_kBtu":                                        "End Use Coal Grill",
+    "End Use: Coal: Lighting_kBtu":                                     "End Use Coal Lighting",
+    "End Use: Coal: Fireplace_kBtu":                                    "End Use Coal Fireplace",
+    "End Use: Coal: Generator_kBtu":                                    "End Use Coal Generator",
 }
 
 # Noms canoniques provenant de colonnes kBtu -> necessitent conversion
@@ -96,10 +134,11 @@ _KBTU_CANONICAL = {canon for raw, canon in _COLUMN_MAPPING.items() if raw.endswi
 
 def _prism_kpis(column):
     return [
-        {"name": "Pente_chauffage", "column": column, "params": {"type_jour": "Tous"}},
-        {"name": "Pente_clim",      "column": column, "params": {"type_jour": "Tous"}},
-        {"name": "Conso_base",      "column": column, "params": {"type_jour": "Tous"}},
-        {"name": "Type_PRISM",      "column": column, "params": {"type_jour": "Tous"}},
+        {"name": "Pente_chauffage",              "column": column, "params": {"type_jour": "Tous"}},
+        {"name": "Pente_clim",                   "column": column, "params": {"type_jour": "Tous"}},
+        {"name": "Conso_base",                   "column": column, "params": {"type_jour": "Tous"}},
+        {"name": "Type_PRISM",                   "column": column, "params": {"type_jour": "Tous"}},
+        {"name": "Puissance_par_bin_temperature", "column": column, "params": {"type_jour": "Tous"}},
     ]
 
 
@@ -116,19 +155,21 @@ def _profils(column, pas_de_temps="1h"):
     return entries
 
 
+def _seasonal(name, column, seasons=("Hiver", "Ete", "Misaison")):
+    """Genere des entrees KPI (une par saison) pour un KPI saisonnier."""
+    return [{"name": name, "column": column, "params": {"saison": s}} for s in seasons]
+
+
 def _seasonal_daily_kpis(column, seasons=("Hiver", "Ete", "Misaison")):
     """KPI quotidiens saisonniers parametriques (une entree par saison)."""
-    kpis = []
-    for saison in seasons:
-        kpis += [
-            {"name": "EcartType_Quotidien", "column": column, "params": {"saison": saison}},
-            {"name": "FU_Quotidien",        "column": column, "params": {"saison": saison}},
-            {"name": "RatioJN_Quotidien",   "column": column, "params": {"saison": saison}},
-        ]
-    return kpis
+    return [
+        *_seasonal("EcartType_Quotidien", column, seasons=seasons),
+        *_seasonal("FU_Quotidien", column, seasons=seasons),
+        *_seasonal("RatioJN_Quotidien", column, seasons=seasons),
+    ]
 
 
-def _all_kpis_for_column(column, with_prism=True, pas_de_temps="1h", with_seasonal=False):
+def _all_kpis_for_column(column, with_prism=True, pas_de_temps="1h", with_seasonal=True):
     kpis = [
         {"name": "Conso_annuelle",        "column": column, "params": {}},
         {"name": "Conso_mensuelle",       "column": column, "params": {}},
@@ -142,7 +183,7 @@ def _all_kpis_for_column(column, with_prism=True, pas_de_temps="1h", with_season
     return kpis
 
 
-def _kpis_without_profils(column, with_prism=False, with_seasonal=False):
+def _kpis_without_profils(column, with_prism=False, with_seasonal=True):
     kpis = [
         {"name": "Conso_annuelle",        "column": column, "params": {}},
         {"name": "Conso_mensuelle",       "column": column, "params": {}},
@@ -155,11 +196,14 @@ def _kpis_without_profils(column, with_prism=False, with_seasonal=False):
     return kpis
 
 
-def _end_use_focus_kpis(column, pas_de_temps="1h"):
+def _end_use_focus_kpis(column, pas_de_temps="1h", with_seasonal=True, with_prism=False):
+    seasonal_kpis = _seasonal_daily_kpis(column) if with_seasonal else []
+    prism_kpis = _prism_kpis(column) if with_prism else []
     return [
         {"name": "Conso_annuelle",        "column": column, "params": {}},
         {"name": "Variation_saisonniere", "column": column, "params": {}},
         {"name": "Conso_mensuelle",       "column": column, "params": {}},
+        *seasonal_kpis,
         {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Hiver",     "type_jour": "Semaine"}},
         {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Ete",       "type_jour": "Semaine"}},
         {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Automne",   "type_jour": "Semaine"}},
@@ -170,6 +214,7 @@ def _end_use_focus_kpis(column, pas_de_temps="1h"):
             "type_jour":  "JourPreconfigure",
             "jour_regle": "dernier_mercredi_janvier",
         }},
+        *prism_kpis,
     ]
 
 
@@ -212,15 +257,51 @@ _END_USE_COLUMNS = [
     "End Use Fuel Oil Hot Water",
     "End Use Fuel Oil Clothes Dryer",
     "End Use Fuel Oil RangeOven",
+    "End Use Fuel Oil Mech Vent Preheating",
+    "End Use Fuel Oil Grill",
+    "End Use Fuel Oil Lighting",
+    "End Use Fuel Oil Fireplace",
+    "End Use Fuel Oil Generator",
     "End Use Propane Heating",
     "End Use Propane Heating Heat Pump Backup",
     "End Use Propane Hot Water",
     "End Use Propane Clothes Dryer",
     "End Use Propane RangeOven",
+    "End Use Propane Mech Vent Preheating",
+    "End Use Propane Grill",
+    "End Use Propane Lighting",
+    "End Use Propane Fireplace",
+    "End Use Propane Generator",
     "End Use Wood Cord Heating",
+    "End Use Wood Cord Heating Heat Pump Backup",
     "End Use Wood Cord Hot Water",
+    "End Use Wood Cord Clothes Dryer",
+    "End Use Wood Cord RangeOven",
+    "End Use Wood Cord Mech Vent Preheating",
+    "End Use Wood Cord Grill",
+    "End Use Wood Cord Lighting",
+    "End Use Wood Cord Fireplace",
+    "End Use Wood Cord Generator",
     "End Use Wood Pellets Heating",
+    "End Use Wood Pellets Heating Heat Pump Backup",
     "End Use Wood Pellets Hot Water",
+    "End Use Wood Pellets Clothes Dryer",
+    "End Use Wood Pellets RangeOven",
+    "End Use Wood Pellets Mech Vent Preheating",
+    "End Use Wood Pellets Grill",
+    "End Use Wood Pellets Lighting",
+    "End Use Wood Pellets Fireplace",
+    "End Use Wood Pellets Generator",
+    "End Use Coal Heating",
+    "End Use Coal Heating Heat Pump Backup",
+    "End Use Coal Hot Water",
+    "End Use Coal Clothes Dryer",
+    "End Use Coal RangeOven",
+    "End Use Coal Mech Vent Preheating",
+    "End Use Coal Grill",
+    "End Use Coal Lighting",
+    "End Use Coal Fireplace",
+    "End Use Coal Generator",
 ]
 
 _FUEL_OTHER_COLUMNS = [
@@ -250,37 +331,67 @@ def _build_kpi_config(kpi_settings: dict) -> dict:
     include_seasonal = bool(s.get("include_seasonal",  True))
     include_fuel     = bool(s.get("include_fuel_totals", True))
     include_end_use  = bool(s.get("include_end_use",   True))
+    include_end_use_seasonal = bool(s.get("include_end_use_seasonal", False))
+    include_end_use_prism = bool(s.get("include_end_use_prism", False))
+
+    profile_pas_de_temps = s.get("profile_pas_de_temps")
+    if not profile_pas_de_temps:
+        if abs(timestep_h - 0.25) < 1e-9:
+            profile_pas_de_temps = "15min"
+        elif abs(timestep_h - 0.5) < 1e-9:
+            profile_pas_de_temps = "30min"
+        else:
+            profile_pas_de_temps = "1h"
 
     kpis = []
 
-    # Energie totale et nette
+    # Energie totale et nette: alignes avec la logique de source_kpi_config.
+    # PRISM desactive sur ces colonnes au niveau configuration.
     kpis += _all_kpis_for_column(
         "Energy Use Total",
-        with_prism=include_prism,
-        pas_de_temps="1h" if not include_profils else "1h",
-    ) if include_profils else _kpis_without_profils("Energy Use Total", with_prism=include_prism)
-    kpis += _all_kpis_for_column("Energy Use Net", with_prism=False, pas_de_temps="1h") \
-            if include_profils else _kpis_without_profils("Energy Use Net")
+        with_prism=False,
+        pas_de_temps=profile_pas_de_temps,
+        with_seasonal=False,
+    ) if include_profils else _kpis_without_profils(
+        "Energy Use Total",
+        with_prism=False,
+        with_seasonal=False,
+    )
+    kpis += _all_kpis_for_column(
+        "Energy Use Net",
+        with_prism=False,
+        pas_de_temps=profile_pas_de_temps,
+        with_seasonal=False,
+    ) if include_profils else _kpis_without_profils(
+        "Energy Use Net",
+        with_prism=False,
+        with_seasonal=False,
+    )
 
     # Electricite totale et nette
     kpis += _all_kpis_for_column(
         "Fuel Use Electricity Total",
         with_prism=include_prism,
-        pas_de_temps="1h",
+        pas_de_temps=profile_pas_de_temps,
         with_seasonal=include_seasonal,
     ) if include_profils else _kpis_without_profils("Fuel Use Electricity Total", with_prism=include_prism, with_seasonal=include_seasonal)
-    kpis += _all_kpis_for_column("Fuel Use Electricity Net", with_prism=False, pas_de_temps="1h", with_seasonal=include_seasonal) \
+    kpis += _all_kpis_for_column("Fuel Use Electricity Net", with_prism=False, pas_de_temps=profile_pas_de_temps, with_seasonal=include_seasonal) \
             if include_profils else _kpis_without_profils("Fuel Use Electricity Net", with_seasonal=include_seasonal)
 
     # Autres combustibles
     if include_fuel:
         for col in _FUEL_OTHER_COLUMNS:
-            kpis += _kpis_without_profils(col)
+            kpis += _kpis_without_profils(col, with_prism=False, with_seasonal=False)
 
     # End Use
     if include_end_use:
         for col in _END_USE_COLUMNS:
-            kpis += _end_use_focus_kpis(col, pas_de_temps="1h")
+            kpis += _end_use_focus_kpis(
+                col,
+                pas_de_temps=profile_pas_de_temps,
+                with_seasonal=include_end_use_seasonal,
+                with_prism=include_end_use_prism,
+            )
 
     return {
         "datetime_column":    "dateinterval",

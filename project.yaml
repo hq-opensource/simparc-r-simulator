@@ -60,7 +60,6 @@ USER_OUTPUT_METERS : "" # Comma-separated list of user-defined output meters to 
 # KPI post-processing settings
 INCLUDE_KPI : True # If true, calculates KPI from timeseries data during post-processing
 KPI_SETTING :
-  timestep_h : 0.25         # Timestep in hours (must match SIMULATION_TIMESTEP: 15min -> 0.25, 30min -> 0.5, 60min -> 1.0)
   include_prism : True      # PRISM model (Pente_chauffage, Pente_clim, Conso_base, Type_PRISM) on Energy Use Total and Electricity Total
   include_profils : True    # Profil (Hiver/Ete/Annee x Tous/Semaine/FinDeSemaine) on Energy Use Total and Electricity Total
   include_seasonal : True   # Seasonal daily KPIs (EcartType_Quotidien, FU_Quotidien, RatioJN_Quotidien x Hiver/Ete/Misaison) on Electricity Total and Net
