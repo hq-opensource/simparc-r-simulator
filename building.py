@@ -209,8 +209,13 @@ class Building:
         self.osw_content = {}
 
         # Define the path to the measures
-        self.osw_content['measure_paths'] = [os.path.join(project_dir, self.cfg["MEASURES_PATH"])]
-        
+        #self.osw_content['measure_paths'] = [os.path.join(project_dir, self.cfg["MEASURES_PATH_OPENSTUDIO_HPXML"])]
+        #self.osw_content['measure_paths'] = [os.path.join(project_dir, self.cfg["MEASURES_PATH_SIMPARC"])]
+
+        self.osw_content['measure_paths'] = [
+            os.path.join(project_dir, self.cfg["MEASURES_PATH_OPENSTUDIO_HPXML"]),
+            os.path.join(project_dir, self.cfg["MEASURES_PATH_SIMPARC"])
+        ]
         # Initialize the list of steps in the OSW content
         self.osw_content['steps'] = []
 
