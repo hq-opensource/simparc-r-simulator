@@ -38,8 +38,8 @@ def get_project_configuration(project_file):
     cfg["CURRENT_PATH"] = Path(project_file).parent.absolute()
     cfg["CONFIG_PATH"] = Path(project_file).absolute()
     cfg["RESULTS_PATH"] = cfg["CURRENT_PATH"] / "results"
+    cfg["MEASURES_PATH_SIMPARC"] = cfg["CURRENT_PATH"] / "measures"
     cfg["MEASURES_PATH_OPENSTUDIO_HPXML"] = cfg["CURRENT_PATH"] / "OpenStudio-HPXML"
-    cfg["MEASURES_PATH_SIMPARC"] = cfg["CURRENT_PATH"] / "mesures"
     cfg["WEATHER_FILES_PATH"] = cfg["CURRENT_PATH"] / "weather"
 
     return cfg

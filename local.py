@@ -80,7 +80,7 @@ class LocalBatch(BuildStockBatchBase):
                                                                                    mapping_region_weather[cfg["WEATHER_FILE_TYPE"]][str(cfg["SIMULATION_YEAR"])].get(building_data['non_hpxml_args']['Region_Administrative']))
 
         # Define the simulation settings
-        building_data['hpxml_args']['simulation_control_timestep'] = cfg["SIMULATION_TIMESTEP"]
+        building_data['hpxml_args']['simulation_control_timestep'] = str(cfg["SIMULATION_TIMESTEP"])
         building_data['hpxml_args']['simulation_control_run_period'] = cfg["SIMULATION_RUN_PERIOD"]
 
         # Define a new building based on the CSV data

@@ -2,14 +2,14 @@ SCHEMA_VERSION : "0.1"
 
 SAMPLE_FILE : test-building-stock-csv/building-stock-example.csv
 
-HPXML_SCHEMA_FILE : measures/BuildResidentialHPXML/measure.xml
+HPXML_SCHEMA_FILE : OpenStudio-HPXML/BuildResidentialHPXML/measure.xml
 
 SEED : 100
 # Define parallel processing settings
-N_JOBS : 20 # Number of parallel jobs (null = auto-detect based on CPU count)
+N_JOBS : 2 # Number of parallel jobs (null = auto-detect based on CPU count)
 
 # Define the simulation settings
-SIMULATION_TIMESTEP : 15 # minutes - must be integer and a divisor of 60 
+SIMULATION_TIMESTEP : 15 # minutes - must be integer in {1,2,3,4,5,6,1,12,15,20,30,60}
 SIMULATION_YEAR : 2023
 SIMULATION_RUN_PERIOD : "Jan 1 - Dec 31" # Define the simulation run using the same format (First 3 letters of month and day number) e.g., "Jan 1 - Dec 31", "Jun 1 - Aug 31"
 WEATHER_FILE_TYPE : "AMY" # Options: "AMY" for actual weather files (2022-2023) or "CWEC" for typical weather files (2020) or "PCIC" for projected future weather files (2020, 2050, 2080)
