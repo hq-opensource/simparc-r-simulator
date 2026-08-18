@@ -1,0 +1,3 @@
+[submodule "OpenStudio-HPXML"]
+	path = OpenStudio-HPXML
+	url = https://github.com/NatLabRockies/OpenStudio-HPXML.git

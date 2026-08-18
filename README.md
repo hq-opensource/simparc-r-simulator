@@ -57,7 +57,7 @@ Fichiers et modules principaux:
 ### Prérequis
 
 - Python 3.11+
-- OpenStudio SDK 3.9.0
+- OpenStudio SDK 3.11.0
 - Un des environnements suivants:
 	- Environnement local Python géré avec UV
 	- Dev Container (Docker + extension Dev Containers)
@@ -69,7 +69,7 @@ Les dépendances Python sont définies dans `pyproject.toml`.
 #### Option A: UV + SDK OpenStudio local
 
 1. Installer UV: https://docs.astral.sh/uv/getting-started/installation/
-2. Installer OpenStudio SDK 3.9.0: https://github.com/NREL/OpenStudio/releases/tag/v3.9.0
+2. Installer OpenStudio SDK 3.11.0: https://github.com/NREL/OpenStudio/releases/tag/v3.11.0
 3. Cloner ce dépôt.
 4. Installer les dépendances:
 

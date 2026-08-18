@@ -1,5 +1,5 @@
 # Dockerfile for VS Code Dev Container
-FROM nrel/openstudio:3.9.0
+FROM nrel/openstudio:3.11.0
 
 # Install Python and set python3 as default
 RUN apt-get update && \
