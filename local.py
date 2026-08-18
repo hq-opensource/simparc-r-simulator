@@ -75,7 +75,7 @@ class LocalBatch(BuildStockBatchBase):
 		# Define the right weather file path based on the weather file type, the simulation year and the administrative region
         with open('weather/mapping/Mapping-Region-EPWfiles.json', 'r') as f:
             mapping_region_weather = json.load(f)  
-        building_data['hpxml_args']['weather_station_epw_filepath'] = os.path.join(cfg["CURRENT_PATH"],
+        building_data['hpxml_args']['location_epw_path'] = os.path.join(cfg["CURRENT_PATH"],
                                                                                    cfg["WEATHER_FILES_PATH"],
                                                                                    mapping_region_weather[cfg["WEATHER_FILE_TYPE"]][str(cfg["SIMULATION_YEAR"])].get(building_data['non_hpxml_args']['Region_Administrative']))
 

@@ -76,7 +76,7 @@ class Building:
                     "Tconsignes_chauffage_H3": self.non_hpxml_args['Tconsignes_chauffage_H3'],
                     "Tconsignes_chauffage_H4": self.non_hpxml_args['Tconsignes_chauffage_H4']}
 
-            Time, Temp_Heating_Setpoint, Profil_Heating_Setpoint = self.prof_gen.temperature_setpoint(self.hpxml_args['weather_station_epw_filepath'],**params)
+            Time, Temp_Heating_Setpoint, Profil_Heating_Setpoint = self.prof_gen.temperature_setpoint(self.hpxml_args['location_epw_path'],**params)
             deltat = (Time[1]-Time[0]).total_seconds()/60
             time_min = np.arange(0,len(Time)*deltat,deltat)
 
@@ -146,7 +146,7 @@ class Building:
             if self.non_hpxml_args.get('Piscine_Chauffee','Non') != 'Oui':
                 pass
             else:
-                time_array, power_profile_heater_array = self.prof_gen.pool_heater(self.hpxml_args['weather_station_epw_filepath'],
+                time_array, power_profile_heater_array = self.prof_gen.pool_heater(self.hpxml_args['location_epw_path'],
                     pool_type=self.non_hpxml_args.get('Piscine_Type','Hors_Terre'),
                     with_cover=self.non_hpxml_args.get('Piscine_Toile','Oui'),
                     heater_type=self.hpxml_args.get('pool_heater_type','electric resistance'))
@@ -182,7 +182,7 @@ class Building:
                 if p in self.non_hpxml_args:
                     param_spa[p] = self.non_hpxml_args[p]
 
-            annual_energy_use_kWh, power_profile_array = self.prof_gen.spa(self.hpxml_args['weather_station_epw_filepath'], param_spa)
+            annual_energy_use_kWh, power_profile_array = self.prof_gen.spa(self.hpxml_args['location_epw_path'], param_spa)
             self.hpxml_args['permanent_spa_heater_annual_kwh'] = annual_energy_use_kWh
             self.hpxml_args['permanent_spa_heater_annual_therm'] = annual_energy_use_kWh / 29.3  # convert kWh to therms
             self.hpxml_args['permanent_spa_pump_annual_kwh'] = 0

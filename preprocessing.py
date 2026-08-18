@@ -95,7 +95,7 @@ def preprocess_data_to_dict(data: pd.DataFrame, args_constraints: dict, list_col
 				new_idata['hpxml_args'][attribute] = idata[attribute]
 			else:
 				new_idata['non_hpxml_args'][attribute] = idata[attribute]
-		new_idata['non_hpxml_args']['weather_station_epw'] = idata['weather_station_epw_filepath']
+		new_idata['non_hpxml_args']['location_epw_path'] = idata['location_epw_path']
 		new_data_dict.append(new_idata)
 
 	# Return the preprocessed data
