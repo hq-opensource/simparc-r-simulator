@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<measure>
+  <schema_version>3.1</schema_version>
+  <name>set_dual_fuel_heating_switchover</name>
+  <uid>3f2a9d6c-1b84-4e57-8c0a-7d9e2f5b6a10</uid>
+  <version_id>a1c7e04b-2d63-4f19-9e8a-5b0c3d6f7a21</version_id>
+  <version_modified>2026-07-17T21:35:02Z</version_modified>
+  <xml_checksum>A94076E7</xml_checksum>
+  <class_name>SetDualFuelHeatingSwitchover</class_name>
+  <display_name>Set Dual-Fuel Heating Switchover</display_name>
+  <description>Overrides the sequential heating fraction schedules of the two heating systems with outdoor-temperature-driven schedules so heating is dispatched as a bi-energy (dual-fuel) switchover: system 1 (primary) serves the entire load above the switchover temperature and system 2 (auxiliary) serves the entire load below it. Both systems are assumed to be sized to the full design load (see building.py). Sizing is left untouched.</description>
+  <modeler_description>Runs after HPXMLtoOpenStudio (post-sizing). Reads the building EPW (path passed as an argument, or the model weather file as a fallback) and builds two hourly fraction schedules from the outdoor drybulb temperature: primary = 1.0 when T_odb &gt;= switchover_temp else 0.0, auxiliary = 1.0 - primary. For each conditioned zone that has two heating participants (identified in heating-priority order), replaces the primary and auxiliary sequential heating fraction schedules with these two schedules. No EMS and no HPXML schema change are used.</modeler_description>
+  <arguments>
+    <argument>
+      <name>enabled</name>
+      <display_name>Enable Dual-Fuel Switchover</display_name>
+      <description>If true, overrides sequential heating fraction schedules with the temperature switchover. If false, the measure does nothing (stock behavior is preserved).</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>true</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>switchover_temp</name>
+      <display_name>Switchover Temperature</display_name>
+      <description>Outdoor drybulb temperature (deg C) at/above which the primary system (system 1) serves the entire load; below it the auxiliary system (system 2) serves the entire load.</description>
+      <type>Double</type>
+      <units>C</units>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>-12</default_value>
+    </argument>
+    <argument>
+      <name>epw_path</name>
+      <display_name>EPW File Path</display_name>
+      <description>Absolute path to the EPW weather file used to build the switchover schedule. If empty, the model weather file is used.</description>
+      <type>String</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value></default_value>
+    </argument>
+  </arguments>
+  <outputs />
+  <provenances />
+  <tags>
+    <tag>HVAC.HVAC Controls</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Measure Type</name>
+      <value>ModelMeasure</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>OpenStudio Application</value>
+      <datatype>string</datatype>
+    </attribute>
+  </attributes>
+  <files>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>3.9.0</identifier>
+        <min_compatible>3.9.0</min_compatible>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>00000000</checksum>
+    </file>
+  </files>
+</measure>

@@ -3,12 +3,15 @@
 # Import libraries
 import os
 import json
+import logging
 import numpy as np
 import pandas as pd
 import random
 
 # Import local libraries
 from stochastic_profile_generator.generator import profile_generator
+
+logger = logging.getLogger(__name__)
 
 # Class to define a building and its methods/attributes
 class Building:
@@ -53,6 +56,95 @@ class Building:
             if normalized in {"false", "0", "no", "n", "off", ""}:
                 return False
         return default
+
+    @staticmethod
+    def _parse_float(value, default=None):
+        """Parse a float from a CSV/non-HPXML input, falling back to a default."""
+        if value is None:
+            return default
+        if isinstance(value, bool):
+            return default
+        if isinstance(value, (int, float)):
+            if isinstance(value, float) and np.isnan(value):
+                return default
+            return float(value)
+        if isinstance(value, str):
+            normalized = value.strip()
+            if normalized == "":
+                return default
+            try:
+                return float(normalized)
+            except ValueError:
+                return default
+        return default
+
+    @staticmethod
+    def _normalize_backup_mode(value, default="default"):
+        """Normalize the heating dispatch selector to one of default/staged/dual.
+
+        Accepts the string ``backup_mode`` column. Unknown or missing values fall
+        back to ``default`` (stock OpenStudio-HPXML sequential dispatch).
+        """
+        valid = {"default", "staged", "dual"}
+        if value is None:
+            return default
+        if isinstance(value, float) and np.isnan(value):
+            return default
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized == "":
+                return default
+            if normalized in valid:
+                return normalized
+            logger.warning(
+                "Unknown backup_mode '%s'; falling back to '%s'.", value, default)
+            return default
+        logger.warning(
+            "Unexpected backup_mode value '%s'; falling back to '%s'.", value, default)
+        return default
+
+    def _apply_dual_sizing(self):
+        """Size both heating systems to the full design load for dual (bi-energy) mode.
+
+        Keeps the HPXML design fractions summing to 1 (0.5 / 0.5) so the schematron
+        constraint ``sum(FractionHeatLoadServed) == 1`` is satisfied, and applies an
+        autosizing factor of 2.0 to each so ACCA sizing yields the full design load
+        for both systems (0.5 * Q_design * 2.0 = Q_design). Runs before Step 1
+        (BuildResidentialHPXML), mutating ``self.hpxml_args`` in place.
+        """
+        overrides = {
+            "heating_system_fraction_heat_load_served": 0.5,
+            "heating_system_2_fraction_heat_load_served": 0.5,
+            "heating_system_heating_autosizing_factor": 2.0,
+            "heating_system_2_heating_autosizing_factor": 2.0,
+        }
+        for key, value in overrides.items():
+            existing = self.hpxml_args.get(key)
+            if existing is not None and existing != value:
+                logger.warning(
+                    "backup_mode=dual overriding '%s' from %s to %s for full-capacity "
+                    "sizing.", key, existing, value)
+            self.hpxml_args[key] = value
+
+        # A fixed capacity would ignore the autosizing factor, so force autosizing
+        # for any capacity the user may have provided.
+        for key in ("heating_system_heating_capacity",
+                    "heating_system_2_heating_capacity"):
+            if self.hpxml_args.get(key) is not None:
+                logger.warning(
+                    "backup_mode=dual clearing fixed '%s' so the system autosizes to "
+                    "the full design load.", key)
+                self.hpxml_args[key] = None
+
+        # An explicit autosizing limit would cap the factor below 2.0 and prevent
+        # full-capacity sizing.
+        for key in ("heating_system_heating_autosizing_limit",
+                    "heating_system_2_heating_autosizing_limit"):
+            if self.hpxml_args.get(key) is not None:
+                logger.warning(
+                    "backup_mode=dual clearing '%s' so the 2.0 autosizing factor is "
+                    "not capped.", key)
+                self.hpxml_args[key] = None
 
     def generate_stochastic_profile(self, building_dir: str):
         """
@@ -231,6 +323,13 @@ class Building:
         # Initialize the list of steps in the OSW content
         self.osw_content['steps'] = []
 
+        # Resolve the heating dispatch mode (default / staged / dual). For the dual
+        # (bi-energy) mode, size both heating systems to the full design load before
+        # BuildResidentialHPXML consumes self.hpxml_args in Step 1.
+        backup_mode = self._normalize_backup_mode(self.non_hpxml_args.get("backup_mode"))
+        if backup_mode == "dual":
+            self._apply_dual_sizing()
+
         # Step 1 - BuildResidentialHPXML
         step1 = {
             'measure_dir_name': 'BuildResidentialHPXML',
@@ -283,15 +382,28 @@ class Building:
             }}
         self.osw_content['steps'].append(step4)
 
-        # Step 4b - SetSequentialHeatingCascade (optional) - override sequential
-        # heating fraction schedules to 1.0 so heating is dispatched as a
-        # base-load/peaking cascade (system 1 = primary, system 2 = auxiliary).
-        # Runs after HPXMLtoOpenStudio (post-sizing) and before ReportSimulationOutput.
-        if self._parse_bool(self.non_hpxml_args.get("staged_backup_mode"), default=False):
+        # Step 4b - heating dispatch mode override (optional). Runs after
+        # HPXMLtoOpenStudio (post-sizing) and before ReportSimulationOutput so it
+        # operates on the sized model.
+        if backup_mode == "staged":
+            # Base-load/peaking cascade: override sequential heating fraction
+            # schedules to 1.0 (system 1 = primary, system 2 = auxiliary).
             step4b = {
                 'measure_dir_name': 'SetSequentialHeatingCascade',
                 'arguments': {
                     "enabled": True
+                }}
+            self.osw_content['steps'].append(step4b)
+        elif backup_mode == "dual":
+            # Bi-energy temperature switchover: system 1 serves the load above the
+            # switchover temperature, system 2 serves it below.
+            step4b = {
+                'measure_dir_name': 'SetDualFuelHeatingSwitchover',
+                'arguments': {
+                    "enabled": True,
+                    "switchover_temp": self._parse_float(
+                        self.non_hpxml_args.get("dual_switchover_temp"), default=-12.0),
+                    "epw_path": str(self.hpxml_args.get("weather_station_epw_filepath", ""))
                 }}
             self.osw_content['steps'].append(step4b)
 
