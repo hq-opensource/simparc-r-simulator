@@ -7,7 +7,112 @@ that is compatible with the current version.
 import pandas as pd
 import argparse
 import os
+import logging
+import re
 from pathlib import Path
+from read_option_tsv import get_tsv_data, get_option_names
+
+
+logger = logging.getLogger(__name__)
+
+
+def _build_geometry_unit_lookup(tsv_file_path):
+    """Build a map of (facility_type_lower, stories_int) -> option name."""
+    choices = {}
+    for row in get_tsv_data(tsv_file_path):
+        option_name = str(row.get('Option Name', '')).strip()
+        if option_name == '' or option_name.startswith('#'):
+            continue
+
+        facility_type = str(row.get('Facility Type', '')).strip().lower()
+        stories = row.get('Number of Stories', '')
+        if facility_type == '' or stories == '':
+            continue
+
+        try:
+            stories_int = int(float(str(stories)))
+        except (ValueError, TypeError):
+            continue
+
+        choices[(facility_type, stories_int)] = option_name
+    return choices
+
+
+def _format_number_token(value):
+    """
+        Format a numeric token to a string, removing unnecessary decimal points for integers.
+    """
+    try:
+        fval = float(str(value).strip())
+    except (ValueError, TypeError):
+        return None
+    if fval.is_integer():
+        return str(int(fval))
+    return f"{fval:.12g}"
+
+
+def _normalize_enclosure_value(text):
+    s = str(text).strip()
+    s = re.sub(r"\s+", " ", s)
+
+    m = re.match(r"^([0-9]*\.?[0-9]+)\s*(ACH|CFM)\s*([0-9]+)$", s, flags=re.IGNORECASE)
+    if m:
+        v = _format_number_token(m.group(1))
+        p = _format_number_token(m.group(3))
+        if (v is not None) and (p is not None):
+            return f"{v} {m.group(2).upper()}{p}"
+
+    m = re.match(r"^([0-9]*\.?[0-9]+)\s*(nACH|nCFM)$", s, flags=re.IGNORECASE)
+    if m:
+        v = _format_number_token(m.group(1))
+        if v is not None:
+            return f"{v} {m.group(2)}"
+
+    return s
+
+
+def _match_enclosure_option(raw_value, option_names):
+    normalized = _normalize_enclosure_value(raw_value)
+    lookup = {name.lower(): name for name in option_names}
+    direct = lookup.get(normalized.lower())
+    if direct is not None:
+        return direct
+
+    # Numeric fallback: pick nearest option with same unit flavor.
+    m = re.match(r"^([0-9]*\.?[0-9]+)\s*(ACH|CFM)([0-9]+)$", normalized, flags=re.IGNORECASE)
+    if m:
+        target_val = float(m.group(1))
+        target_kind = m.group(2).upper()
+        target_pressure = int(float(m.group(3)))
+        candidates = []
+        for name in option_names:
+            cm = re.match(r"^([0-9]*\.?[0-9]+)\s*(ACH|CFM)([0-9]+)$", name, flags=re.IGNORECASE)
+            if not cm:
+                continue
+            if cm.group(2).upper() != target_kind:
+                continue
+            if int(float(cm.group(3))) != target_pressure:
+                continue
+            candidates.append((abs(float(cm.group(1)) - target_val), name))
+        if candidates:
+            return sorted(candidates, key=lambda x: x[0])[0][1]
+
+    m = re.match(r"^([0-9]*\.?[0-9]+)\s*(nACH|nCFM)$", normalized, flags=re.IGNORECASE)
+    if m:
+        target_val = float(m.group(1))
+        target_kind = m.group(2).lower()
+        candidates = []
+        for name in option_names:
+            cm = re.match(r"^([0-9]*\.?[0-9]+)\s*(nACH|nCFM)$", name, flags=re.IGNORECASE)
+            if not cm:
+                continue
+            if cm.group(2).lower() != target_kind:
+                continue
+            candidates.append((abs(float(cm.group(1)) - target_val), name))
+        if candidates:
+            return sorted(candidates, key=lambda x: x[0])[0][1]
+
+    return None
 
 def update_column_values_v110_to_v112(df):
     """
@@ -96,20 +201,97 @@ def update_leakage_column_value(df):
         print(f"Warning: Missing columns {missing_cols}. Skipping enclosure_air_leakage creation.")
         return df
     
-    # Create enclosure_air_leakage column
-    df['enclosure_air_leakage'] = df.apply(
-        lambda row: build_enclosure_air_leakage_value(
-            row['air_leakage_value'],
-            row['air_leakage_units'],
-            row['air_leakage_house_pressure']
-        ),
-        axis=1
-    )
+    new_air_leakage_values = []
+    for idx, row in df.iterrows():
+        value = row['air_leakage_value']
+        units = row['air_leakage_units']
+        pressure = row['air_leakage_house_pressure']
+        
+        new_value = build_enclosure_air_leakage_value(value, units, pressure)
+        new_air_leakage_values.append(new_value)
+
+    # Normalize to canonical option names when available.
+    tsv_path = Path(__file__).resolve().parents[1] / 'OpenStudio-HPXML' / 'BuildResidentialHPXML' / 'resources' / 'options' / 'enclosure_air_leakage.tsv'
+    option_names = get_option_names(str(tsv_path))
+    
+    # find closest match for each new value
+    for i, new_value in enumerate(new_air_leakage_values):
+        if new_value is None:
+            continue
+        canonical = _match_enclosure_option(new_value, option_names)
+        if canonical is not None:
+            new_air_leakage_values[i] = canonical
+        else:
+            logger.warning(f"No matching option found for enclosure_air_leakage value '{new_value}'. Setting to None.")
+            new_air_leakage_values[i] = None
+    df['enclosure_air_leakage'] = new_air_leakage_values
 
     # remove the old required_cols
     df.drop(columns=required_cols, inplace=True)
     
     return df
+
+def update_geomtry_unit_v110_to_v112(df):
+    """
+    Update the geometry_unit column from v1.10→v1.12 migration.
+    
+    Args:
+        df (pd.DataFrame): The DataFrame to update.
+    Returns:
+        pd.DataFrame: The updated DataFrame.
+    """
+    # Get option names from geometry_unit_type TSV.
+    tsv_path = Path(__file__).resolve().parents[1] / 'OpenStudio-HPXML' / 'BuildResidentialHPXML' / 'resources' / 'options' / 'geometry_unit_type.tsv'
+    geometry_unit_choices = _build_geometry_unit_lookup(str(tsv_path))
+    option_names = get_option_names(str(tsv_path))
+    option_names_lower = {name.lower(): name for name in option_names}
+
+    aliases = {
+        'single family detached': 'single-family detached',
+        'single-family detached': 'single-family detached',
+        'single family attached': 'single-family attached',
+        'single-family attached': 'single-family attached',
+        'apartment': 'apartment unit',
+        'apartment unit': 'apartment unit',
+        'manufactured home': 'manufactured home',
+    }
+    
+    if 'geometry_unit_type' not in df.columns or 'geometry_unit_num_floors_above_grade' not in df.columns:
+        print("Warning: Missing column 'geometry_unit_type' or 'geometry_unit_num_floors_above_grade'. Skipping geometry_unit update.")
+        return df
+
+    # Map legacy values into the option-based format expected by v1.12.
+    for idx, row in df.iterrows():
+        old_value_unit = str(row['geometry_unit_type']).strip()
+        old_value_floor = row['geometry_unit_num_floors_above_grade']
+
+        # 1) Already in option format -> normalize case to canonical option text.
+        existing = option_names_lower.get(old_value_unit.lower())
+        if existing is not None:
+            df.at[idx, 'geometry_unit_type'] = existing
+            continue
+
+        # 2) Legacy format (e.g., "apartment unit") -> map with number of stories.
+        facility_key = aliases.get(old_value_unit.lower(), old_value_unit.lower())
+        try:
+            stories = int(float(str(old_value_floor).strip()))
+        except (ValueError, TypeError):
+            logger.warning(
+                f"Invalid geometry_unit_num_floors_above_grade '{old_value_floor}' for geometry_unit_type '{old_value_unit}'."
+            )
+            continue
+
+        mapped = geometry_unit_choices.get((facility_key, stories))
+        if mapped is None:
+            logger.warning(
+                f"No geometry unit option match for type '{old_value_unit}' and stories '{old_value_floor}'."
+            )
+            continue
+
+        df.at[idx, 'geometry_unit_type'] = mapped
+
+    return df
+
 
 def update_v110_to_v112(input_filePath, output_filePath):
     """
@@ -131,6 +313,9 @@ def update_v110_to_v112(input_filePath, output_filePath):
     
     # Create enclosure_air_leakage column from v1.10 component columns
     df = update_leakage_column_value(df)
+
+    # Update geometry_unit column from v1.10→v1.12 migration
+    df = update_geomtry_unit_v110_to_v112(df)
     
     # Save the updated CSV
     df.to_csv(output_filePath, index=False)
