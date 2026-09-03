@@ -1,6 +1,7 @@
 SCHEMA_VERSION : "0.1"
 
-SAMPLE_FILE : test-building-stock-csv/building-stock-example.csv
+SAMPLE_FILE : test-building-stock-csv/v1.12/building-stock-example-1.12.csv
+#SAMPLE_FILE : test-building-stock-csv/building-mini.csv
 
 HPXML_SCHEMA_FILE : OpenStudio-HPXML/BuildResidentialHPXML/measure.xml
 
@@ -17,8 +18,8 @@ WEATHER_FILE_TYPE : "AMY" # Options: "AMY" for actual weather files (2022-2023) 
 # Define the output settings
 ADD_COMPONENT_LOADS : False # If true, adds the calculation of heating/cooling component loads (not enabled by default for faster performance).
 SKIP_VALIDATION : False # If true, skips the validation of the HPXML file for faster performance.
-DEBUG_MODE : False # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
-BATCH_MODE : True
+DEBUG_MODE : True # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
+BATCH_MODE : False
 INCLUDE_ANNUAL_TOTAL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_FUEL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_END_USE_CONSUMPTIONS : True

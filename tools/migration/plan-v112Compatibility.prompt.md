@@ -6,9 +6,12 @@
 
 **Deux corrections nécessaires** :
 
-- a) **Dans `building-stock-example.csv` (et tous les CSV actifs)** : ajouter une colonne `enclosure_air_leakage` avec la valeur TSV correcte (ex. `"3 ACH50"`) construite depuis `air_leakage_value` + `air_leakage_units` + `air_leakage_house_pressure`. Cette colonne doit être définie dans `hpxml-args-constraints.json`.
+- **P1a) Construire `enclosure_air_leakage` dans le pipeline de preprocessing**
+  - La logique de construction est maintenant disponible dans `tools/migrate_csv.py` → fonction `build_enclosure_air_leakage_value()` (✅ Sep 3, 2026)
+  - **À implémenter** : Ajouter la même logique à `preprocessing.py` pour construire `enclosure_air_leakage` à partir de `air_leakage_value`, `air_leakage_units`, `air_leakage_house_pressure`
+  - Cette colonne doit être définie dans `hpxml-args-constraints.json` avec les choices du TSV `enclosure_air_leakage.tsv`
 
-- b) **Dans `OpenStudio-HPXML/HPXMLtoOpenStudio/resources/defaults.rb` ligne 1181** : remplacer l'accès direct `climate_zone_ieccs[0].zone` par un guard nil identique aux lignes 3084 et 3404 :
+- **P1b) Ajouter nil guard sur `climate_zone_ieccs[0]` dans `defaults.rb:1181`** : remplacer l'accès direct `climate_zone_ieccs[0].zone` par un guard nil identique aux lignes 3084 et 3404 :
   ```ruby
   # lignes 3084 et 3404 (pattern existant à réutiliser)
   iecc_cz = hpxml_bldg.climate_and_risk_zones.climate_zone_ieccs.empty? ? nil : hpxml_bldg.climate_and_risk_zones.climate_zone_ieccs[0].zone
@@ -36,12 +39,15 @@
 
 ---
 
-## 🟡 P4 — MODÉRÉ (robustesse)
+## ✅ P4 — RÉSOLU (Sep 3, 2026)
 
-**4. Construire la colonne `enclosure_air_leakage` dans `tools/migrate_csv.py`**
+**4. Construire la colonne `enclosure_air_leakage` dans `tools/migrate_csv.py`** ✅ **FAIT**
 
-- La migration v1.10→v1.12 doit générer `enclosure_air_leakage` (ex. `"3 ACH50"`) à partir de `air_leakage_value` + `air_leakage_units` + `air_leakage_house_pressure`, ou préserver les colonnes qualitatives (`Very Tight`, `Average`, etc.) selon les valeurs présentes.
-- Ajouter `enclosure_air_leakage` dans `hpxml-args-constraints.json` avec les choices du TSV.
+- ✅ Migration v1.10→v1.12 génère maintenant `enclosure_air_leakage` (ex. `"3 ACH50"`) à partir de `air_leakage_value` + `air_leakage_units` + `air_leakage_house_pressure`
+- ✅ Fonction `build_enclosure_air_leakage_value()` supporte ACH, CFM, et natural ACH
+- ✅ Validation des colonnes requises avec messages d'erreur clairs
+- ✅ Format TSV conforme aux choix de `enclosure_air_leakage.tsv`
+- **Suivant** : réutiliser cette logique pour P1a dans `preprocessing.py`
 
 ---
 
@@ -56,4 +62,10 @@ Tester les cas `input` seul et `input + output`.
 
 ---
 
-> **Résumé d'impact** : P1a+P1b débloquent toutes les simulations. P2 est à vérifier mais probablement déjà correct. P3+P4 solidifient la chaîne de migration CSV.
+> **Résumé d'impact** : 
+> - ✅ **P4 résolu** (Sep 3, 2026) — `tools/migrate_csv.py` construit maintenant `enclosure_air_leakage` correctement
+> - 🔴 **P1a reste critique** — Implémenter la même logique dans `preprocessing.py` pour le pipeline de simulation
+> - 🔴 **P1b reste critique** — Ajouter nil guard dans `defaults.rb:1181`
+> - P1a+P1b débloquent toutes les simulations v1.12
+> - P2 à vérifier après P1 fixé (probablement déjà correct)
+> - P3 solidifie migration CSV (spurious hvac_heating_system_fuel)

@@ -9,6 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
+# vscode
+.vscode
+
 # ignore the folder "results"
 results
 

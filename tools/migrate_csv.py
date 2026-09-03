@@ -9,41 +9,16 @@ import argparse
 import os
 from pathlib import Path
 
-def update_column_value(df, column_name, old_value, new_value):
+def update_column_values_v110_to_v112(df):
     """
-    Update the value of a specific column in a DataFrame.
+    Replace "none" with "not present" in v1.10→v1.12 migration.
 
     Args:
         df (pd.DataFrame): The DataFrame to update.
-        column_name (str): The name of the column to update.
-        old_value (str): The value to be replaced.
-        new_value (str): The new value to replace the old value.
         
     Returns:
         pd.DataFrame: The updated DataFrame.
-    """    
-    # Skip if column doesn't exist
-    if column_name not in df.columns:
-        return df
-    
-    # Update the specified column with the new value
-    df[column_name] = df[column_name].replace(old_value, new_value)
-    return df
-
-
-def update_v110_to_v112(input_filePath, output_filePath):
-    """
-    Update the CSV file from version 1.10 to version 1.12.
-    Replaces "none" with "not present" in 5 HPXML fields.
-
-    Args:
-        input_filePath (str): The path to the input CSV file.
-        output_filePath (str): The path to the output CSV file.
-    """   
-    # Load CSV once
-    df = pd.read_csv(input_filePath, dtype=str, keep_default_na=False)
-    
-    # Apply all replacements to the same DataFrame
+    """      
     columns_to_update = [
         'wall_siding_type',
         'window_interior_shading_type',
@@ -53,10 +28,115 @@ def update_v110_to_v112(input_filePath, output_filePath):
     ]
     
     for column in columns_to_update:
-        df = update_column_value(df, column, 'none', 'not present')
+        # Skip if column doesn't exist
+        if column not in df.columns:
+            continue
+        # Update the specified column with the new value
+        df[column] = df[column].replace('none', 'not present')
     
-    # Write output once
+    return df
+
+def build_enclosure_air_leakage_value(value, units, pressure):
+    """
+    Build the enclosure_air_leakage value from component columns.
+    
+    Format examples from TSV:
+    - "1 ACH50"  (ACH with pressure)
+    - "0.2 nACH" (natural ACH, no pressure)
+    - "1080 CFM50" (CFM with pressure)
+    
+    Args:
+        value (str/float): Air leakage numeric value
+        units (str): Units type (ACH, CFM, nACH, etc.)
+        pressure (str/int): House pressure (50, 45, etc.)
+        
+    Returns:
+        str: Formatted enclosure_air_leakage value, or None if inputs invalid
+    """
+    if pd.isna(value) or pd.isna(units):
+        return None
+    
+    # Convert to strings and normalize
+    value_str = str(value).strip()
+    units_str = str(units).strip().lower()
+    
+    # Natural ACH (nACH/ACHnatural) doesn't require pressure
+    if 'nach' in units_str or 'natural' in units_str:
+        return f"{value_str} nACH"
+    
+    # ACH and CFM require pressure
+    if pd.notna(pressure):
+        try:
+            pressure_int = int(float(str(pressure).strip()))
+            if 'ach' in units_str:
+                return f"{value_str} ACH{pressure_int}"
+            elif 'cfm' in units_str:
+                return f"{value_str} CFM{pressure_int}"
+        except (ValueError, TypeError):
+            return None
+    
+    return None
+
+
+def update_leakage_column_value(df):
+    """
+    Create the enclosure_air_leakage column from v1.10 air leakage component columns.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to update.
+
+    Returns:
+        pd.DataFrame: The updated DataFrame with enclosure_air_leakage column.
+    """    
+    # Check if required columns exist
+    required_cols = ['air_leakage_value', 'air_leakage_units', 'air_leakage_house_pressure']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        print(f"Warning: Missing columns {missing_cols}. Skipping enclosure_air_leakage creation.")
+        return df
+    
+    # Create enclosure_air_leakage column
+    df['enclosure_air_leakage'] = df.apply(
+        lambda row: build_enclosure_air_leakage_value(
+            row['air_leakage_value'],
+            row['air_leakage_units'],
+            row['air_leakage_house_pressure']
+        ),
+        axis=1
+    )
+
+    # remove the old required_cols
+    df.drop(columns=required_cols, inplace=True)
+    
+    return df
+
+def update_v110_to_v112(input_filePath, output_filePath):
+    """
+    Update the CSV file from version 1.10 to version 1.12.
+    
+    Performs two migrations:
+    1. Replaces "none" with "not present" in 5 HPXML fields
+    2. Creates enclosure_air_leakage column from v1.10 air leakage component columns
+
+    Args:
+        input_filePath (str): The path to the input CSV file.
+        output_filePath (str): The path to the output CSV file.
+    """   
+    # Load CSV once
+    df = pd.read_csv(input_filePath, dtype=str, keep_default_na=False)
+    
+    # Apply v1.10→v1.12 value replacements
+    df = update_column_values_v110_to_v112(df)
+    
+    # Create enclosure_air_leakage column from v1.10 component columns
+    df = update_leakage_column_value(df)
+    
+    # Save the updated CSV
     df.to_csv(output_filePath, index=False)
+    print(f"  ✓ Replaced 'none' → 'not present' (5 columns)")
+    print(f"  ✓ Created enclosure_air_leakage column")
+   
     
 def main(input_filePath, output_filePath=None):
     """
@@ -90,6 +170,7 @@ def main(input_filePath, output_filePath=None):
     print(f"Output:    {output_filePath}")
     
     update_v110_to_v112(input_filePath, output_filePath)
+
     print(f"✓ Migration complete: {output_filePath}")
 
 
@@ -104,7 +185,7 @@ if __name__ == "__main__":
             
             # Migrate to specific output path
             python migrate_csv.py input.csv output.csv
-                    """
+            """
     )
     
     parser.add_argument(

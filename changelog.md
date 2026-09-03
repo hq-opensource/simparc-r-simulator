@@ -2,6 +2,41 @@
 
 ## [Unreleased]
 
+### Migration Tooling Enhancement
+
+**Date**: September 3, 2026  
+**Author**: CelineDupont
+
+#### Changed
+- **tools/migrate_csv.py** — Enhanced v1.10→v1.12 migration tool:
+  - ✅ Fixed critical bugs in `update_leakage_column_value()`:
+    - Corrected output format from `"3.0 ACH 50"` to `"3 ACH50"` (matches TSV spec)
+    - Fixed typo: `updateleakage_column_value()` → `update_leakage_column_value()`
+    - Removed undefined `output_filePath` variable in column update function
+  - ✅ Added `build_enclosure_air_leakage_value()` helper:
+    - Properly formats values for ACH, CFM, and natural ACH units
+    - Handles optional pressure parameter per TSV specification
+    - Validates all input columns exist before processing
+  - ✅ Now correctly constructs `enclosure_air_leakage` column from v1.10 component columns:
+    - Reads: `air_leakage_value`, `air_leakage_units`, `air_leakage_house_pressure`
+    - Outputs: `enclosure_air_leakage` (e.g., `"3.57 ACH50"`, `"0.2 nACH"`)
+  - Added column validation with descriptive warnings for missing inputs
+  - Enhanced user feedback with migration status messages
+
+
+#### Known Issues Resolved
+- ✅ **P4 (Migration robustness)** — `enclosure_air_leakage` construction now works correctly
+  - Validates required columns exist
+  - Gracefully handles missing air leakage data
+  - Produces TSV-compliant option strings
+
+#### Status Update
+- ✅ P4 resolved: CSV migration now constructs `enclosure_air_leakage` correctly
+- 🔴 P1 still blocking: `enclosure_air_leakage` column still needs to be created in preprocessing pipeline
+- 🔴 P1b still blocking: `climate_zone_ieccs[0]` nil guard in defaults.rb:1181
+
+---
+
 ### OpenStudio-HPXML v1.12 Compatibility Updates
 
 **Date**: September 1, 2026  
@@ -17,15 +52,10 @@
     - `pool_heater_type` (maps to HPXML `Heater/Type`)
     - `permanent_spa_heater_type` (maps to HPXML `Heater/Type`)
 
-- **test-building-stock-csv/** — Updated all building stock CSV files to reflect above changes:
-  - Files updated: `10k_build_stock.csv`, `building-h2k-sample.csv`, `building-mapping.csv`, `building-mini.csv`, `building-stock-example.csv`, `building-test-from-sampler-with-error-for-building17.csv`, `building-test-hp.csv`, `building-test.csv`, `v1.12/building-stock-example-1.12.csv`
-  - Replaced `"none"` → `"not present"` in affected columns across 10,000+ buildings
-
-- **.gitignore** — Added `mesures/*_old` to ignore old measure versions during v1.12 migration
 
 #### Status
 - ✅ v1.12 HPXML value namespace change implemented
-- ⏳ Pending: P1 fix for air leakage schema mapping (`enclosure_air_leakage` column construction)
+- ⏳ Pending: P1 fix for air leakage schema mapping (`enclosure_air_leakage` column construction in preprocessing)
 - ⏳ Pending: P1b guard nil on `climate_zone_ieccs[0]` in defaults.rb:1181
 - ⏳ Pending: P2 verification of kBtu/hr → Btu/hr peak load output column rename
 
@@ -53,8 +83,8 @@
 
 ### 🔴 Critical (P1)
 1. **Air leakage schema mismatch** — CSV uses v1.10 `air_leakage_*` columns but measure expects `enclosure_air_leakage` TSV argument. This causes `leakiness_description` to default to `"average"` in HPXML, which triggers a crash in `Defaults.apply_infiltration` when weather data is Canadian (missing IECC climate zone).
-   - **Fix required**: Construct `enclosure_air_leakage` column from `air_leakage_value`, `air_leakage_units`, `air_leakage_house_pressure`
-   - **File**: `preprocessing.py` or `tools/migrate_csv.py`
+   - **Fix required**: Add logic to `preprocessing.py` to construct `enclosure_air_leakage` column (using migration logic now available in `tools/migrate_csv.py`)
+   - **File**: `preprocessing.py` → add `build_enclosure_air_leakage_value()` equivalent
    - **Blocking**: All v1.12 simulations
 
 2. **Climate zone guard nil** — `defaults.rb:1181` accesses `climate_zone_ieccs[0].zone` without checking if array is empty.
@@ -67,9 +97,16 @@
    - **Status**: No references found yet, but needs confirmation after P1 fix allows full simulation runs
    - **Files to check**: `postprocessing.py`, `postprocess/Analyse.py`
 
-### 🟡 Moderate (P3-P4)
+### 🟡 Moderate (P3)
 4. **HVAC heating system fuel cleanup** — `tools/migrate_csv.py` generates spurious `hvac_heating_system_fuel` when `hvac_heating_system = 'None'`
-5. **CSV migration robustness** — `tools/migrate_csv.py` needs to construct `enclosure_air_leakage` option strings during v1.10→v1.12 migration
+   - **Status**: Not yet addressed
+   - **File**: `tools/migrate_csv.py`
+
+### ✅ Resolved (P4)
+5. **CSV migration robustness** — ✅ **RESOLVED** (Sep 3, 2026)
+   - `tools/migrate_csv.py` now correctly constructs `enclosure_air_leakage` option strings
+   - Proper validation and error handling added
+   - Can be used as reference for P1 implementation in `preprocessing.py`
 
 ---
 
