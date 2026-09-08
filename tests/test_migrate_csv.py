@@ -20,9 +20,9 @@ from migrate_csv import (  # noqa: E402
 from read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
 
 
-def _get_measure_choices(argument_name):
-    """Extract measure choices from tests/ressource/measure.xml by argument name."""
-    measure_path = REPO_ROOT / "tests" / "ressource" / "measure.xml"
+def _get_measure_argument_v110(argument_name, measure_path=None):
+    """Extract the full argument definition from the measure XML for a given argument name."""
+    measure_path = measure_path or (REPO_ROOT / "tests" / "ressource" / "measure.xml")
     root = ET.parse(measure_path).getroot()
 
     for arg in root.findall(".//argument"):
@@ -32,17 +32,33 @@ def _get_measure_choices(argument_name):
         if (name_node.text or "").strip() != argument_name:
             continue
 
-        values = []
+        choices = []
         for choice in arg.findall("./choices/choice"):
             value_node = choice.find("value")
             if value_node is None:
                 continue
             val = (value_node.text or "").strip()
             if val:
-                values.append(val)
-        return values
+                choices.append(val)
 
-    return []
+        default_node = arg.find("default_value")
+        required_node = arg.find("required")
+        type_node = arg.find("type")
+
+        return {
+            "Name": (name_node.text or "").strip(),
+            "Type": (type_node.text or "").strip() if type_node is not None else "",
+            "Required": (required_node.text or "").strip() if required_node is not None else "",
+            "Choices": choices,
+            "Default Value": (default_node.text or "").strip() if default_node is not None else "",
+        }
+
+    return {}
+
+
+def _get_measure_choices(argument_name, measure_path=None):
+    """Extract measure choices from tests/ressource/measure.xml by argument name."""
+    return _get_measure_argument_v110(argument_name, measure_path).get("Choices", [])
 
 
 class TestMigrateCsvLeakage(unittest.TestCase):
@@ -144,7 +160,8 @@ class TestMigrateCsvLeakage(unittest.TestCase):
 class TestMigrateCsvGeometry(unittest.TestCase):
     def test_all_geometry_unit_type_from_legacy_map_to_option_name(self):
         """Validate legacy measure.xml geometry_unit_type choices map to geometry_unit_type Option Name values."""
-        unit_choices = _get_measure_choices("geometry_unit_type")
+        constraints = {"geometry_unit_type": _get_measure_argument_v110("geometry_unit_type")}
+        unit_choices = constraints["geometry_unit_type"].get("Choices", [])
         self.assertGreater(
             len(unit_choices), 0, "No geometry_unit_type choices found in measure.xml."
         )
@@ -214,8 +231,12 @@ class TestMigrateCsvGeometry(unittest.TestCase):
 class TestMigrateCsvAttic(unittest.TestCase):
     def test_all_attic_type_from_legacy_map_to_option_name(self):
         """Validate legacy measure.xml attic/roof choices map to canonical Option Name values."""
-        attic_choices = _get_measure_choices("geometry_attic_type")
-        roof_choices = _get_measure_choices("geometry_roof_type")
+        constraints = {
+            "geometry_attic_type": _get_measure_argument_v110("geometry_attic_type"),
+            "geometry_roof_type": _get_measure_argument_v110("geometry_roof_type"),
+        }
+        attic_choices = constraints["geometry_attic_type"].get("Choices", [])
+        roof_choices = constraints["geometry_roof_type"].get("Choices", [])
 
         self.assertGreater(
             len(attic_choices),
@@ -310,7 +331,10 @@ class TestMigrateCsvAttic(unittest.TestCase):
 class TestMigrateCsvFoundation(unittest.TestCase):
     def test_all_foundation_type_from_legacy_map_to_option_name(self):
         """Validate legacy measure.xml geometry_foundation_type choices map to geometry_foundation_type Option Name values."""
-        foundation_choices = _get_measure_choices("geometry_foundation_type")
+        constraints = {
+            "geometry_foundation_type": _get_measure_argument_v110("geometry_foundation_type"),
+        }
+        foundation_choices = constraints["geometry_foundation_type"].get("Choices", [])
         self.assertGreater(
             len(foundation_choices),
             0,
@@ -339,12 +363,14 @@ class TestMigrateCsvFoundation(unittest.TestCase):
                 continue
 
             type_name = str(row.get("Type", "")).strip()
+            height = row.get("Height [ft]", "")
             hag = row.get("Height Above Grade [ft]", "")
+            rim_joist = row.get("Rim Joist Height [in]", "")
             if type_name == "":
                 continue
 
             rows_by_type.setdefault(type_name.lower(), []).append(
-                (str(hag), option_name)
+                (str(hag), str(height), str(rim_joist), option_name)
             )
             valid_option_names.add(option_name)
 
@@ -359,12 +385,13 @@ class TestMigrateCsvFoundation(unittest.TestCase):
                 continue
 
             covered_foundation_choices.add(type_key)
-
-            for hag, option_name in candidates:
+            for hag, height, rim_joist, option_name in candidates:
                 test_rows.append(
                     {
                         "geometry_foundation_type": foundation_type,
                         "geometry_foundation_height_above_grade": hag,
+                        "geometry_foundation_height": height,
+                        "geometry_rim_joist_height": rim_joist,
                     }
                 )
                 expected.append(option_name)
@@ -378,6 +405,12 @@ class TestMigrateCsvFoundation(unittest.TestCase):
 
         input_df = pd.DataFrame(test_rows, dtype=str)
         out_df = update_geometry_foundation_v110_to_v112(input_df.copy())
+
+        # for debugging, print the input and output DataFrames
+        print("Input DataFrame:")
+        print(input_df)
+        print("Output DataFrame:")
+        print(out_df)
 
         for idx, exp in enumerate(expected):
             with self.subTest(
