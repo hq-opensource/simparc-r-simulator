@@ -9,9 +9,7 @@ Inspired by BuildResidentialHPXML/resources/options.rb:
 import csv
 from pathlib import Path
 
-
 _TSV_CACHE = {}
-
 
 def _is_comment_row(row):
     option_name = row.get("Option Name")
