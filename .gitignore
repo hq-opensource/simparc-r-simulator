@@ -24,3 +24,4 @@ openstudio-3.11.0
 
 # ignore the folder "site"
 site
+measures/*_old

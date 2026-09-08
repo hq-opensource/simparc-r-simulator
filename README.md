@@ -84,7 +84,7 @@ uv sync
 Exemple (PowerShell):
 
 ```powershell
-$env:OPENSTUDIO_EXE = "C:\path\to\OpenStudio-3.9.0\bin\openstudio.exe"
+$env:OPENSTUDIO_EXE = "C:\path\to\OpenStudio-3.11.0\bin\openstudio.exe"
 ```
 
 #### Option B: Dev Container
