@@ -7,22 +7,43 @@ import pandas as pd
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-TOOLS_DIR = REPO_ROOT / "tools"
-if str(TOOLS_DIR) not in sys.path:
-    sys.path.insert(0, str(TOOLS_DIR))
+MIGRATION_SRC_DIR = REPO_ROOT / "migration" / "src"
+for candidate in [MIGRATION_SRC_DIR, REPO_ROOT / "tools"]:
+    if candidate.exists() and str(candidate) not in sys.path:
+        sys.path.insert(0, str(candidate))
 
-from migrate_csv import (  # noqa: E402
-    update_air_leakage_v110_to_v112,
-    update_geomtry_unit_v110_to_v112,
-    update_geometry_attic_v110_to_v112,
-    update_geometry_foundation_v110_to_v112,
-)
-from read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
+try:
+    from migration.src.migrate_csv import (  # noqa: E402
+        update_air_leakage_v110_to_v112,
+        update_duct_leakage_v110_to_v112,
+        update_geometry_unit_v110_to_v112,
+        update_geometry_attic_v110_to_v112,
+        update_geometry_foundation_v110_to_v112,
+        update_pool_parameters_v110_to_v112,
+    )
+    from migration.src.read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
+except ModuleNotFoundError:  # pragma: no cover - fallback for legacy layout
+    from migrate_csv import (  # noqa: E402
+        update_air_leakage_v110_to_v112,
+        update_duct_leakage_v110_to_v112,
+        update_geometry_unit_v110_to_v112,
+        update_geometry_attic_v110_to_v112,
+        update_geometry_foundation_v110_to_v112,
+        update_pool_parameters_v110_to_v112,
+    )
+    from read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
+
+
+def test_option_tsv_paths_resolve_under_repo_root():
+    """The migration tool must read TSV files from the repository root, not from migration/src."""
+    path = REPO_ROOT / "OpenStudio-HPXML" / "BuildResidentialHPXML" / "resources" / "options" / "enclosure_air_leakage.tsv"
+    assert path.exists(), f"Expected TSV file to exist at {path}"
+    assert len(get_option_names(str(path))) > 0
 
 
 def _get_measure_argument_v110(argument_name, measure_path=None):
     """Extract the full argument definition from the measure XML for a given argument name."""
-    measure_path = measure_path or (REPO_ROOT / "tests" / "ressource" / "measure.xml")
+    measure_path = measure_path or (REPO_ROOT / "tests" / "ressource" / "measure_1.10.xml")
     root = ET.parse(measure_path).getroot()
 
     for arg in root.findall(".//argument"):
@@ -60,6 +81,23 @@ def _get_measure_choices(argument_name, measure_path=None):
     """Extract measure choices from tests/ressource/measure.xml by argument name."""
     return _get_measure_argument_v110(argument_name, measure_path).get("Choices", [])
 
+def _print_debug_info(input_df, out_df):
+    print("Input DataFrame:")
+    print(input_df)
+    print("Output DataFrame:")
+    print(out_df)
+
+
+def _assert_option_mapping(self, mapper, input_df, expected, valid_option_names, output_col):
+    """Apply a mapper and validate that each legacy value resolves to an option name."""    
+    out_df = mapper(input_df.copy())
+    _print_debug_info(input_df, out_df)
+    for idx, exp in enumerate(expected):
+        with self.subTest(i=idx, legacy=input_df.iloc[idx].to_dict()):
+            got = out_df.iloc[idx][output_col]
+            self.assertEqual(exp, got)
+            self.assertIn(got, valid_option_names)
+
 
 class TestMigrateCsvLeakage(unittest.TestCase):
     def test_air_leakage_from_measure_choices_with_fixed_values(self):
@@ -70,7 +108,7 @@ class TestMigrateCsvLeakage(unittest.TestCase):
         )
 
         # air_leakage_house_pressure is a Double in measure.xml (no explicit choices).
-        measure_path = REPO_ROOT / "tests" / "ressource" / "measure.xml"
+        measure_path = REPO_ROOT / "tests" / "ressource" / "measure_1.10.xml"
         root = ET.parse(measure_path).getroot()
         pressure_arg = None
         for arg in root.findall(".//argument"):
@@ -134,13 +172,7 @@ class TestMigrateCsvLeakage(unittest.TestCase):
         )
 
         input_df = pd.DataFrame(test_rows, dtype=str)
-        out_df = update_air_leakage_v110_to_v112(input_df.copy())
-
-        # for debugging, print the input and output DataFrames
-        print("Input DataFrame:")
-        print(input_df)
-        print("Output DataFrame:")
-        print(out_df)
+        out_df = update_air_leakage_v110_to_v112(input_df.copy())       
 
         self.assertIn("enclosure_air_leakage", out_df.columns)
 
@@ -219,13 +251,14 @@ class TestMigrateCsvGeometry(unittest.TestCase):
         self.assertEqual(set(c.lower() for c in unit_choices), covered_unit_choices)
 
         input_df = pd.DataFrame(test_rows, dtype=str)
-        out_df = update_geomtry_unit_v110_to_v112(input_df.copy())
-
-        for idx, exp in enumerate(expected):
-            with self.subTest(i=idx, legacy=input_df.loc[idx, "geometry_unit_type"]):
-                got = out_df.loc[idx, "geometry_unit_type"]
-                self.assertEqual(exp, got)
-                self.assertIn(got, valid_option_names)
+        _assert_option_mapping(
+            self,
+            update_geometry_unit_v110_to_v112,
+            input_df,
+            expected,
+            valid_option_names,
+            "geometry_unit_type",
+        )
 
 
 class TestMigrateCsvAttic(unittest.TestCase):
@@ -319,13 +352,14 @@ class TestMigrateCsvAttic(unittest.TestCase):
         self.assertEqual(set(c.lower() for c in attic_choices), covered_attic_choices)
 
         input_df = pd.DataFrame(test_rows, dtype=str)
-        out_df = update_geometry_attic_v110_to_v112(input_df.copy())
-
-        for idx, exp in enumerate(expected):
-            with self.subTest(i=idx, legacy=input_df.loc[idx, "geometry_attic_type"]):
-                got = out_df.loc[idx, "geometry_attic_type"]
-                self.assertEqual(exp, got)
-                self.assertIn(got, valid_option_names)
+        _assert_option_mapping(
+            self,
+            update_geometry_attic_v110_to_v112,
+            input_df,
+            expected,
+            valid_option_names,
+            "geometry_attic_type",
+        )
 
 
 class TestMigrateCsvFoundation(unittest.TestCase):
@@ -404,21 +438,149 @@ class TestMigrateCsvFoundation(unittest.TestCase):
         )
 
         input_df = pd.DataFrame(test_rows, dtype=str)
-        out_df = update_geometry_foundation_v110_to_v112(input_df.copy())
+        _assert_option_mapping(
+            self,
+            update_geometry_foundation_v110_to_v112,
+            input_df,
+            expected,
+            valid_option_names,
+            "geometry_foundation_type",
+        )
 
-        # for debugging, print the input and output DataFrames
-        print("Input DataFrame:")
-        print(input_df)
-        print("Output DataFrame:")
-        print(out_df)
 
-        for idx, exp in enumerate(expected):
-            with self.subTest(
-                i=idx, legacy=input_df.loc[idx, "geometry_foundation_type"]
-            ):
-                got = out_df.loc[idx, "geometry_foundation_type"]
-                self.assertEqual(exp, got)
-                self.assertIn(got, valid_option_names)
+class TestMigrateCsvPoolSpa(unittest.TestCase):
+    def test_pool_and_spa_legacy_columns_map_to_misc_options(self):
+        """Validate pool/spa legacy columns are migrated to misc_pool/misc_permanent_spa."""
+        input_df = pd.DataFrame(
+            [
+                {
+                    "pool_present": "false",
+                    "pool_pump_usage_multiplier": "",
+                    "pool_heater_type": "none",
+                    "pool_heater_usage_multiplier": "",
+                    "permanent_spa_present": "false",
+                    "permanent_spa_heater_type": "none",
+                },
+                {
+                    "pool_present": "true",
+                    "pool_pump_usage_multiplier": "0.5",
+                    "pool_heater_type": "none",
+                    "pool_heater_usage_multiplier": "",
+                    "permanent_spa_present": "true",
+                    "permanent_spa_heater_type": "electric resistance",
+                    "permanent_spa_heater_usage_multiplier": "2",
+                },
+                {
+                    "pool_present": "true",
+                    "pool_pump_annual_kwh": "2700",
+                    "pool_heater_type": "gas fired",
+                    "pool_heater_annual_therm": "500",
+                    "permanent_spa_present": "true",
+                    "permanent_spa_pump_annual_kwh": "1000",
+                    "permanent_spa_heater_type": "heat pump",
+                    "permanent_spa_heater_annual_kwh": "260",
+                },
+            ],
+            dtype=str,
+        )
+
+        out_df = update_pool_parameters_v110_to_v112(input_df.copy())
+
+        self.assertEqual(out_df.loc[0, "misc_pool"], "None")
+        self.assertEqual(out_df.loc[0, "misc_permanent_spa"], "None")
+
+        self.assertEqual(out_df.loc[1, "misc_pool"], "Unheated, 50% Usage")
+        self.assertEqual(
+            out_df.loc[1, "misc_permanent_spa"],
+            "Electric Resistance Heater, 200% Usage",
+        )
+
+        self.assertEqual(
+            out_df.loc[2, "misc_pool"],
+            "Detailed Example: 2700 kWh/yr Pump, 500 therms/yr Natural Gas Heater",
+        )
+        self.assertEqual(
+            out_df.loc[2, "misc_permanent_spa"],
+            "Detailed Example: 1000 kWh/yr Pump, 260 kWh/yr Heat Pump Heater",
+        )
+
+        dropped_cols = [
+            "pool_present",
+            "pool_pump_annual_kwh",
+            "pool_pump_usage_multiplier",
+            "pool_heater_type",
+            "pool_heater_annual_kwh",
+            "pool_heater_annual_therm",
+            "pool_heater_usage_multiplier",
+            "permanent_spa_present",
+            "permanent_spa_pump_annual_kwh",
+            "permanent_spa_pump_usage_multiplier",
+            "permanent_spa_heater_type",
+            "permanent_spa_heater_annual_kwh",
+            "permanent_spa_heater_annual_therm",
+            "permanent_spa_heater_usage_multiplier",
+        ]
+        for col in dropped_cols:
+            self.assertNotIn(col, out_df.columns)
+
+
+class TestMigrateCsvDucts(unittest.TestCase):
+    def test_legacy_duct_columns_map_to_hvac_ducts(self):
+        input_df = pd.DataFrame(
+            [
+                {
+                    "HVAC Has Ducts": "No",
+                    "ducts_leakage_units": "Percent",
+                    "ducts_supply_leakage_to_outside_value": "0.1",
+                    "ducts_return_leakage_to_outside_value": "0.1",
+                    "ducts_supply_insulation_r": "0",
+                    "ducts_return_insulation_r": "0",
+                },
+                {
+                    "HVAC Has Ducts": "Yes",
+                    "ducts_leakage_units": "Percent",
+                    "ducts_supply_leakage_to_outside_value": "0.075",
+                    "ducts_return_leakage_to_outside_value": "0.075",
+                    "ducts_supply_insulation_r": "0",
+                    "ducts_return_insulation_r": "0",
+                },
+                {
+                    "HVAC Has Ducts": "Yes",
+                    "ducts_leakage_units": "Percent",
+                    "ducts_supply_leakage_to_outside_value": "0.05",
+                    "ducts_return_leakage_to_outside_value": "0.05",
+                    "ducts_supply_insulation_r": "4",
+                    "ducts_return_insulation_r": "4",
+                },
+                {
+                    "HVAC Has Ducts": "Yes",
+                    "hvac_ducts": "10% Leakage, R-6",
+                    "ducts_leakage_units": "Percent",
+                    "ducts_supply_leakage_to_outside_value": "0.1",
+                    "ducts_return_leakage_to_outside_value": "0.1",
+                    "ducts_supply_insulation_r": "6",
+                    "ducts_return_insulation_r": "6",
+                },
+            ],
+            dtype=str,
+        )
+
+        out_df = update_duct_leakage_v110_to_v112(input_df.copy())
+
+        self.assertEqual(out_df.loc[0, "hvac_ducts"], "None")
+        self.assertEqual(out_df.loc[1, "hvac_ducts"], "15% Leakage, Uninsulated")
+        self.assertEqual(out_df.loc[2, "hvac_ducts"], "10% Leakage, R-4")
+        self.assertEqual(out_df.loc[3, "hvac_ducts"], "10% Leakage, R-6")
+
+        dropped_cols = [
+            "ducts_leakage_units",
+            "ducts_supply_leakage_to_outside_value",
+            "ducts_supply_insulation_r",
+            "ducts_return_leakage_to_outside_value",
+            "ducts_return_insulation_r",
+        ]
+        for col in dropped_cols:
+            self.assertNotIn(col, out_df.columns)
 
 
 if __name__ == "__main__":
