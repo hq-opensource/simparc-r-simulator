@@ -18,6 +18,31 @@ from utils import *
 
 logger = logging.getLogger(__name__)
 
+def configure_logging(config_filepath: str):
+    project_dir = Path(config_filepath).resolve().parent
+    log_file = project_dir / "simparc.log"
+
+    if log_file.exists():
+        log_file.unlink()
+
+    formatter = logging.Formatter(
+        "%(message)s"
+    )
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setFormatter(formatter)
+
+    root_logger = logging.getLogger()
+    root_logger.handlers.clear()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
+
+    logger.info("Logging initialized. Log file: %s", log_file)
+
 class LocalBatch(BuildStockBatchBase):
     def __init__(self,project_filename):
         super().__init__(project_filename)
@@ -211,6 +236,8 @@ def main():
     parser.add_argument("config_filepath", help="Path to the configuration file. (.yaml)")
     parser.add_argument("--postprocessonly",help="Only do postprocessing, useful for when the simulations are already done",action="store_true")
     args = parser.parse_args()
+
+    configure_logging(args.config_filepath)
 
     b = LocalBatch(args.config_filepath)
 
