@@ -7,16 +7,26 @@ that is compatible with the current version.
 import sys
 from pathlib import Path
 
-SRC_DIR = Path(__file__).resolve().parent
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
+if __package__ in (None, ""):
+    REPO_ROOT = Path(__file__).resolve().parents[2]
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
 
 import pandas as pd
 import argparse
 import os
 import logging
-from utils.read_option_tsv import get_tsv_data, get_option_names
-from utils.utils import (
+
+from migration.src.utils.read_option_tsv import get_tsv_data, get_option_names
+from migration.src.utils.constants import (
+    GEOMETRY_CEILING_HEIGHT_CHOICES,
+    GEOMETRY_UNIT_DIRECTION_CHOICES,
+)
+from migration.src.utils.migration_helper import (
+    format_ceiling_height_choice,
+    format_unit_direction_choice,
+)
+from migration.src.utils.utils import (
     _build_geometry_unit_lookup,
     _build_misc_option_from_legacy,
     _legacy_overhang_cols,
@@ -52,6 +62,83 @@ def update_column_values_v110_to_v112(df):
         # Update the specified column with the new value
         df[column] = df[column].replace("none", "not present")
 
+    return df
+
+
+def drop_legacy_columns(df, columns, message):
+    """Drop legacy columns from the DataFrame if they exist, and log a message if any are dropped."""
+    missing_columns = [column for column in columns if column not in df.columns]
+    if len(missing_columns) != len(columns):
+        logger.info(message)
+    columns_to_drop = [column for column in columns if column in df.columns]
+    if len(columns_to_drop) > 0:
+        df.drop(columns=columns_to_drop, inplace=True)
+    return df
+
+
+def update_simulation_control_daylight_saving_enabled_v110_to_v112(df):
+    """Drop the deprecated daylight-saving toggle; v1.12 derives DST from site defaults."""
+    return drop_legacy_columns(
+        df,
+        ["simulation_control_daylight_saving_enabled"],
+        "Dropping deprecated simulation_control_daylight_saving_enabled column.",
+    )
+
+
+def update_site_time_zone_utc_offset_v110_to_v112(df):
+    """Drop the legacy site timezone offset; v1.12 resolves timezone from location defaults."""
+    return drop_legacy_columns(
+        df,
+        ["site_time_zone_utc_offset"],
+        "Dropping deprecated site_time_zone_utc_offset column.",
+    )
+
+
+def update_geometry_building_num_units_v110_to_v112(df):
+    """Keep the legacy building-unit count input; v1.12 still writes it to HPXML."""
+    if "geometry_building_num_units" in df.columns:
+        logger.info("Keeping geometry_building_num_units for HPXML NumberofUnitsInBuilding.")
+    return df
+
+
+def update_year_built_v110_to_v112(df):
+    """Rename the legacy year_built input to the v1.12 building_year_built field."""
+    if "year_built" in df.columns:
+        df.rename(columns={"year_built": "building_year_built"}, inplace=True)
+    return df
+
+
+def update_geometry_unit_cfa_v110_to_v112(df):
+    """Rename the legacy unit floor area input to the v1.12 geometry_unit_conditioned_floor_area field."""
+    if "geometry_unit_cfa" in df.columns:
+        df.rename(
+            columns={"geometry_unit_cfa": "geometry_unit_conditioned_floor_area"},
+            inplace=True,
+        )
+    return df
+
+
+def update_geometry_average_ceiling_height_v110_to_v112(df):
+    """Map the legacy ceiling-height value to the v1.12 geometry_ceiling_height choice list."""
+    if "geometry_average_ceiling_height" not in df.columns:
+        return df
+
+    df["geometry_ceiling_height"] = df["geometry_average_ceiling_height"].apply(
+        format_ceiling_height_choice
+    )
+    df.drop(columns=["geometry_average_ceiling_height"], inplace=True)
+    return df
+
+
+def update_geometry_unit_orientation_v110_to_v112(df):
+    """Map the legacy unit azimuth to the v1.12 geometry_unit_direction choice list."""
+    if "geometry_unit_orientation" not in df.columns:
+        return df
+
+    df["geometry_unit_direction"] = df["geometry_unit_orientation"].apply(
+        format_unit_direction_choice
+    )
+    df.drop(columns=["geometry_unit_orientation"], inplace=True)
     return df
 
 
@@ -658,9 +745,7 @@ def update_v110_to_v112(input_filePath, output_filePath):
     """
     Update the CSV file from version 1.10 to version 1.12.
 
-    Performs two migrations:
-    1. Replaces "none" with "not present" in 5 HPXML fields
-    2. Creates enclosure_air_leakage column from v1.10 air leakage component columns
+    Performs the migration steps needed for the v1.10 -> v1.12 input format.
 
     Args:
         input_filePath (str): The path to the input CSV file.
@@ -671,6 +756,15 @@ def update_v110_to_v112(input_filePath, output_filePath):
 
     # Apply v1.10→v1.12 value replacements
     df = update_column_values_v110_to_v112(df)
+
+    # Drop deprecated or renamed simulation-control/site columns and convert geometry inputs.
+    df = update_simulation_control_daylight_saving_enabled_v110_to_v112(df)
+    df = update_site_time_zone_utc_offset_v110_to_v112(df)
+    df = update_geometry_building_num_units_v110_to_v112(df)
+    df = update_year_built_v110_to_v112(df)
+    df = update_geometry_unit_cfa_v110_to_v112(df)
+    df = update_geometry_average_ceiling_height_v110_to_v112(df)
+    df = update_geometry_unit_orientation_v110_to_v112(df)
 
     # Create enclosure_air_leakage column from v1.10 component columns
     df = update_air_leakage_v110_to_v112(df)
@@ -700,6 +794,7 @@ def update_v110_to_v112(input_filePath, output_filePath):
     # Save the updated CSV
     df.to_csv(output_filePath, index=False)
     print(f"  ✓ Replaced 'none' → 'not present' (5 columns)")
+    print("  ✓ Updated first five migration columns")
     print(f"  ✓ Created enclosure_air_leakage column")
 
 

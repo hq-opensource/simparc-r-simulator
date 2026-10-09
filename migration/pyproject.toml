@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simparc-migration"
+version = "0.1.0"
+description = "Standalone migration utilities for HPXML CSV conversion"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2.3",
+]
+
+[project.scripts]
+simparc-migrate = "migration.src.main:main"
+
+[tool.setuptools]
+package-dir = {"" = ".."}
+packages = ["migration", "migration.src", "migration.src.utils"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

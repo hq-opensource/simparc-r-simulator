@@ -105,12 +105,15 @@ def preprocess_data_types(data: pd.DataFrame, args_constraints: dict, old_args: 
         'String': str,
     }
     list_columns_hpxml = []
+
+    arg_keys = sorted(set(args_constraints.keys()))
+
     old_args_keys = set(old_args.keys())
     # sort in alphabetical order for consistent processing
     old_args_keys = sorted(old_args_keys)
 
     for column in data.columns:
-        if column in args_constraints:
+        if column in arg_keys: #args_constraints:
             col_type = args_constraints[column]['Type']
             if col_type == 'String' or col_type == 'Choice':
                 # Preserve NaN for string-like columns instead of converting to literal "nan"
@@ -119,7 +122,7 @@ def preprocess_data_types(data: pd.DataFrame, args_constraints: dict, old_args: 
                 data[column] = data[column].astype(dict_data_types[col_type])
             list_columns_hpxml.append(column)
         elif column in old_args_keys:
-            logger.warning("Column '%s' was in old constraint and is not mapped to a new valur. To investigate", column)
+            logger.warning("Column '%s' was in old constraint and is not mapped to a new value. To investigate", column)
 
     return data, list_columns_hpxml
 

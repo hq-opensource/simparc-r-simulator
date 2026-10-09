@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from utils.read_option_tsv import get_tsv_data
+from migration.src.utils.read_option_tsv import get_tsv_data
 
 
 logger = logging.getLogger(__name__)

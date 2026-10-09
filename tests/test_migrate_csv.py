@@ -20,9 +20,10 @@ try:
         update_geometry_attic_v110_to_v112,
         update_geometry_foundation_v110_to_v112,
         update_heat_pump_v110_to_v112,
+        update_enclosure_overhangs_v110_to_v112,
         update_pool_parameters_v110_to_v112,
     )
-    from migration.src.read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
+    from migration.src.utils.read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
 except ModuleNotFoundError:  # pragma: no cover - fallback for legacy layout
     from migrate_csv import (  # noqa: E402
         update_air_leakage_v110_to_v112,
@@ -31,9 +32,10 @@ except ModuleNotFoundError:  # pragma: no cover - fallback for legacy layout
         update_geometry_attic_v110_to_v112,
         update_geometry_foundation_v110_to_v112,
         update_heat_pump_v110_to_v112,
+        update_enclosure_overhangs_v110_to_v112,
         update_pool_parameters_v110_to_v112,
     )
-    from read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
+    from utils.read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
 
 
 def test_option_tsv_paths_resolve_under_repo_root():
@@ -45,7 +47,7 @@ def test_option_tsv_paths_resolve_under_repo_root():
 
 def _get_measure_argument_v110(argument_name, measure_path=None):
     """Extract the full argument definition from the measure XML for a given argument name."""
-    measure_path = measure_path or (REPO_ROOT / "tests" / "ressource" / "measure_1.10.xml")
+    measure_path = measure_path or (REPO_ROOT / "migration" / "tests" / "ressource" / "measure_1.10.xml")
     root = ET.parse(measure_path).getroot()
 
     for arg in root.findall(".//argument"):
@@ -110,7 +112,7 @@ class TestMigrateCsvLeakage(unittest.TestCase):
         )
 
         # air_leakage_house_pressure is a Double in measure.xml (no explicit choices).
-        measure_path = REPO_ROOT / "tests" / "ressource" / "measure_1.10.xml"
+        measure_path = REPO_ROOT / "migration" / "tests" / "ressource" / "measure_1.10.xml"
         root = ET.parse(measure_path).getroot()
         pressure_arg = None
         for arg in root.findall(".//argument"):
@@ -498,6 +500,26 @@ class TestMigrateCsvFoundation(unittest.TestCase):
             valid_option_names,
             "geometry_foundation_type",
         )
+
+
+class TestMigrateCsvOverhangs(unittest.TestCase):
+    def test_legacy_overhang_columns_map_to_enclosure_overhangs(self):
+        """Validate legacy overhang columns resolve to a v1.12 enclosure_overhangs option."""
+        input_df = pd.DataFrame(
+            [
+                {
+                    "overhangs_front_depth": "1",
+                    "overhangs_front_distance_to_top_of_window": "1",
+                    "overhangs_front_distance_to_bottom_of_window": "4",
+                }
+            ]
+        )
+
+        out_df = update_enclosure_overhangs_v110_to_v112(input_df.copy())
+        self.assertEqual(out_df.loc[0, "enclosure_overhangs"], "1ft, All Windows")
+        self.assertNotIn("overhangs_front_depth", out_df.columns)
+        self.assertNotIn("overhangs_front_distance_to_top_of_window", out_df.columns)
+        self.assertNotIn("overhangs_front_distance_to_bottom_of_window", out_df.columns)
 
 
 class TestMigrateCsvPoolSpa(unittest.TestCase):
