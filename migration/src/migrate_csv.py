@@ -15,8 +15,8 @@ import pandas as pd
 import argparse
 import os
 import logging
-from read_option_tsv import get_tsv_data, get_option_names
-from utils import (
+from utils.read_option_tsv import get_tsv_data, get_option_names
+from utils.utils import (
     _build_geometry_unit_lookup,
     _build_misc_option_from_legacy,
     _legacy_overhang_cols,
@@ -110,7 +110,6 @@ def update_air_leakage_v110_to_v112(df):
     df.drop(columns=required_cols, inplace=True)
 
     return df
-
 
 def update_geometry_unit_v110_to_v112(df):
     """
@@ -695,11 +694,299 @@ def update_v110_to_v112(input_filePath, output_filePath):
     # Update legacy duct leakage/insulation columns to hvac_ducts option values
     df = update_duct_leakage_v110_to_v112(df)
 
+    # Update heat pump option strings from legacy v1.10 inputs
+    df = update_heat_pump_v110_to_v112(df)
+
     # Save the updated CSV
     df.to_csv(output_filePath, index=False)
     print(f"  ✓ Replaced 'none' → 'not present' (5 columns)")
     print(f"  ✓ Created enclosure_air_leakage column")
 
+
+def update_heat_pump_v110_to_v112(df):
+    """Map legacy v1.10 heat pump inputs to canonical v1.12 option strings."""
+
+    if "heat_pump_type" not in df.columns:
+        return df
+
+    hvac_tsv_path = _option_tsv_path("hvac_heat_pump.tsv")
+    backup_tsv_path = _option_tsv_path("hvac_heat_pump_backup.tsv")
+    temp_tsv_path = _option_tsv_path("hvac_heat_pump_temperatures.tsv")
+
+    hvac_rows = get_tsv_data(str(hvac_tsv_path))
+    backup_rows = get_tsv_data(str(backup_tsv_path))
+    temp_rows = get_tsv_data(str(temp_tsv_path))
+
+    hvac_option_names = get_option_names(str(hvac_tsv_path))
+    hvac_option_names_lower = {name.lower(): name for name in hvac_option_names}
+    backup_option_names = get_option_names(str(backup_tsv_path))
+    backup_option_names_lower = {name.lower(): name for name in backup_option_names}
+    temp_option_names = get_option_names(str(temp_tsv_path))
+    temp_option_names_lower = {name.lower(): name for name in temp_option_names}
+
+    def _normalize_type(value):
+        if value is None:
+            return ""
+        key = str(value).strip().lower()
+        key = key.replace("_", " ")
+        aliases = {
+            "airtoair": "air-to-air",
+            "mini split": "mini-split",
+            "minisplit": "mini-split",
+            "groundtoair": "ground-to-air",
+            "packaged terminal heat pump": "packaged terminal heat pump",
+            "packagedterminalheatpump": "packaged terminal heat pump",
+            "room air conditioner with reverse cycle": "room air conditioner with reverse cycle",
+            "roomairconditionerwithreversecycle": "room air conditioner with reverse cycle",
+        }
+        return aliases.get(key, key)
+
+    def _legacy_efficiency_value(value, eff_type):
+        fval = _to_optional_float(value)
+        if fval is None:
+            return None
+        if eff_type in {"SEER", "HSPF", "EER", "CEER", "COP"}:
+            return fval
+        if eff_type == "SEER2":
+            return fval
+        if eff_type == "HSPF2":
+            return fval
+        return fval
+
+    def _match_hvac_heat_pump(row):
+        legacy_type = _normalize_type(row.get("heat_pump_type"))
+        legacy_heating_type = str(row.get("heat_pump_heating_efficiency_type", "")).strip()
+        legacy_cooling_type = str(row.get("heat_pump_cooling_efficiency_type", "")).strip()
+        legacy_heating_eff = _to_optional_float(row.get("heat_pump_heating_efficiency"))
+        legacy_cooling_eff = _to_optional_float(row.get("heat_pump_cooling_efficiency"))
+        legacy_comp = str(row.get("heat_pump_cooling_compressor_type", "")).strip().lower()
+
+        if legacy_type in {"", "none", "not present"}:
+            return "None"
+
+        best_name = None
+        best_score = None
+        for opt in hvac_rows:
+            option_name = str(opt.get("Option Name", "")).strip()
+            if option_name == "" or option_name.startswith("#"):
+                continue
+            opt_type = _normalize_type(opt.get("Type", ""))
+            if opt_type != legacy_type:
+                continue
+
+            opt_comp = str(opt.get("Cooling Compressor Type", "")).strip().lower()
+            if legacy_comp and opt_comp and legacy_comp != opt_comp:
+                continue
+
+            opt_cooling_type = str(opt.get("Cooling Efficiency Type", "")).strip()
+            opt_heating_type = str(opt.get("Heating Efficiency Type", "")).strip()
+            opt_hval = _to_optional_float(opt.get("Heating Efficiency"))
+            opt_cval = _to_optional_float(opt.get("Cooling Efficiency"))
+
+            if legacy_heating_type and opt_heating_type and legacy_heating_type != opt_heating_type:
+                if legacy_heating_type == "HSPF" and opt_heating_type == "HSPF2":
+                    exp = legacy_heating_eff * 0.85 if legacy_heating_eff is not None else None
+                elif legacy_heating_type == "HSPF2" and opt_heating_type == "HSPF":
+                    exp = legacy_heating_eff / 0.85 if legacy_heating_eff is not None else None
+                else:
+                    exp = None
+                if exp is None:
+                    continue
+                score = abs(exp - opt_hval) if opt_hval is not None else 1e6
+            elif legacy_heating_eff is not None and opt_hval is not None:
+                score = abs(legacy_heating_eff - opt_hval)
+            else:
+                score = 0.0
+
+            if legacy_cooling_type and opt_cooling_type and legacy_cooling_type != opt_cooling_type:
+                if legacy_cooling_type == "SEER" and opt_cooling_type == "SEER2":
+                    exp = legacy_cooling_eff * 0.95 if legacy_cooling_eff is not None else None
+                elif legacy_cooling_type == "SEER2" and opt_cooling_type == "SEER":
+                    exp = legacy_cooling_eff / 0.95 if legacy_cooling_eff is not None else None
+                else:
+                    exp = None
+                if exp is None:
+                    continue
+                score += abs(exp - opt_cval) if opt_cval is not None else 1e6
+            elif legacy_cooling_eff is not None and opt_cval is not None:
+                score += abs(legacy_cooling_eff - opt_cval)
+            else:
+                score += 0.0
+
+            if best_score is None or score < best_score:
+                best_score = score
+                best_name = option_name
+
+        if best_name is None:
+            direct = hvac_option_names_lower.get(str(row.get("heat_pump_type", "")).strip().lower())
+            if direct is not None:
+                return direct
+            logger.warning(
+                "No hvac_heat_pump match for legacy heat_pump_type '%s' with efficiencies %s/%s.",
+                legacy_type,
+                legacy_heating_eff,
+                legacy_cooling_eff,
+            )
+            return "None"
+
+        return best_name
+
+    def _format_percent_value(value):
+        fval = _to_optional_float(value)
+        if fval is None:
+            return None
+        return fval / 100.0 if fval > 1.0 else fval
+
+    def _match_backup_option(row):
+        legacy_type = str(row.get("heat_pump_backup_type", "")).strip().lower()
+        if legacy_type in {"", "none", "not present"}:
+            return "None"
+        if legacy_type == "separate":
+            return "Separate Heating System"
+
+        fuel = str(row.get("heat_pump_backup_fuel", "")).strip().lower()
+        eff = _to_optional_float(row.get("heat_pump_backup_heating_efficiency"))
+        if fuel == "" or eff is None:
+            return "None"
+
+        best_name = None
+        best_score = None
+        for opt in backup_rows:
+            option_name = str(opt.get("Option Name", "")).strip()
+            if option_name == "" or option_name.startswith("#"):
+                continue
+            opt_type = str(opt.get("Type", "")).strip().lower()
+            if opt_type != "integrated":
+                continue
+            opt_fuel = str(opt.get("Fuel", "")).strip().lower()
+            if fuel != opt_fuel:
+                continue
+            opt_eff = _to_optional_float(opt.get("Heating Efficiency [Frac]"))
+            if opt_eff is None:
+                continue
+            normalized_eff = _format_percent_value(eff)
+            score = abs(normalized_eff - opt_eff) if normalized_eff is not None else 1e6
+            if best_score is None or score < best_score:
+                best_score = score
+                best_name = option_name
+
+        if best_name is None:
+            direct = backup_option_names_lower.get(
+                f"integrated, {fuel}, {str(row.get('heat_pump_backup_heating_efficiency', '')).strip()}".lower()
+            )
+            if direct is not None:
+                return direct
+            logger.warning(
+                "No hvac_heat_pump_backup match for legacy values type='%s', fuel='%s', eff='%s'.",
+                legacy_type,
+                fuel,
+                row.get("heat_pump_backup_heating_efficiency"),
+            )
+            return "None"
+        return best_name
+
+    def _match_temperature_option(row):
+        compressor = _to_optional_float(row.get("heat_pump_compressor_lockout_temp"))
+        backup_lock = _to_optional_float(row.get("heat_pump_backup_heating_lockout_temp"))
+
+        if compressor is None and backup_lock is None:
+            return "None"
+
+        if compressor is not None and backup_lock is not None:
+            target = str(row.get("heat_pump_compressor_lockout_temp", "")).strip()
+            if abs(compressor - backup_lock) < 1e-6:
+                exact = f"{int(round(compressor))}F Min Compressor Temp, {int(round(compressor))}F Max HP Backup Temp"
+                if exact in temp_option_names_lower:
+                    return temp_option_names_lower[exact]
+                return f"{int(round(compressor))}F Min Compressor Temp"
+            exact_name = f"{int(round(compressor))}F Min Compressor Temp"
+            if exact_name in temp_option_names_lower:
+                return temp_option_names_lower[exact_name]
+            if backup_lock is not None:
+                return f"{int(round(compressor))}F Min Compressor Temp"
+
+        if compressor is not None:
+            val = int(round(compressor))
+            exact = f"{val}F Min Compressor Temp"
+            if exact in temp_option_names_lower:
+                return temp_option_names_lower[exact]
+            return exact
+
+        if backup_lock is not None:
+            val = int(round(backup_lock))
+            exact = f"{val}F Min Compressor Temp"
+            if exact in temp_option_names_lower:
+                return temp_option_names_lower[exact]
+            return exact
+
+        return "None"
+
+    def _match_fraction_option(row, value_col, tsv_name):
+        if value_col not in row or pd.isna(row.get(value_col)):
+            return None
+        fraction = _to_optional_float(row.get(value_col))
+        if fraction is None:
+            return None
+        if fraction < 0.0:
+            fraction = 0.0
+        if fraction > 1.0:
+            fraction = fraction / 100.0
+
+        tsv_path = _option_tsv_path(tsv_name)
+        rows = get_tsv_data(str(tsv_path))
+        best_name = None
+        best_score = None
+        for opt in rows:
+            option_name = str(opt.get("Option Name", "")).strip()
+            if option_name == "" or option_name.startswith("#"):
+                continue
+            opt_value = _to_optional_float(opt.get("Fraction"))
+            if opt_value is None:
+                continue
+            score = abs(fraction - opt_value)
+            if best_score is None or score < best_score:
+                best_score = score
+                best_name = option_name
+        if best_name is None:
+            return None
+        return best_name
+
+    for idx, row in df.iterrows():
+        df.at[idx, "hvac_heat_pump"] = _match_hvac_heat_pump(row)
+        df.at[idx, "hvac_heat_pump_heating_load_served"] = _match_fraction_option(
+            row, "heat_pump_fraction_heat_load_served", "hvac_heat_pump_heating_load_served.tsv"
+        )
+        df.at[idx, "hvac_heat_pump_cooling_load_served"] = _match_fraction_option(
+            row, "heat_pump_fraction_cool_load_served", "hvac_heat_pump_cooling_load_served.tsv"
+        )
+        df.at[idx, "hvac_heat_pump_temperatures"] = _match_temperature_option(row)
+        df.at[idx, "hvac_heat_pump_backup"] = _match_backup_option(row)
+
+    old_columns = [
+        "heat_pump_type",
+        "heat_pump_heating_efficiency_type",
+        "heat_pump_heating_efficiency",
+        "heat_pump_cooling_efficiency_type",
+        "heat_pump_cooling_efficiency",
+        "heat_pump_cooling_compressor_type",
+        "heat_pump_fraction_heat_load_served",
+        "heat_pump_fraction_cool_load_served",
+        "heat_pump_compressor_lockout_temp",
+        "heat_pump_backup_type",
+        "heat_pump_backup_fuel",
+        "heat_pump_backup_heating_efficiency",
+        "heat_pump_backup_heating_lockout_temp",
+    ]
+    for col in old_columns:
+        if col in df.columns:
+            df.drop(columns=[col], inplace=True)
+
+    return df
+
+
+def update_heat_pummp_v110_to_v112(df):
+    """Backward-compatible alias for the heat pump migration function."""
+    return update_heat_pump_v110_to_v112(df)
 
 def main(input_filePath, output_filePath=None):
     """

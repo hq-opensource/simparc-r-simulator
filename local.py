@@ -157,7 +157,7 @@ class LocalBatch(BuildStockBatchBase):
         start_time = time.perf_counter()
 
         # Get the building properties from a CSV file
-        data = read_csv(path_rel_to_file(self.cfg["CURRENT_PATH"], self.cfg["SAMPLE_FILE"]))
+        data = pd.read_csv(path_rel_to_file(self.cfg["CURRENT_PATH"], self.cfg["SAMPLE_FILE"]))
         
 		# Define a seed for each building for reproducibility
         if "SEED" not in self.cfg:

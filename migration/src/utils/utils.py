@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from read_option_tsv import get_tsv_data
+from utils.read_option_tsv import get_tsv_data
 
 
 logger = logging.getLogger(__name__)
@@ -144,7 +144,7 @@ def _repo_root_from_script():
     """Return the project root that contains OpenStudio-HPXML and migration/."""
     script_dir = Path(__file__).resolve().parent
     candidates = [
-        script_dir.parent,
+        script_dir.parent.parent.parent,
         script_dir.parent.parent,
     ]
 

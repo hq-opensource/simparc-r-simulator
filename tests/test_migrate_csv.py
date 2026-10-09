@@ -19,6 +19,7 @@ try:
         update_geometry_unit_v110_to_v112,
         update_geometry_attic_v110_to_v112,
         update_geometry_foundation_v110_to_v112,
+        update_heat_pump_v110_to_v112,
         update_pool_parameters_v110_to_v112,
     )
     from migration.src.read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
@@ -29,6 +30,7 @@ except ModuleNotFoundError:  # pragma: no cover - fallback for legacy layout
         update_geometry_unit_v110_to_v112,
         update_geometry_attic_v110_to_v112,
         update_geometry_foundation_v110_to_v112,
+        update_heat_pump_v110_to_v112,
         update_pool_parameters_v110_to_v112,
     )
     from read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
@@ -187,6 +189,56 @@ class TestMigrateCsvLeakage(unittest.TestCase):
                     self.assertIn(got, valid_option_names)
                 else:
                     self.assertTrue(pd.isna(got))
+
+
+class TestMigrateCsvHeatPump(unittest.TestCase):
+    def test_heat_pump_legacy_fields_map_to_v112_option_strings(self):
+        input_df = pd.DataFrame(
+            [
+                {
+                    "heat_pump_type": "air-to-air",
+                    "heat_pump_heating_efficiency_type": "HSPF2",
+                    "heat_pump_heating_efficiency": 5.8,
+                    "heat_pump_cooling_efficiency_type": "SEER2",
+                    "heat_pump_cooling_efficiency": 9.5,
+                    "heat_pump_cooling_compressor_type": "single stage",
+                    "heat_pump_fraction_heat_load_served": 0.75,
+                    "heat_pump_fraction_cool_load_served": 0.75,
+                    "heat_pump_compressor_lockout_temp": 5,
+                    "heat_pump_backup_type": "integrated",
+                    "heat_pump_backup_fuel": "electricity",
+                    "heat_pump_backup_heating_efficiency": 1,
+                }
+            ],
+            dtype=str,
+        )
+
+        option_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "hvac_heat_pump.tsv"
+        )
+        valid_hvac_heat_pump = set(get_option_names(str(option_tsv)))
+
+        out_df = update_heat_pump_v110_to_v112(input_df.copy())
+
+        self.assertIn("hvac_heat_pump", out_df.columns)
+        self.assertIn("hvac_heat_pump_heating_load_served", out_df.columns)
+        self.assertIn("hvac_heat_pump_cooling_load_served", out_df.columns)
+        self.assertIn("hvac_heat_pump_temperatures", out_df.columns)
+        self.assertIn("hvac_heat_pump_backup", out_df.columns)
+
+        self.assertIn(out_df.iloc[0]["hvac_heat_pump"], valid_hvac_heat_pump)
+        self.assertEqual(out_df.iloc[0]["hvac_heat_pump_heating_load_served"], "75%")
+        self.assertEqual(out_df.iloc[0]["hvac_heat_pump_cooling_load_served"], "75%")
+        self.assertEqual(out_df.iloc[0]["hvac_heat_pump_temperatures"], "5F Min Compressor Temp")
+        self.assertEqual(
+            out_df.iloc[0]["hvac_heat_pump_backup"],
+            "Integrated, Electricity, 100% Efficiency",
+        )
 
 
 class TestMigrateCsvGeometry(unittest.TestCase):
