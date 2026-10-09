@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
-project_path = Path(__file__).resolve().parent.parent.parent
+project_path = Path(__file__).resolve().parent.parent
 if project_path not in sys.path:
     sys.path.append(str(project_path))
 

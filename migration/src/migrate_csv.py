@@ -4,39 +4,51 @@ This script is used to convert CSV files that were created with an older version
 that is compatible with the current version.
 """
 
+import argparse
+import logging
+import os
 import sys
 from pathlib import Path
 
-if __package__ in (None, ""):
-    REPO_ROOT = Path(__file__).resolve().parents[2]
-    if str(REPO_ROOT) not in sys.path:
-        sys.path.insert(0, str(REPO_ROOT))
-
 import pandas as pd
-import argparse
-import os
-import logging
 
-from migration.src.utils.read_option_tsv import get_tsv_data, get_option_names
-from migration.src.utils.constants import (
+SRC_DIR = Path(__file__).resolve().parent
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+REPO_ROOT = SRC_DIR.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from migration.src.utils.constants import (  # noqa: E402
     GEOMETRY_CEILING_HEIGHT_CHOICES,
     GEOMETRY_UNIT_DIRECTION_CHOICES,
 )
-from migration.src.utils.migration_helper import (
+from migration.src.utils.migration_helper import (  # noqa: E402
     format_ceiling_height_choice,
     format_unit_direction_choice,
 )
-from migration.src.utils.utils import (
+from migration.src.utils.read_option_tsv import (  # noqa: E402
+    get_option_names,
+    get_tsv_data,
+)
+from migration.src.utils.utils import (  # noqa: E402
     _build_geometry_unit_lookup,
     _build_misc_option_from_legacy,
     _legacy_overhang_cols,
     _match_enclosure_option,
+    _log_approximation_warning_once,
+    _match_option_by_numeric_properties,
     _normalize_duct_leakage_units,
     _normalize_legacy_value,
     _normalize_percent_value,
     _option_tsv_path,
     _to_float,
     _to_optional_float,
+    _format_target_values_block,
+    reset_approximation_warning_cache,
+    _update_numeric_enclosure_option,
+    _update_typed_numeric_enclosure_option,
     build_enclosure_air_leakage_value,
 )
 
@@ -152,6 +164,7 @@ def update_air_leakage_v110_to_v112(df):
     Returns:
         pd.DataFrame: The updated DataFrame with enclosure_air_leakage column.
     """
+    reset_approximation_warning_cache()
     # Check if required columns exist
     required_cols = [
         "air_leakage_value",
@@ -264,6 +277,7 @@ def update_geometry_unit_v110_to_v112(df):
 
 def update_geometry_attic_v110_to_v112(df):
     """Map legacy geometry_attic_type values to v1.12 option names."""
+    reset_approximation_warning_cache()
     if ("geometry_attic_type" not in df.columns) or (
         "geometry_roof_type" not in df.columns
     ):
@@ -310,19 +324,31 @@ def update_geometry_attic_v110_to_v112(df):
         attic_key = aliases.get(_normalize_legacy_value(old_attic), _normalize_legacy_value(old_attic))
         attic_key = attic_key.lower()
         mapped = attic_lookup.get((attic_key, old_roof))
+        approximate = False
         if mapped is None:
             candidates = by_attic_type.get(attic_key, [])
             if len(candidates) == 1:
                 mapped = candidates[0]
+                approximate = True
             elif len(candidates) > 1:
                 gable = [c for c in candidates if "gable" in c.lower()]
                 mapped = gable[0] if gable else candidates[0]
+                approximate = True
 
         if mapped is None:
             logger.warning(
                 f"No attic option match for geometry_attic_type '{old_attic}' and geometry_roof_type '{old_roof}'."
             )
             continue
+
+        if approximate:
+            _log_approximation_warning_once(
+                ("geometry_attic_type", mapped),
+                "Approximated geometry_attic_type '%s' and geometry_roof_type '%s' to '%s'.",
+                old_attic,
+                old_roof,
+                mapped,
+            )
 
         df.at[idx, "geometry_attic_type"] = mapped
 
@@ -332,6 +358,7 @@ def update_geometry_attic_v110_to_v112(df):
 
 def update_geometry_foundation_v110_to_v112(df):
     """Map legacy geometry_foundation_type values to v1.12 option names."""
+    reset_approximation_warning_cache()
     required_columns = [
         "geometry_foundation_type",
         "geometry_foundation_height_above_grade",
@@ -381,13 +408,26 @@ def update_geometry_foundation_v110_to_v112(df):
 
         hag = _to_float(row.get("geometry_foundation_height_above_grade"))
         if legacy_key in {"unconditionedbasement", "conditionedbasement"} and hag is not None and hag > 3.0:
-            suffix = "Half Above-Grade"
             if "unconditioned" in mapped.lower():
                 mapped = "Basement, Unconditioned, Half Above-Grade"
             elif "conditioned" in mapped.lower():
                 mapped = "Basement, Conditioned, Half Above-Grade"
+            _log_approximation_warning_once(
+                ("geometry_foundation_type", mapped),
+                "Approximated geometry_foundation_type '%s' with height above grade %s to '%s'.",
+                text,
+                hag,
+                mapped,
+            )
         elif legacy_key == "ventedcrawlspace" and hag is not None and hag > 3.0:
             mapped = "Detailed Example: Crawlspace, Vented, Above-Grade"
+            _log_approximation_warning_once(
+                ("geometry_foundation_type", mapped),
+                "Approximated geometry_foundation_type '%s' with height above grade %s to '%s'.",
+                text,
+                hag,
+                mapped,
+            )
 
         df.at[idx, "geometry_foundation_type"] = mapped
 
@@ -397,8 +437,478 @@ def update_geometry_foundation_v110_to_v112(df):
 
     return df
 
+
+def update_enclosure_foundation_wall_v110_to_v112(df):
+    """Map legacy foundation wall type and insulation fields to enclosure_foundation_wall."""
+    reset_approximation_warning_cache()
+    legacy_columns = [
+        "foundation_wall_type",
+        "foundation_wall_insulation_r",
+        "foundation_wall_insulation_location",
+        "foundation_wall_insulation_distance_to_top",
+    ]
+    if not any(column in df.columns for column in legacy_columns):
+        return df
+
+    tsv_path = _option_tsv_path("enclosure_foundation_wall.tsv")
+    rows = get_tsv_data(str(tsv_path))
+    option_names = get_option_names(str(tsv_path))
+    option_names_lower = {name.lower(): name for name in option_names}
+
+    valid_rows = []
+    for row in rows:
+        option_name = str(row.get("Option Name", "")).strip()
+        if option_name == "" or option_name.startswith("#"):
+            continue
+        valid_rows.append(row)
+
+    if "enclosure_foundation_wall" not in df.columns:
+        df["enclosure_foundation_wall"] = None
+
+    for idx, row in df.iterrows():
+        current = str(row.get("enclosure_foundation_wall", "")).strip()
+        if current != "":
+            canonical = option_names_lower.get(current.lower())
+            if canonical is not None:
+                df.at[idx, "enclosure_foundation_wall"] = canonical
+                continue
+
+        legacy_type = str(row.get("foundation_wall_type", "")).strip()
+        legacy_type_key = _normalize_legacy_value(legacy_type)
+        legacy_location = str(row.get("foundation_wall_insulation_location", "")).strip()
+        legacy_location_key = _normalize_legacy_value(legacy_location)
+        legacy_r = _to_float(row.get("foundation_wall_insulation_r"))
+        legacy_distance = _to_float(row.get("foundation_wall_insulation_distance_to_top"))
+
+        candidate_rows = valid_rows
+        if legacy_type_key != "":
+            typed_rows = [
+                opt
+                for opt in valid_rows
+                if _normalize_legacy_value(opt.get("Type")) == legacy_type_key
+            ]
+            if len(typed_rows) > 0:
+                candidate_rows = typed_rows
+
+        best_row = None
+        best_score = None
+        for opt in candidate_rows:
+            score = 0.0
+            compared = 0
+
+            opt_type_key = _normalize_legacy_value(opt.get("Type"))
+            if legacy_type_key != "":
+                compared += 1
+                if opt_type_key != legacy_type_key:
+                    score += 1e6
+
+            opt_location_key = _normalize_legacy_value(opt.get("Insulation Location"))
+            if legacy_location_key != "":
+                compared += 1
+                if opt_location_key != legacy_location_key:
+                    score += 10.0
+
+            if legacy_r is not None:
+                compared += 1
+                opt_r = _to_float(opt.get("Insulation Nominal R-Value [F-ft2-hr/Btu]"))
+                if opt_r is None:
+                    score += 1e6
+                else:
+                    score += abs(opt_r - legacy_r)
+
+            if legacy_distance is not None:
+                compared += 1
+                opt_distance = _to_float(opt.get("Insulation Distance To Top [ft]"))
+                if opt_distance is None:
+                    score += 1e6
+                else:
+                    score += abs(opt_distance - legacy_distance)
+
+            if compared == 0:
+                continue
+
+            if best_score is None or score < best_score:
+                best_score = score
+                best_row = opt
+
+        if best_row is None:
+            logger.warning(
+                "No enclosure_foundation_wall mapping found at row %s; using default 'Solid Concrete, Uninsulated'.",
+                idx,
+            )
+            df.at[idx, "enclosure_foundation_wall"] = "Solid Concrete, Uninsulated"
+            continue
+
+        matched_name = str(best_row.get("Option Name", "")).strip()
+        if best_score is not None and best_score > 1e-9:
+            context_parts = []
+            row_type = str(best_row.get("Type", "")).strip()
+            if row_type != "":
+                context_parts.append(row_type)
+            row_r = _to_float(best_row.get("Insulation Nominal R-Value [F-ft2-hr/Btu]"))
+            if row_r is not None:
+                context_parts.append(str(row_r).rstrip("0").rstrip(".") if float(row_r).is_integer() is False else str(int(row_r)))
+            row_location = str(best_row.get("Insulation Location", "")).strip()
+            if row_location != "":
+                context_parts.append(row_location)
+            context = " ".join(context_parts)
+            if context != "":
+                context = f" : {context}"
+            _log_approximation_warning_once(
+                ("enclosure_foundation_wall", matched_name),
+                "Approximated %s option using nearest match '%s'%s for target values %s.",
+                tsv_path.name,
+                matched_name,
+                context,
+                {
+                    "Type": legacy_type,
+                    "Insulation Nominal R-Value [F-ft2-hr/Btu]": legacy_r,
+                    "Insulation Location": legacy_location,
+                    "Insulation Distance To Top [ft]": legacy_distance,
+                },
+            )
+
+        df.at[idx, "enclosure_foundation_wall"] = matched_name
+
+    for column in legacy_columns:
+        if column in df.columns:
+            df.drop(columns=[column], inplace=True)
+
+    return df
+
+
+def update_enclosure_wall_v110_to_v112(df):
+    """Map legacy wall type and assembly R-value to enclosure_wall."""
+    reset_approximation_warning_cache()
+    legacy_columns = {"wall_assembly_r": "Assembly R-Value [F-ft2-hr/Btu]"}
+    df = _update_typed_numeric_enclosure_option(
+        df,
+        "wall_type",
+        legacy_columns,
+        "enclosure_wall.tsv",
+        "enclosure_wall",
+        "Wood Stud, R-13",
+    )
+    if "wall_type" in df.columns:
+        df.drop(columns=["wall_type"], inplace=True)
+    return drop_legacy_columns(
+        df,
+        list(legacy_columns.keys()),
+        "Dropping legacy wall_assembly_r column after mapping to enclosure_wall.",
+    )
+
+
+def update_enclosure_ceiling_v110_to_v112(df):
+    """Map legacy ceiling assembly R-value to enclosure_ceiling."""
+    reset_approximation_warning_cache()
+    legacy_columns = {"ceiling_assembly_r": "Assembly R-Value [F-ft2-hr/Btu]"}
+    df = _update_numeric_enclosure_option(
+        df,
+        legacy_columns,
+        "enclosure_ceiling.tsv",
+        "enclosure_ceiling",
+        "R-13",
+    )
+    return drop_legacy_columns(
+        df,
+        list(legacy_columns.keys()),
+        "Dropping legacy ceiling_assembly_r column after mapping to enclosure_ceiling.",
+    )
+
+
+def update_enclosure_floor_over_foundation_v110_to_v112(df):
+    """Map legacy floor-over-foundation assembly R-value to enclosure_floor_over_foundation."""
+    reset_approximation_warning_cache()
+    legacy_columns = {"floor_over_foundation_assembly_r": "Assembly R-Value [F-ft2-hr/Btu]"}
+    df = _update_numeric_enclosure_option(
+        df,
+        legacy_columns,
+        "enclosure_floor_over_foundation.tsv",
+        "enclosure_floor_over_foundation",
+        "Wood Frame, R-13",
+    )
+    return drop_legacy_columns(
+        df,
+        list(legacy_columns.keys()),
+        "Dropping legacy floor_over_foundation_assembly_r column after mapping to enclosure_floor_over_foundation.",
+    )
+
+
+def update_enclosure_floor_over_garage_v110_to_v112(df):
+    """Map legacy floor-over-garage assembly R-value to enclosure_floor_over_garage."""
+    reset_approximation_warning_cache()
+    legacy_columns = {"floor_over_garage_assembly_r": "Assembly R-Value [F-ft2-hr/Btu]"}
+    df = _update_numeric_enclosure_option(
+        df,
+        legacy_columns,
+        "enclosure_floor_over_garage.tsv",
+        "enclosure_floor_over_garage",
+        "Wood Frame, R-13",
+    )
+    return drop_legacy_columns(
+        df,
+        list(legacy_columns.keys()),
+        "Dropping legacy floor_over_garage_assembly_r column after mapping to enclosure_floor_over_garage.",
+    )
+
+
+def _map_enclosure_slab_option(tsv_rows, perimeter_r, under_r):
+    """Map legacy slab insulation values to the closest v1.12 enclosure_slab option."""
+    perimeter_r = 0 if perimeter_r is None else perimeter_r
+    under_r = 0 if under_r is None else under_r
+
+    if perimeter_r <= 0 and under_r <= 0:
+        return "Uninsulated"
+
+    if perimeter_r > 0 and under_r > 0:
+        if abs(perimeter_r - under_r) <= 1e-9:
+            target_values = {
+                "Under Slab Insulation Nominal R-Value [F-ft2-hr/Btu]": under_r,
+                "Under Slab Insulation Width [ft]": 999,
+            }
+        elif under_r > perimeter_r:
+            target_values = {
+                "Under Slab Insulation Nominal R-Value [F-ft2-hr/Btu]": under_r,
+                "Under Slab Insulation Width [ft]": 2,
+            }
+        else:
+            target_values = {
+                "Perimeter Insulation Nominal R-Value [F-ft2-hr/Btu]": perimeter_r,
+                "Perimeter Insulation Depth [ft]": 2,
+            }
+    elif under_r > 0:
+        target_values = {
+            "Under Slab Insulation Nominal R-Value [F-ft2-hr/Btu]": under_r,
+            "Under Slab Insulation Width [ft]": 2,
+        }
+    else:
+        target_values = {
+            "Perimeter Insulation Nominal R-Value [F-ft2-hr/Btu]": perimeter_r,
+            "Perimeter Insulation Depth [ft]": 2,
+        }
+
+    return _match_option_by_numeric_properties(
+        _option_tsv_path("enclosure_slab.tsv"),
+        target_values,
+        rows=tsv_rows,
+    )
+
+
+def update_enclosure_slab_v110_to_v112(df):
+    """Map legacy floor_type and slab insulation values to enclosure_slab."""
+    reset_approximation_warning_cache()
+
+    legacy_columns = ["floor_type", "slab_perimeter_insulation_r", "slab_under_insulation_r"]
+    if not any(column in df.columns for column in legacy_columns):
+        return df
+
+    tsv_rows = get_tsv_data(str(_option_tsv_path("enclosure_slab.tsv")))
+
+    if "floor_type" in df.columns:
+        non_default_floor_types = sorted(
+            {
+                str(value).strip()
+                for value in df["floor_type"].dropna().unique().tolist()
+                if str(value).strip() != "" and str(value).strip() != "WoodFrame"
+            }
+        )
+        if len(non_default_floor_types) > 0:
+            _log_approximation_warning_once(
+                ("floor_type", tuple(non_default_floor_types)),
+                "Dropping legacy floor_type values with no v1.12 enclosure_slab equivalent: %s",
+                ", ".join(non_default_floor_types),
+            )
+
+    for idx, row in df.iterrows():
+        perimeter_r = _to_float(row.get("slab_perimeter_insulation_r"))
+        under_r = _to_float(row.get("slab_under_insulation_r"))
+
+        matched_name = _map_enclosure_slab_option(tsv_rows, perimeter_r, under_r)
+        if matched_name is None:
+            matched_name = "Uninsulated"
+            _log_approximation_warning_once(
+                ("enclosure_slab", matched_name),
+                "No enclosure_slab mapping found at row %s; using default '%s'.",
+                idx,
+                matched_name,
+            )
+
+        df.at[idx, "enclosure_slab"] = matched_name
+
+    return drop_legacy_columns(
+        df,
+        legacy_columns,
+        "Dropping legacy floor_type, slab_perimeter_insulation_r and slab_under_insulation_r columns after mapping to enclosure_slab.",
+    )
+
+
+def update_enclosure_window_v110_to_v112(df):
+    """Map legacy window U-factor and SHGC columns to enclosure_window."""
+    legacy_columns = {
+        "window_ufactor": "U-Factor [Btu/hr-ft2-F]",
+        "window_shgc": "SHGC",
+    }
+    df = _update_numeric_enclosure_option(
+        df,
+        legacy_columns,
+        "enclosure_window.tsv",
+        "enclosure_window",
+        "Double, Clear, Metal, Air",
+    )
+    return drop_legacy_columns(
+        df,
+        list(legacy_columns.keys()),
+        "Dropping legacy window_ufactor and window_shgc columns.",
+    )
+
+
+def update_enclosure_skylight_v110_to_v112(df):
+    """Map legacy skylight U-factor and SHGC columns to enclosure_skylight."""
+    legacy_columns = {
+        "skylight_ufactor": "U-Factor [Btu/hr-ft2-F]",
+        "skylight_shgc": "SHGC",
+    }
+    df = _update_numeric_enclosure_option(
+        df,
+        legacy_columns,
+        "enclosure_skylight.tsv",
+        "enclosure_skylight",
+        "Single, Clear, Metal",
+    )
+    return drop_legacy_columns(
+        df,
+        list(legacy_columns.keys()),
+        "Dropping legacy skylight_ufactor and skylight_shgc columns.",
+    )
+
+
+def update_window_interior_shading_v110_to_v112(df):
+    """Map legacy window interior shading coefficients to enclosure_window_interior_shading."""
+    legacy_columns = {
+        "window_interior_shading_summer": "Summer Coefficient [frac]",
+        "window_interior_shading_winter": "Winter Coefficient [frac]",
+    }
+    df = _update_numeric_enclosure_option(
+        df,
+        legacy_columns,
+        "enclosure_window_interior_shading.tsv",
+        "enclosure_window_interior_shading",
+        "Curtains, Light",
+    )
+    return drop_legacy_columns(
+        df,
+        list(legacy_columns.keys()),
+        "Dropping legacy window_interior_shading_summer and window_interior_shading_winter columns.",
+    )
+
+
+def _format_geometry_numeric_value(value, default):
+    numeric_value = _to_optional_float(value)
+    if numeric_value is None:
+        numeric_value = default
+    return format(numeric_value, "g")
+
+
+def update_geometry_window_areas_or_wwrs_v110_to_v112(df):
+    """Map legacy facade window WWR/area columns to geometry_window_areas_or_wwrs."""
+    legacy_columns = [
+        "window_front_wwr",
+        "window_back_wwr",
+        "window_left_wwr",
+        "window_right_wwr",
+        "window_area_front",
+        "window_area_back",
+        "window_area_left",
+        "window_area_right",
+        "window_aspect_ratio",
+    ]
+    if not any(column in df.columns for column in legacy_columns):
+        return df
+
+    if "geometry_window_areas_or_wwrs" not in df.columns:
+        df["geometry_window_areas_or_wwrs"] = None
+
+    if "window_aspect_ratio" in df.columns:
+        non_default_aspect_ratios = sorted(
+            {
+                str(value).strip()
+                for value in df["window_aspect_ratio"].dropna().unique().tolist()
+                if str(value).strip() not in {"", "1.333"}
+            }
+        )
+        if len(non_default_aspect_ratios) > 0:
+            _log_approximation_warning_once(
+                ("window_aspect_ratio", tuple(non_default_aspect_ratios)),
+                "Dropping legacy window_aspect_ratio values with no v1.12 equivalent: %s",
+                ", ".join(non_default_aspect_ratios),
+            )
+
+    wwr_columns = ["window_front_wwr", "window_back_wwr", "window_left_wwr", "window_right_wwr"]
+    area_columns = ["window_area_front", "window_area_back", "window_area_left", "window_area_right"]
+
+    for idx, row in df.iterrows():
+        current_value = str(df.at[idx, "geometry_window_areas_or_wwrs"]).strip()
+        if current_value.lower() not in {"", "none", "nan"}:
+            continue
+
+        wwr_values = [_to_optional_float(row.get(column)) for column in wwr_columns]
+        area_values = [_to_optional_float(row.get(column)) for column in area_columns]
+        has_nonzero_wwr = any(value is not None and abs(value) > 1e-9 for value in wwr_values)
+        has_nonzero_area = any(value is not None and abs(value) > 1e-9 for value in area_values)
+
+        if has_nonzero_area and not has_nonzero_wwr:
+            values = area_values
+            default_value = 0.0
+        else:
+            values = wwr_values
+            default_value = 0.15
+
+        df.at[idx, "geometry_window_areas_or_wwrs"] = ", ".join(
+            _format_geometry_numeric_value(value, default_value) for value in values
+        )
+
+    return drop_legacy_columns(
+        df,
+        legacy_columns,
+        "Dropping legacy window WWR, area and aspect ratio columns after mapping to geometry_window_areas_or_wwrs.",
+    )
+
+
+def update_geometry_skylight_areas_v110_to_v112(df):
+    """Map legacy skylight area columns to geometry_skylight_areas."""
+    legacy_columns = [
+        "skylight_area_front",
+        "skylight_area_back",
+        "skylight_area_left",
+        "skylight_area_right",
+    ]
+    if not any(column in df.columns for column in legacy_columns):
+        return df
+
+    if "geometry_skylight_areas" not in df.columns:
+        df["geometry_skylight_areas"] = None
+
+    skylight_columns = ["skylight_area_front", "skylight_area_back", "skylight_area_left", "skylight_area_right"]
+
+    for idx, row in df.iterrows():
+        current_value = str(df.at[idx, "geometry_skylight_areas"]).strip()
+        if current_value.lower() not in {"", "none", "nan"}:
+            continue
+
+        values = [_to_optional_float(row.get(column)) for column in skylight_columns]
+        df.at[idx, "geometry_skylight_areas"] = ", ".join(
+            _format_geometry_numeric_value(value, 0.0) for value in values
+        )
+
+    return drop_legacy_columns(
+        df,
+        legacy_columns,
+        "Dropping legacy skylight area columns after mapping to geometry_skylight_areas.",
+    )
+
 def update_enclosure_overhangs_v110_to_v112(df):
     """Map legacy detailed overhang columns to the v1.12 enclosure_overhangs option."""
+    reset_approximation_warning_cache()
 
     tsv_path = _option_tsv_path("enclosure_overhangs.tsv")
     rows = get_tsv_data(str(tsv_path))
@@ -525,8 +1035,13 @@ def update_enclosure_overhangs_v110_to_v112(df):
 
             if best_name is not None:
                 matched_name = best_name
-                logger.warning(
-                    f"Using nearest enclosure_overhangs option '{matched_name}' at row {idx}."
+                _log_approximation_warning_once(
+                    (
+                        matched_name,
+                    ),
+                    "Using nearest enclosure_overhangs option '%s' at row %s.",
+                    matched_name,
+                    idx,
                 )
 
         if matched_name is None:
@@ -619,6 +1134,417 @@ def update_pool_parameters_v110_to_v112(df):
         df.drop(columns=cols_to_drop, inplace=True)
 
     return df
+
+
+def _map_dhw_water_heater_option(tsv_rows, row):
+    """Map legacy water heater fields to the closest v1.12 dhw_water_heater option."""
+    legacy_type = _normalize_legacy_value(row.get("water_heater_type"))
+    legacy_fuel = _normalize_legacy_value(row.get("water_heater_fuel_type"))
+    legacy_efficiency_type = _normalize_legacy_value(row.get("water_heater_efficiency_type"))
+    legacy_efficiency = _to_float(row.get("water_heater_efficiency"))
+    legacy_recovery = _to_optional_float(row.get("water_heater_recovery_efficiency"))
+    legacy_temperature = _to_optional_float(row.get("water_heater_setpoint_temperature"))
+
+    best_name = None
+    best_score = None
+    for candidate in tsv_rows:
+        option_name = str(candidate.get("Option Name", "")).strip()
+        if option_name == "" or option_name.startswith("#"):
+            continue
+
+        candidate_type = _normalize_legacy_value(candidate.get("Type"))
+        candidate_fuel = _normalize_legacy_value(candidate.get("Fuel Type"))
+        candidate_efficiency_type = _normalize_legacy_value(candidate.get("Efficiency Type"))
+
+        if legacy_type != "" and candidate_type != legacy_type:
+            continue
+        if legacy_fuel != "" and candidate_fuel != legacy_fuel:
+            continue
+
+        score = 0.0
+        if legacy_efficiency is not None:
+            candidate_efficiency = _to_optional_float(candidate.get("Efficiency [frac]"))
+            if candidate_efficiency is None:
+                score += 1e6
+            else:
+                score += abs(candidate_efficiency - legacy_efficiency)
+
+        if legacy_recovery is not None:
+            candidate_recovery = _to_optional_float(candidate.get("Recovery Efficiency [frac]"))
+            if candidate_recovery is not None:
+                score += abs(candidate_recovery - legacy_recovery) * 0.1
+
+        if legacy_temperature is not None:
+            candidate_temperature = _to_optional_float(candidate.get("Temperature [F]"))
+            if candidate_temperature is not None:
+                score += abs(candidate_temperature - legacy_temperature) * 0.01
+
+        if legacy_efficiency_type != "" and candidate_efficiency_type != "":
+            if candidate_efficiency_type != legacy_efficiency_type:
+                score += 0.001
+
+        if best_score is None or score < best_score:
+            best_score = score
+            best_name = option_name
+
+    if best_name is None:
+        return None
+
+    if best_score is not None and best_score > 1e-9:
+        _log_approximation_warning_once(
+            ("dhw_water_heater", best_name),
+            "Approximated dhw_water_heater option using nearest match '%s'\n  target values:\n%s",
+            best_name,
+            _format_target_values_block(
+                {
+                    "water_heater_type": row.get("water_heater_type", ""),
+                    "water_heater_fuel_type": row.get("water_heater_fuel_type", ""),
+                    "water_heater_efficiency_type": row.get("water_heater_efficiency_type", ""),
+                    "water_heater_efficiency": row.get("water_heater_efficiency", ""),
+                    "water_heater_recovery_efficiency": row.get("water_heater_recovery_efficiency", ""),
+                    "water_heater_setpoint_temperature": row.get("water_heater_setpoint_temperature", ""),
+                }
+            ),
+        )
+
+    return best_name
+
+
+def update_dhw_water_heater_v110_to_v112(df):
+    """Map legacy water-heater columns to dhw_water_heater and dhw_water_heater_location."""
+    reset_approximation_warning_cache()
+
+    legacy_columns = [
+        "water_heater_fuel_type",
+        "water_heater_efficiency_type",
+        "water_heater_efficiency",
+        "water_heater_recovery_efficiency",
+        "water_heater_standby_loss",
+        "water_heater_jacket_rvalue",
+        "water_heater_setpoint_temperature",
+        "water_heater_type",
+        "water_heater_location",
+    ]
+    if not any(column in df.columns for column in legacy_columns):
+        return df
+
+    tsv_rows = get_tsv_data(str(_option_tsv_path("dhw_water_heater.tsv")))
+    option_names = get_option_names(str(_option_tsv_path("dhw_water_heater.tsv")))
+    option_names_lower = {name.lower(): name for name in option_names}
+    location_lookup = {
+        "conditionedspace": "Conditioned Space",
+        "othermultifamilybufferspace": "SFA/MF Other Heated Space",
+        "basement": "Basement",
+        "garage": "Garage",
+        "crawlspace": "Crawlspace",
+        "attic": "Attic",
+        "sfamfotherheatedspace": "SFA/MF Other Heated Space",
+        "default": "Default",
+    }
+
+    if "dhw_water_heater" not in df.columns:
+        df["dhw_water_heater"] = None
+    if "dhw_water_heater_location" not in df.columns:
+        df["dhw_water_heater_location"] = None
+
+    for idx, row in df.iterrows():
+        current = str(row.get("dhw_water_heater", "")).strip()
+        if current != "" and current.lower() in option_names_lower:
+            df.at[idx, "dhw_water_heater"] = option_names_lower[current.lower()]
+        else:
+            matched = _map_dhw_water_heater_option(tsv_rows, row)
+            if matched is None:
+                df.at[idx, "dhw_water_heater"] = "None"
+                _log_approximation_warning_once(
+                    ("dhw_water_heater", "None"),
+                    "No dhw_water_heater mapping found at row %s; using default 'None'.",
+                    idx,
+                )
+            else:
+                df.at[idx, "dhw_water_heater"] = matched
+
+        legacy_location = _normalize_legacy_value(row.get("water_heater_location"))
+        df.at[idx, "dhw_water_heater_location"] = location_lookup.get(
+            legacy_location,
+            location_lookup.get("default"),
+        )
+
+    return drop_legacy_columns(
+        df,
+        legacy_columns,
+        "Dropping legacy water_heater_* columns after mapping to dhw_water_heater and dhw_water_heater_location.",
+    )
+
+
+def _ventilation_mechanical_target_values(row):
+    return {
+        "fan_type": _normalize_legacy_value(row.get("mech_vent_fan_type")),
+        "sensible_efficiency": _to_optional_float(row.get("mech_vent_sensible_recovery_efficiency")),
+        "total_efficiency": _to_optional_float(row.get("mech_vent_total_recovery_efficiency")),
+    }
+
+
+def _match_ventilation_mechanical_option(tsv_rows, target):
+    fan_type = target["fan_type"]
+    sensible_efficiency = target["sensible_efficiency"]
+    total_efficiency = target["total_efficiency"]
+
+    if fan_type in {"", "none"}:
+        return "None"
+
+    best_name = None
+    best_score = None
+    for row in tsv_rows:
+        option_name = str(row.get("Option Name", "")).strip()
+        if option_name == "" or option_name.startswith("#"):
+            continue
+
+        candidate_fan_type = _normalize_legacy_value(row.get("Fan Type"))
+        if candidate_fan_type != fan_type:
+            continue
+
+        score = 0.0
+        compared = 0
+
+        if sensible_efficiency is not None:
+            candidate_sensible = _to_optional_float(row.get("Sensible Recovery Efficiency [frac]"))
+            if candidate_sensible is None:
+                score += 1e6
+            else:
+                score += abs(candidate_sensible - sensible_efficiency)
+            compared += 1
+
+        if total_efficiency is not None:
+            candidate_total = _to_optional_float(row.get("Total Recovery Efficiency [frac]"))
+            if candidate_total is not None:
+                score += abs(candidate_total - total_efficiency)
+            else:
+                score += 1e-9
+            compared += 1
+
+        if compared == 0:
+            continue
+
+        if best_score is None or score < best_score:
+            best_score = score
+            best_name = option_name
+
+    if best_name is None:
+        return None
+
+    if best_score is not None and best_score > 1e-9:
+        _log_approximation_warning_once(
+            ("ventilation_mechanical", best_name),
+            "Approximated ventilation_mechanical option using nearest match '%s'\n  target values:\n%s",
+            best_name,
+            _format_target_values_block(
+                {
+                    "mech_vent_fan_type": fan_type,
+                    "mech_vent_sensible_recovery_efficiency": sensible_efficiency,
+                    "mech_vent_total_recovery_efficiency": total_efficiency,
+                }
+            ),
+        )
+
+    return best_name
+
+
+def _update_ventilation_mechanical_column(df, idx, row, existing_mech, mech_option_names_lower, mech_tsv_rows):
+    current_mech = str(existing_mech.iloc[idx]).strip() if existing_mech is not None else ""
+    if current_mech not in {"", "none", "nan"} and current_mech.lower() in mech_option_names_lower:
+        df.at[idx, "ventilation_mechanical"] = mech_option_names_lower[current_mech.lower()]
+        return
+
+    matched = _match_ventilation_mechanical_option(
+        mech_tsv_rows,
+        _ventilation_mechanical_target_values(row),
+    )
+    if matched is None:
+        matched = "None"
+        _log_approximation_warning_once(
+            ("ventilation_mechanical", matched),
+            "No ventilation_mechanical mapping found at row %s; using default '%s'.",
+            idx,
+            matched,
+        )
+    df.at[idx, "ventilation_mechanical"] = matched
+
+
+def _update_ventilation_kitchen_column(df, idx, row, existing_kitchen):
+    current_kitchen = str(existing_kitchen.iloc[idx]).strip() if existing_kitchen is not None else ""
+    if current_kitchen not in {"", "none", "nan"}:
+        df.at[idx, "ventilation_kitchen"] = current_kitchen
+        return
+
+    if row.get("kitchen_fans_start_hour") not in {None, ""}:
+        df.at[idx, "ventilation_kitchen"] = "Default"
+        kitchen_start_hour = row.get("kitchen_fans_start_hour")
+        _log_approximation_warning_once(
+            ("ventilation_kitchen", "Default", kitchen_start_hour),
+            "Legacy kitchen fan timing has no direct v1.12 option-string equivalent for kitchen_fans_start_hour=%s; using Default.",
+            kitchen_start_hour,
+        )
+        return
+
+    df.at[idx, "ventilation_kitchen"] = "None"
+
+
+def _update_ventilation_bathroom_column(df, idx, row, existing_bathroom):
+    current_bathroom = str(existing_bathroom.iloc[idx]).strip() if existing_bathroom is not None else ""
+    if current_bathroom not in {"", "none", "nan"}:
+        df.at[idx, "ventilation_bathroom"] = current_bathroom
+        return
+
+    if row.get("bathroom_fans_start_hour") not in {None, ""}:
+        df.at[idx, "ventilation_bathroom"] = "Default"
+        bathroom_start_hour = row.get("bathroom_fans_start_hour")
+        _log_approximation_warning_once(
+            ("ventilation_bathroom", "Default", bathroom_start_hour),
+            "Legacy bathroom fan timing has no direct v1.12 option-string equivalent for bathroom_fans_start_hour=%s; using Default.",
+            bathroom_start_hour,
+        )
+        return
+
+    df.at[idx, "ventilation_bathroom"] = "None"
+
+
+def _update_ventilation_whole_house_fan_column(df, idx, row, existing_whole_house, whole_house_option_names_lower, whole_house_tsv_path, whole_house_rows):
+    current_whole_house = str(existing_whole_house.iloc[idx]).strip() if existing_whole_house is not None else ""
+    if current_whole_house not in {"", "none", "nan"} and current_whole_house.lower() in whole_house_option_names_lower:
+        df.at[idx, "ventilation_whole_house_fan"] = whole_house_option_names_lower[current_whole_house.lower()]
+        return
+
+    present = str(row.get("whole_house_fan_present", "")).strip().lower()
+    flow_rate = _to_float(row.get("whole_house_fan_flow_rate"))
+    fan_power = _to_float(row.get("whole_house_fan_power"))
+    if present in {"false", "0", "no", "n"} or (flow_rate is not None and abs(flow_rate) < 1e-9 and (fan_power is None or abs(fan_power) < 1e-9)):
+        df.at[idx, "ventilation_whole_house_fan"] = "None"
+        return
+
+    matched = _match_option_by_numeric_properties(
+        str(whole_house_tsv_path),
+        {
+            "Rated Flow Rate [cfm]": flow_rate,
+            "Power [W]": fan_power,
+        },
+        rows=whole_house_rows,
+    )
+    if matched is None:
+        matched = "None"
+    df.at[idx, "ventilation_whole_house_fan"] = matched
+
+
+def _update_ventilation_window_natural_column(df, idx, row, existing_window_natvent, window_natvent_option_names_lower, window_natvent_tsv_path, window_natvent_rows):
+    current_natvent = str(existing_window_natvent.iloc[idx]).strip() if existing_window_natvent is not None else ""
+    if current_natvent not in {"", "none", "nan"} and current_natvent.lower() in window_natvent_option_names_lower:
+        df.at[idx, "enclosure_window_natural_ventilation"] = window_natvent_option_names_lower[current_natvent.lower()]
+        return
+
+    fraction_operable = _to_float(row.get("window_fraction_operable"))
+    if fraction_operable is None:
+        df.at[idx, "enclosure_window_natural_ventilation"] = "None"
+        return
+
+    matched = _match_option_by_numeric_properties(
+        str(window_natvent_tsv_path),
+        {"Fraction Operable [frac]": fraction_operable},
+        rows=window_natvent_rows,
+    )
+    if matched is None:
+        matched = "None"
+    df.at[idx, "enclosure_window_natural_ventilation"] = matched
+
+
+def update_ventilation_v110_to_v112(df):
+    """Map legacy ventilation columns to the v1.12 ventilation option strings."""
+    reset_approximation_warning_cache()
+
+    mech_cols = [
+        "mech_vent_fan_type",
+        "mech_vent_flow_rate",
+        "mech_vent_hours_in_operation",
+        "mech_vent_recovery_efficiency_type",
+        "mech_vent_total_recovery_efficiency",
+        "mech_vent_sensible_recovery_efficiency",
+        "mech_vent_fan_power",
+        "mech_vent_num_units_served",
+        "whole_house_fan_present",
+        "whole_house_fan_flow_rate",
+        "whole_house_fan_power",
+        "bathroom_fans_start_hour",
+        "kitchen_fans_start_hour",
+        "window_fraction_operable",
+    ]
+    if not any(column in df.columns for column in mech_cols):
+        return df
+
+    mech_tsv_rows = get_tsv_data(str(_option_tsv_path("ventilation_mechanical.tsv")))
+    mech_option_names = get_option_names(str(_option_tsv_path("ventilation_mechanical.tsv")))
+    mech_option_names_lower = {name.lower(): name for name in mech_option_names}
+
+    whole_house_tsv_path = _option_tsv_path("ventilation_whole_house_fan.tsv")
+    whole_house_rows = get_tsv_data(str(whole_house_tsv_path))
+    whole_house_option_names = get_option_names(str(whole_house_tsv_path))
+    whole_house_option_names_lower = {name.lower(): name for name in whole_house_option_names}
+
+    window_natvent_tsv_path = _option_tsv_path("enclosure_window_natural_ventilation.tsv")
+    window_natvent_rows = get_tsv_data(str(window_natvent_tsv_path))
+    window_natvent_option_names = get_option_names(str(window_natvent_tsv_path))
+    window_natvent_option_names_lower = {name.lower(): name for name in window_natvent_option_names}
+
+    if "ventilation_mechanical" in df.columns:
+        existing_mech = df["ventilation_mechanical"]
+    else:
+        existing_mech = None
+
+    if "ventilation_kitchen" in df.columns:
+        existing_kitchen = df["ventilation_kitchen"]
+    else:
+        existing_kitchen = None
+
+    if "ventilation_bathroom" in df.columns:
+        existing_bathroom = df["ventilation_bathroom"]
+    else:
+        existing_bathroom = None
+
+    if "ventilation_whole_house_fan" in df.columns:
+        existing_whole_house = df["ventilation_whole_house_fan"]
+    else:
+        existing_whole_house = None
+
+    if "enclosure_window_natural_ventilation" in df.columns:
+        existing_window_natvent = df["enclosure_window_natural_ventilation"]
+    else:
+        existing_window_natvent = None
+
+    for idx, row in df.iterrows():
+        _update_ventilation_mechanical_column(df, idx, row, existing_mech, mech_option_names_lower, mech_tsv_rows)
+        _update_ventilation_kitchen_column(df, idx, row, existing_kitchen)
+        _update_ventilation_bathroom_column(df, idx, row, existing_bathroom)
+        _update_ventilation_whole_house_fan_column(
+            df,
+            idx,
+            row,
+            existing_whole_house,
+            whole_house_option_names_lower,
+            whole_house_tsv_path,
+            whole_house_rows,
+        )
+        _update_ventilation_window_natural_column(
+            df,
+            idx,
+            row,
+            existing_window_natvent,
+            window_natvent_option_names_lower,
+            window_natvent_tsv_path,
+            window_natvent_rows,
+        )
+
+    return drop_legacy_columns(
+        df,
+        mech_cols,
+        "Dropping legacy ventilation columns after mapping to v1.12 ventilation options.",
+    )
 
 def update_duct_leakage_v110_to_v112(df):
     """Map legacy duct leakage/insulation columns to the v1.12 hvac_ducts option string."""
@@ -775,9 +1701,26 @@ def update_v110_to_v112(input_filePath, output_filePath):
     # Update geometry_attic_type to option-based values
     df = update_geometry_attic_v110_to_v112(df)
 
+    # Update window and skylight thermal properties and geometry strings
+    df = update_enclosure_window_v110_to_v112(df)
+    df = update_enclosure_skylight_v110_to_v112(df)
+    df = update_geometry_window_areas_or_wwrs_v110_to_v112(df)
+    df = update_geometry_skylight_areas_v110_to_v112(df)
+    df = update_window_interior_shading_v110_to_v112(df)
+
     ## todo validate in legacy before implementing this
     # Update geometry_foundation_type to option-based values
     df = update_geometry_foundation_v110_to_v112(df)
+
+    # Update foundation wall option string from type and insulation fields
+    df = update_enclosure_foundation_wall_v110_to_v112(df)
+
+    # Update opaque enclosure assemblies and thermal layers
+    df = update_enclosure_wall_v110_to_v112(df)
+    df = update_enclosure_ceiling_v110_to_v112(df)
+    df = update_enclosure_floor_over_foundation_v110_to_v112(df)
+    df = update_enclosure_floor_over_garage_v110_to_v112(df)
+    df = update_enclosure_slab_v110_to_v112(df)
 
     # Update tp enclosure_overhangs
     df = update_enclosure_overhangs_v110_to_v112(df)
@@ -787,6 +1730,12 @@ def update_v110_to_v112(input_filePath, output_filePath):
 
     # Update legacy duct leakage/insulation columns to hvac_ducts option values
     df = update_duct_leakage_v110_to_v112(df)
+
+    # Update legacy water heater columns to dhw_water_heater and dhw_water_heater_location
+    df = update_dhw_water_heater_v110_to_v112(df)
+
+    # Update legacy ventilation columns to v1.12 ventilation option strings
+    df = update_ventilation_v110_to_v112(df)
 
     # Update heat pump option strings from legacy v1.10 inputs
     df = update_heat_pump_v110_to_v112(df)
@@ -1129,7 +2078,6 @@ if __name__ == "__main__":
             Examples:
             # Migrate with auto-generated output path (creates v1.12/ subdirectory)
             python migrate_csv.py input.csv
-            
             # Migrate to specific output path
             python migrate_csv.py input.csv output.csv
             """,

@@ -1,3 +1,5 @@
+"""Shared migration helpers for multi-column assembly, TSV matching, and general value normalization."""
+
 import logging
 import re
 from pathlib import Path
@@ -8,6 +10,28 @@ from migration.src.utils.read_option_tsv import get_tsv_data
 
 
 logger = logging.getLogger(__name__)
+_APPROXIMATION_WARNING_CACHE = set()
+
+
+def reset_approximation_warning_cache():
+    """Clear the per-run cache used to suppress repeated approximation warnings."""
+    _APPROXIMATION_WARNING_CACHE.clear()
+
+
+def _log_approximation_warning_once(cache_key, message, *args):
+    """Log an approximation warning once per cache key during a migration run."""
+    if cache_key in _APPROXIMATION_WARNING_CACHE:
+        return
+    _APPROXIMATION_WARNING_CACHE.add(cache_key)
+    logger.warning(message, *args)
+
+
+def _format_target_values_block(target_values):
+    """Format target values as an indented multi-line block for log output."""
+    lines = []
+    for key, value in target_values.items():
+        lines.append(f"    {key}: {value}")
+    return "\n".join(lines)
 
 
 def _build_geometry_unit_lookup(tsv_file_path):
@@ -94,7 +118,14 @@ def _match_enclosure_option(raw_value, option_names):
                 continue
             candidates.append((abs(float(cm.group(1)) - target_val), name))
         if candidates:
-            return sorted(candidates, key=lambda x: x[0])[0][1]
+            matched_name = sorted(candidates, key=lambda x: x[0])[0][1]
+            _log_approximation_warning_once(
+                ("enclosure_air_leakage", matched_name),
+                "Approximated enclosure_air_leakage value '%s' with nearest option '%s'.",
+                raw_value,
+                matched_name,
+            )
+            return matched_name
 
     m = re.match(r"^([0-9]*\.?[0-9]+)\s*(nACH|nCFM)$", normalized, flags=re.IGNORECASE)
     if m:
@@ -111,9 +142,166 @@ def _match_enclosure_option(raw_value, option_names):
                 continue
             candidates.append((abs(float(cm.group(1)) - target_val), name))
         if candidates:
-            return sorted(candidates, key=lambda x: x[0])[0][1]
+            matched_name = sorted(candidates, key=lambda x: x[0])[0][1]
+            _log_approximation_warning_once(
+                ("enclosure_air_leakage", matched_name),
+                "Approximated enclosure_air_leakage value '%s' with nearest option '%s'.",
+                raw_value,
+                matched_name,
+            )
+            return matched_name
 
     return None
+
+
+def _match_option_by_numeric_properties(tsv_file_path, target_values, rows=None):
+    """Match a TSV option row using one or more numeric property columns."""
+    if rows is None:
+        rows = get_tsv_data(tsv_file_path)
+
+    best_name = None
+    best_score = None
+    best_row = None
+
+    for row in rows:
+        option_name = str(row.get("Option Name", "")).strip()
+        if option_name == "" or option_name.startswith("#"):
+            continue
+
+        score = 0.0
+        compared = 0
+        for column_name, target_value in target_values.items():
+            if target_value is None:
+                continue
+            compared += 1
+            option_value = _to_optional_float(row.get(column_name))
+            if option_value is None:
+                score += 1e6
+            else:
+                score += abs(option_value - target_value)
+
+        if compared == 0:
+            continue
+
+        if best_score is None or score < best_score:
+            best_score = score
+            best_name = option_name
+            best_row = row
+
+    if best_name is not None and best_score is not None and best_score > 1e-9:
+        context_parts = []
+        row_type = str(best_row.get("Type", "")).strip() if best_row is not None else ""
+        if row_type != "":
+            context_parts.append(row_type)
+        if best_row is not None:
+            for column_name in target_values:
+                if column_name == "Type":
+                    continue
+                row_value = best_row.get(column_name)
+                formatted_value = _format_number_token(row_value)
+                if formatted_value is None:
+                    formatted_value = str(row_value).strip()
+                if formatted_value != "":
+                    context_parts.append(formatted_value)
+        context = " ".join(context_parts)
+        if context != "":
+            context = f" : {context}"
+        target_values_block = _format_target_values_block(target_values)
+        _log_approximation_warning_once(
+            (
+                Path(tsv_file_path).name,
+                best_name,
+            ),
+            "Approximated %s option using nearest match '%s'%s\n  target values:\n%s",
+            Path(tsv_file_path).name,
+            best_name,
+            context,
+            target_values_block,
+        )
+
+    return best_name
+
+def _update_numeric_enclosure_option(df, legacy_to_tsv_columns, tsv_filename, output_column, default_option):
+    """Map a set of numeric legacy columns to a single option-string column."""
+    if not any(column in df.columns for column in legacy_to_tsv_columns):
+        return df
+
+    tsv_path = _option_tsv_path(tsv_filename)
+
+    for idx, row in df.iterrows():
+        target_values = {}
+        for legacy_column, tsv_column in legacy_to_tsv_columns.items():
+            if legacy_column not in df.columns:
+                continue
+            numeric_value = _to_float(row.get(legacy_column))
+            if numeric_value is not None:
+                target_values[tsv_column] = numeric_value
+
+        matched_name = _match_option_by_numeric_properties(tsv_path, target_values)
+        if matched_name is None:
+            matched_name = default_option
+            _log_approximation_warning_once(
+                ("numeric_default", output_column),
+                f"No {output_column} mapping found at row {idx}; using default '{matched_name}'.",
+            )
+
+        df.at[idx, output_column] = matched_name
+
+    return df
+
+
+def _update_typed_numeric_enclosure_option(
+    df,
+    legacy_type_column,
+    legacy_to_tsv_columns,
+    tsv_filename,
+    output_column,
+    default_option,
+    type_column_name="Type",
+):
+    """Map a legacy type column plus numeric columns to a single option-string column."""
+    if not any(column in df.columns for column in legacy_to_tsv_columns) and legacy_type_column not in df.columns:
+        return df
+
+    tsv_path = _option_tsv_path(tsv_filename)
+    rows = get_tsv_data(tsv_path)
+
+    rows_by_type = {}
+    for row in rows:
+        option_name = str(row.get("Option Name", "")).strip()
+        if option_name == "" or option_name.startswith("#"):
+            continue
+        type_key = _normalize_legacy_value(row.get(type_column_name))
+        rows_by_type.setdefault(type_key, []).append(row)
+
+    for idx, row in df.iterrows():
+        target_values = {}
+        for legacy_column, tsv_column in legacy_to_tsv_columns.items():
+            if legacy_column not in df.columns:
+                continue
+            numeric_value = _to_float(row.get(legacy_column))
+            if numeric_value is not None:
+                target_values[tsv_column] = numeric_value
+
+        candidate_rows = rows
+        if legacy_type_column in df.columns:
+            legacy_type = row.get(legacy_type_column)
+            legacy_type_key = _normalize_legacy_value(legacy_type)
+            typed_rows = rows_by_type.get(legacy_type_key)
+            if typed_rows:
+                candidate_rows = typed_rows
+
+        matched_name = _match_option_by_numeric_properties(tsv_path, target_values, rows=candidate_rows)
+        if matched_name is None:
+            matched_name = default_option
+            _log_approximation_warning_once(
+                ("typed_numeric_default", output_column, legacy_type_column),
+                f"No {output_column} mapping found at row {idx}; using default '{matched_name}'.",
+            )
+
+        df.at[idx, output_column] = matched_name
+
+    return df
 
 
 def build_enclosure_air_leakage_value(value, units, pressure):
@@ -258,7 +446,14 @@ def _nearest_allowed_multiplier(value):
     allowed = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0]
     if value is None:
         return 1.0
-    return min(allowed, key=lambda x: abs(x - value))
+    matched = min(allowed, key=lambda x: abs(x - value))
+    if abs(matched - value) > 1e-9:
+        logger.warning(
+            "Approximated multiplier %s to nearest allowed value %s.",
+            value,
+            matched,
+        )
+    return matched
 
 
 def _format_percent_from_multiplier(multiplier):

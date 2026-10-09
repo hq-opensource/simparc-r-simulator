@@ -1,6 +1,15 @@
+"""Scalar formatters for legacy-to-v1.12 CSV migration.
+
+Keep this module focused on one-value transformations such as rounding or
+normalizing a single legacy field to a canonical option.
+"""
+
 import logging
 
-from migration.src.utils.constants import GEOMETRY_CEILING_HEIGHT_CHOICES, GEOMETRY_UNIT_DIRECTION_CHOICES
+from migration.src.utils.constants import (
+    GEOMETRY_CEILING_HEIGHT_CHOICES,
+    GEOMETRY_UNIT_DIRECTION_CHOICES,
+)
 from migration.src.utils.utils import _to_optional_float
 
 
@@ -8,16 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def format_ceiling_height_choice(value):
-    """
-    Format the ceiling height value to the nearest half-foot choice.
-
-    Args:
-        value (float or str): The ceiling height value to format.
-
-    Returns:
-        str or None: The formatted ceiling height choice, or None if no valid choice is found.
-    """
-
+    """Format the ceiling height value to the nearest half-foot choice."""
     ceiling_height = _to_optional_float(value)
     if ceiling_height is None:
         return None
@@ -31,19 +31,13 @@ def format_ceiling_height_choice(value):
 
 
 def format_unit_direction_choice(value):
-    """
-    Format the unit direction value to the nearest compass direction choice.
-
-    Args:
-        value (float or str): The unit direction value in degrees.
-
-    Returns:
-        str or None: The formatted unit direction choice, or None if no valid choice is found.
-    """
+    """Format the unit direction value to the nearest compass direction choice."""
     unit_direction = _to_optional_float(value)
     if unit_direction is None:
         return None
 
     normalized_degrees = unit_direction % 360.0
-    choice_index = int((normalized_degrees / 22.5) + 0.5) % len(GEOMETRY_UNIT_DIRECTION_CHOICES)
+    choice_index = int((normalized_degrees / 22.5) + 0.5) % len(
+        GEOMETRY_UNIT_DIRECTION_CHOICES
+    )
     return GEOMETRY_UNIT_DIRECTION_CHOICES[choice_index]

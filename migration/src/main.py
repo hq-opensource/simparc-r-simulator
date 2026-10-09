@@ -1,6 +1,7 @@
 import argparse
 
 from migration.src.migrate_csv import main as migrate_main
+from migration.src.validate_csv import main as validate_main
 
 
 def build_parser():
@@ -23,6 +24,8 @@ def build_parser():
 def main():
     args = build_parser().parse_args()
     migrate_main(args.input, args.output)
+    
+
 
 
 if __name__ == "__main__":

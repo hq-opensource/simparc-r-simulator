@@ -39,9 +39,6 @@ def preprocess_data_types(data: pd.DataFrame, args_constraints: dict):
 			else:
 				data[column] = data[column].astype(dict_data_types[col_type])
 			list_columns_hpxml.append(column)
-		#else:
-		#	logger.warning(f"Column '{column}' is not part of the HPXML schema and will be ignored.")
-
 
 	# Add building_id column to the data DataFrame
 	data['building_id'] = np.arange(1, len(data) + 1)
