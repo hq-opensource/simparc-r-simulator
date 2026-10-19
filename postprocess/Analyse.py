@@ -53,6 +53,7 @@ _COLUMN_MAPPING = {
     "End Use: Electricity: Plug Loads_kWh":                             "End Use Electricity Plug Loads",
     "End Use: Electricity: Pool Heater_kWh":                            "End Use Electricity Pool Heater",
     "End Use: Electricity: Pool Pump_kWh":                              "End Use Electricity Pool Pump",
+    "End Use: Electricity: Electric Vehicle Charging_kWh":              "End Use Electricity Electric Vehicles",
     # End Use gaz naturel (kBtu - conversion en kWh)
     "End Use: Natural Gas: Heating_kBtu":                               "End Use Natural Gas Heating",
     "End Use: Natural Gas: Heating Heat Pump Backup_kBtu":              "End Use Natural Gas Heating Heat Pump Backup",
@@ -240,6 +241,7 @@ _END_USE_COLUMNS = [
     "End Use Electricity Plug Loads",
     "End Use Electricity Pool Heater",
     "End Use Electricity Pool Pump",
+    "End Use Electricity Electric Vehicles",
     "End Use Natural Gas Heating",
     "End Use Natural Gas Heating Heat Pump Backup",
     "End Use Natural Gas Hot Water",

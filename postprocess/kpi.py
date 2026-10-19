@@ -2,6 +2,7 @@
 import calendar
 import datetime as _dt
 import gc
+import math
 
 import warnings
 
@@ -143,19 +144,31 @@ class ParametricKPICalculator:
         # ------------------------------------------------------------------
         "Conso_annuelle": KPIMetadata(
             name="Conso_annuelle",
-            description="Consommation annuelle totale de la colonne selectionnee",
+            description=(
+                "Consommation annuelle annualisee de la colonne selectionnee. "
+                "Le calcul est base sur les consommations journalieres: "
+                "on calcule la moyenne pour chaque jour du calendrier (MM-JJ) "
+                "sur toutes les annees disponibles, puis on somme ces 365 moyennes. "
+                "Optionnellement, le 29 fevrier peut etre ajoute avec un poids de 0.25 jour. "
+                "Necessite au minimum 12 mois de donnees distincts ; "
+                "retourne None si cette condition n'est pas satisfaite."
+            ),
             unit="kWh",
-            params={},
-            required=set(),
+            params={
+                "inclure_29fev": "Booleen optionnel. Si true, ajoute le 29 fevrier avec une ponderation de 0.25 jour.",
+            },
+            required={"datetime"},
             sources=None,
         ),
         "Conso_mensuelle": KPIMetadata(
             name="Conso_mensuelle",
-            description="Consommation mensuelle pour un mois donne",
+            description=(
+                "Consommation mensuelle representative par mois calendrier. "
+                "La consommation est d'abord sommee par couple (annee, mois), "
+                "puis moyennee pour chaque mois de l'annee (1-12) sur les annees disponibles."
+            ),
             unit="kWh",
-            params={
-                "mois": "Mois cible (entier 1-12)",
-            },
+            params={},
             required={"datetime"},
             sources=None,
         ),
@@ -163,7 +176,9 @@ class ParametricKPICalculator:
             name="Variation_saisonniere",
             description="Ratio de la puissance mensuelle sur la moyenne des 12 mois (reference=1.0)",
             unit="-",
-            params={},
+            params={
+                "couverture_min": "Seuil minimal de couverture journaliere par mois-annee (0-1). Defaut: 0.75.",
+            },
             required={"datetime"},
             sources=None,
         ),
@@ -253,7 +268,11 @@ class ParametricKPICalculator:
                 "(idealement pour des pas de temps de maximum 1h)"
             ),
             unit="kWh",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides par jour (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+                "ddof": "Correction de l'ecart-type (0=population, 1=echantillon). Defaut: 1.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
@@ -265,7 +284,11 @@ class ParametricKPICalculator:
                 "(idealement pour des pas de temps de maximum 1h)"
             ),
             unit="kWh",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides par jour (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+                "ddof": "Correction de l'ecart-type (0=population, 1=echantillon). Defaut: 1.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
@@ -277,7 +300,11 @@ class ParametricKPICalculator:
                 "(idealement pour des pas de temps de maximum 1h)"
             ),
             unit="kWh",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides par jour (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+                "ddof": "Correction de l'ecart-type (0=population, 1=echantillon). Defaut: 1.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
@@ -290,7 +317,10 @@ class ParametricKPICalculator:
                 "electrique maximale d'un pas de temps. Idealement, le pas de temps est de maximum 1h."
             ),
             unit="-",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides par jour (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
@@ -301,7 +331,10 @@ class ParametricKPICalculator:
                 "journaliere est >= 15C"
             ),
             unit="-",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides par jour (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
@@ -312,40 +345,58 @@ class ParametricKPICalculator:
                 "journaliere est entre 8C et 15C"
             ),
             unit="-",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides par jour (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
         "RatioJN_Quotidien_hiver": KPIMetadata(
             name="RatioJN_Quotidien_hiver",
             description=(
-                "Le ratio entre la consommation electrique moyenne de jour (6h a 22h) et de nuit "
+                "Le ratio entre la consommation electrique moyenne de jour (6h incluse a 22h exclue) et de nuit "
                 "durant les journees d'hiver ou la temperature moyenne journaliere est <= 8C"
             ),
             unit="-",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides requise pour le jour et la nuit (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+                "heure_debut_jour": "Heure de debut incluse de la periode de jour. Defaut: 6.",
+                "heure_fin_jour": "Heure de fin exclue de la periode de jour. Defaut: 22.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
         "RatioJN_Quotidien_ete": KPIMetadata(
             name="RatioJN_Quotidien_ete",
             description=(
-                "Le ratio entre la consommation electrique moyenne de jour (6h a 22h) et de nuit "
+                "Le ratio entre la consommation electrique moyenne de jour (6h incluse a 22h exclue) et de nuit "
                 "durant les journees d'ete ou la temperature moyenne journaliere est >= 15C"
             ),
             unit="-",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides requise pour le jour et la nuit (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+                "heure_debut_jour": "Heure de debut incluse de la periode de jour. Defaut: 6.",
+                "heure_fin_jour": "Heure de fin exclue de la periode de jour. Defaut: 22.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
         "RatioJN_Quotidien_misaison": KPIMetadata(
             name="RatioJN_Quotidien_misaison",
             description=(
-                "Le ratio entre la consommation electrique moyenne de jour (6h a 22h) et de nuit "
+                "Le ratio entre la consommation electrique moyenne de jour (6h incluse a 22h exclue) et de nuit "
                 "durant la misaison ou la temperature moyenne journaliere est entre 8C et 15C"
             ),
             unit="-",
-            params={},
+            params={
+                "couverture_min": "Fraction minimale de mesures valides requise pour le jour et la nuit (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+                "heure_debut_jour": "Heure de debut incluse de la periode de jour. Defaut: 6.",
+                "heure_fin_jour": "Heure de fin exclue de la periode de jour. Defaut: 22.",
+            },
             required={"datetime", "temperature"},
             sources=None,
         ),
@@ -355,6 +406,9 @@ class ParametricKPICalculator:
             unit="kWh",
             params={
                 "saison": "Saison cible : 'Hiver' | 'Ete' | 'Misaison' | 'Tous'",
+                "couverture_min": "Fraction minimale de mesures valides par jour (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+                "ddof": "Correction de l'ecart-type (0=population, 1=echantillon). Defaut: 1.",
             },
             required={"datetime", "temperature"},
             sources=None,
@@ -365,6 +419,8 @@ class ParametricKPICalculator:
             unit="-",
             params={
                 "saison": "Saison cible : 'Hiver' | 'Ete' | 'Misaison' | 'Tous'",
+                "couverture_min": "Fraction minimale de mesures valides par jour (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
             },
             required={"datetime", "temperature"},
             sources=None,
@@ -375,6 +431,10 @@ class ParametricKPICalculator:
             unit="-",
             params={
                 "saison": "Saison cible : 'Hiver' | 'Ete' | 'Misaison' | 'Tous'",
+                "couverture_min": "Fraction minimale de mesures valides requise pour le jour et la nuit (0-1). Defaut: 0.75.",
+                "jours_min": "Nombre minimal de jours valides requis. Defaut: 7.",
+                "heure_debut_jour": "Heure de debut incluse de la periode de jour. Defaut: 6.",
+                "heure_fin_jour": "Heure de fin exclue de la periode de jour. Defaut: 22.",
             },
             required={"datetime", "temperature"},
             sources=None,
@@ -389,7 +449,7 @@ class ParametricKPICalculator:
         return meta.required if meta else set()
 
     KPI_REQUIRED_STANDARD_COLUMNS: Dict[str, set[str]] = {
-        "Conso_annuelle":        set(),
+        "Conso_annuelle":        {"datetime"},
         "Conso_mensuelle":       {"datetime"},
         "Variation_saisonniere": {"datetime"},
         "Profil":                {"datetime"},
@@ -636,75 +696,262 @@ class ParametricKPICalculator:
     #   - Les colonnes absentes du DataFrame retournent None sans lever d'exception.
     # ------------------------------------------------------------------
 
-    def _calc_Conso_annuelle(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
-        """Somme annuelle de l'energie (kWh) pour chaque colonne demandee.
+    def _calc_Conso_annuelle(
+        self,
+        df,
+        cols,
+        dt_col,
+        temp_col,
+        inclure_29fev: bool = False,
+        **params,
+    ) -> Dict[str, Any]:
+        """Consommation annualisee (kWh) pour chaque colonne demandee.
 
-        Une seule operation vectorisee df[valid].sum() couvre toutes les colonnes.
+        L'annualisation est calculee par profil journalier moyen:
+          1) agregation en consommation journaliere,
+          2) moyenne par jour du calendrier (MM-JJ) sur les annees disponibles,
+          3) somme des 365 moyennes (29 fevrier exclu par defaut).
+
+        Option: inclure_29fev=True ajoute la moyenne du 29 fevrier avec un
+        poids de 0.25 jour, pour approcher une annee civile moyenne sur 4 ans.
+
+        Cette approche limite le biais observe quand la periode contient des
+        saisons sur-representees (ex: hiver present sur plus d'annees que l'ete).
+
+        Condition minimale : au moins 12 mois distincts, et 365 jours calendrier
+        (hors 29 fevrier) observes apres agregation journaliere.
+
+        Si dt_col est absent, la somme brute est retournee (comportement de repli).
         """
+        _MIN_MONTHS = 12
+        _MIN_CALENDAR_DAYS = 365
+
+        include_leap_day = inclure_29fev
+        if isinstance(include_leap_day, str):
+            include_leap_day = include_leap_day.strip().lower() in {
+                "1", "true", "vrai", "yes", "oui", "on"
+            }
+        else:
+            include_leap_day = bool(include_leap_day)
+
         valid = [c for c in cols if c in df.columns]
-        sums = df[valid].sum().round(2)
-        return {**sums.to_dict(), **{c: None for c in cols if c not in valid}}
+        none_result = {c: None for c in cols}
+        if not valid:
+            return none_result
+
+        if dt_col and dt_col in df.columns:
+            work = df[[dt_col, *valid]].copy()
+            work[dt_col] = pd.to_datetime(work[dt_col], errors="coerce")
+            work = work.dropna(subset=[dt_col])
+
+            if work.empty:
+                return none_result
+
+            distinct_months = work[dt_col].dt.to_period("M").nunique()
+            if distinct_months < _MIN_MONTHS:
+                return none_result
+
+            work["_day"] = work[dt_col].dt.floor("D")
+            daily = work.groupby("_day")[valid].sum(min_count=1)
+            if daily.empty:
+                return none_result
+
+            daily["_month_day"] = daily.index.strftime("%m-%d")
+            mean_by_calendar_day = daily.groupby("_month_day")[valid].mean()
+            base_calendar = mean_by_calendar_day.drop(index="02-29", errors="ignore")
+            if base_calendar.shape[0] < _MIN_CALENDAR_DAYS:
+                return none_result
+
+            result = base_calendar.sum()
+            if include_leap_day and "02-29" in mean_by_calendar_day.index:
+                result = result + (0.25 * mean_by_calendar_day.loc["02-29"])
+
+            result = result.round(2)
+        else:
+            result = df[valid].sum().round(2)
+
+        return {**result.to_dict(), **{c: None for c in cols if c not in valid}}
 
     def _calc_Conso_mensuelle(self, df, cols, dt_col, temp_col,
-                              mois: Optional[int] = None, **params) -> Dict[str, Any]:
-        """Somme mensuelle de l'energie (kWh) pour chaque mois (1-12).
-        
+                              mois: Optional[int] = None,
+                              couverture_min: float = 0.75,
+                              **params) -> Dict[str, Any]:
+        """Consommation mensuelle representative (kWh) pour chaque mois (1-12).
+
         Optimisation de configuration : cette fonction retourne un dictionnaire imbrique
         au lieu de 12 colonnes separees. La config doit avoir **une seule entree par colonne**
         (sans parametre 'mois'), ce qui reduit les KPI de sortie de 12:1.
-        
+
         Le parametre mois est ignore pour retrocompatibilite (les configs anciennes peuvent
         le contenir, mais il n'est pas utilise).
 
-        Algorithme (vectorise pandas):
-          1. groupby(_month).sum() -> somme par mois pour toutes les colonnes en 1 operation
-          2. Pour chaque colonne, cree {\"1\": sum_jan, \"2\": sum_feb, ..., \"12\": sum_dec}
-          3. Les mois absents du DataFrame retournent None (ex: mois incomplet)
+                Algorithme (vectorise pandas):
+                    1. groupby(jour).sum() -> consommation journaliere.
+                    2. groupby(annee-mois).mean() -> moyenne journaliere par mois civil observe.
+                    3. total_mois = moyenne_journaliere * nb_jours_du_mois (28/29/30/31).
+                    4. Exclure les mois-annee avec couverture journaliere < couverture_min.
+                    5. groupby(mois).mean() -> moyenne des totaux mensuels par mois 1-12.
+                    6. Pour chaque colonne, cree {"1": mean_jan, ..., "12": mean_dec}.
 
         Args:
-            df: DataFrame avec colonne _month (1-12)
+            df: DataFrame avec colonne datetime
             cols: colonnes energie a sommer
-            dt_col: (non utilise)
+            dt_col: colonne datetime utilisee pour former les couples annee-mois
             temp_col: (non utilise)
             mois: deprecated, ignore. Tous les mois sont toujours calcules.
+            couverture_min: seuil minimal de couverture journaliere par mois-annee.
+                            Ex: 0.75 = au moins 75% des jours du mois observes.
             **params: parametres additionnels (ignores)
 
         Returns:
-            Dict[str, Any]: {col: {\"1\": sum, \"2\": sum, ..., \"12\": sum}} ou None si col invalide
+            Dict[str, Any]: {col: {"1": mean, ..., "12": mean}} ou None si col invalide
         """
         valid = [c for c in cols if c in df.columns]
-        
-        # Calcule la somme pour chaque mois en une seule operation vectorisee
-        monthly_sums = df.groupby("_month")[valid].sum().round(2)
-        
         result: Dict[str, Any] = {c: None for c in cols if c not in valid}
+
+        if not valid:
+            return result
+
+        min_coverage = couverture_min
+        if isinstance(min_coverage, str):
+            min_coverage = min_coverage.strip().replace(",", ".")
+            try:
+                min_coverage = float(min_coverage)
+            except (TypeError, ValueError):
+                min_coverage = 0.75
+        else:
+            try:
+                min_coverage = float(min_coverage)
+            except (TypeError, ValueError):
+                min_coverage = 0.75
+
+        if pd.isna(min_coverage):
+            min_coverage = 0.75
+        min_coverage = min(max(min_coverage, 0.0), 1.0)
+
+        if not dt_col or dt_col not in df.columns:
+            for col in valid:
+                result[col] = {str(m): None for m in range(1, 13)}
+            return result
+
+        work = df[[dt_col, *valid]].copy()
+        work[dt_col] = pd.to_datetime(work[dt_col], errors="coerce")
+        work = work.dropna(subset=[dt_col])
+
+        if work.empty:
+            for col in valid:
+                result[col] = {str(m): None for m in range(1, 13)}
+            return result
+
+        work["_day"] = work[dt_col].dt.floor("D")
+        daily = work.groupby("_day")[valid].sum(min_count=1)
+        if daily.empty:
+            for col in valid:
+                result[col] = {str(m): None for m in range(1, 13)}
+            return result
+
+        daily["_period"] = daily.index.to_period("M")
+        days_observed = daily.groupby("_period").size().astype("float64")
+        days_expected = pd.Series(days_observed.index.days_in_month, index=days_observed.index, dtype="float64")
+        valid_periods = days_observed[days_observed / days_expected >= min_coverage].index
+
+        if len(valid_periods) == 0:
+            for col in valid:
+                result[col] = {str(m): None for m in range(1, 13)}
+            return result
+
+        filtered_daily = daily[daily["_period"].isin(valid_periods)]
+        mean_daily_by_period = filtered_daily.groupby("_period")[valid].mean()
+        monthly_by_period = mean_daily_by_period.mul(days_expected.loc[mean_daily_by_period.index], axis=0)
+        if monthly_by_period.empty:
+            for col in valid:
+                result[col] = {str(m): None for m in range(1, 13)}
+            return result
+
+        mean_by_month = monthly_by_period.groupby(monthly_by_period.index.month)[valid].mean().round(2)
+
         for col in valid:
-            if col in monthly_sums.columns:
-                # Cree un dict avec les mois 1-12 comme cles
+            if col in mean_by_month.columns:
                 result[col] = {
-                    str(m): round(float(monthly_sums.loc[m, col]), 2) if m in monthly_sums.index and pd.notna(monthly_sums.loc[m, col]) else None
+                    str(m): round(float(mean_by_month.loc[m, col]), 2)
+                    if m in mean_by_month.index and pd.notna(mean_by_month.loc[m, col])
+                    else None
                     for m in range(1, 13)
                 }
             else:
                 result[col] = None
-        
+
         return result
 
-    def _calc_Variation_saisonniere(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
-        """Ratio de la puissance mensuelle moyenne sur la moyenne annuelle (ref = 1.0).
+    def _calc_Variation_saisonniere(self, df, cols, dt_col, temp_col,
+                                    couverture_min: float = 0.75,
+                                    **params) -> Dict[str, Any]:
+        """Ratio de la consommation mensuelle representatrice sur la moyenne annuelle.
 
-        Algorithme (toutes colonnes en une seule passe):
-          1. groupby(_month).mean() -> puissance moyenne par mois (W).
-          2. ref = moyenne des 12 mois par colonne.
-          3. ratio = puissance_mois / ref, arrondi a 4 decimales.
-          4. Retourne {col: {"1": ratio_jan, ..., "12": ratio_dec}}.
-        Un mois absent du DataFrame produit None pour ce mois.
+        Algorithme robuste (inspire de Conso_mensuelle):
+          1. groupby(jour).sum() -> consommation journaliere.
+          2. groupby(annee-mois).mean() -> moyenne journaliere par mois-annee.
+          3. total_mois = moyenne_journaliere * nb_jours_du_mois.
+          4. Exclure les mois-annee avec couverture journaliere < couverture_min.
+          5. groupby(mois).mean() -> conso mensuelle representatrice par mois 1-12.
+          6. ratio_mois = conso_mois / moyenne_des_mois_disponibles (ref=1.0).
+
+        Les mois absents retournent None. Si la reference est nulle/non definie,
+        la colonne retourne None.
         """
         valid = [c for c in cols if c in df.columns]
-        monthly_w = df.groupby("_month")[valid].mean() / self.timestep_h * 1000.0
-        ref = monthly_w.mean().replace({0: float("nan")})
-        ratios = monthly_w.div(ref).round(4).reindex(range(1, 13))
         result: Dict[str, Any] = {c: None for c in cols if c not in valid}
+        if not valid:
+            return result
+
+        min_coverage = couverture_min
+        if isinstance(min_coverage, str):
+            min_coverage = min_coverage.strip().replace(",", ".")
+            try:
+                min_coverage = float(min_coverage)
+            except (TypeError, ValueError):
+                min_coverage = 0.75
+        else:
+            try:
+                min_coverage = float(min_coverage)
+            except (TypeError, ValueError):
+                min_coverage = 0.75
+
+        if pd.isna(min_coverage):
+            min_coverage = 0.75
+        min_coverage = min(max(min_coverage, 0.0), 1.0)
+
+        if not dt_col or dt_col not in df.columns:
+            return {col: None for col in cols}
+
+        work = df[[dt_col, *valid]].copy()
+        work[dt_col] = pd.to_datetime(work[dt_col], errors="coerce")
+        work = work.dropna(subset=[dt_col])
+        if work.empty:
+            return {col: None for col in cols}
+
+        work["_day"] = work[dt_col].dt.floor("D")
+        daily = work.groupby("_day")[valid].sum(min_count=1)
+        if daily.empty:
+            return {col: None for col in cols}
+
+        daily["_period"] = daily.index.to_period("M")
+        days_observed = daily.groupby("_period").size().astype("float64")
+        days_expected = pd.Series(days_observed.index.days_in_month, index=days_observed.index, dtype="float64")
+        valid_periods = days_observed[days_observed / days_expected >= min_coverage].index
+        if len(valid_periods) == 0:
+            return {col: None for col in cols}
+
+        filtered_daily = daily[daily["_period"].isin(valid_periods)]
+        mean_daily_by_period = filtered_daily.groupby("_period")[valid].mean()
+        monthly_by_period = mean_daily_by_period.mul(days_expected.loc[mean_daily_by_period.index], axis=0)
+        if monthly_by_period.empty:
+            return {col: None for col in cols}
+
+        monthly_rep = monthly_by_period.groupby(monthly_by_period.index.month)[valid].mean()
+        ref = monthly_rep.mean().replace({0: float("nan")})
+        ratios = monthly_rep.div(ref).round(4).reindex(range(1, 13))
+
         for col in valid:
             if pd.isna(ref.get(col)):
                 result[col] = None
@@ -718,6 +965,8 @@ class ParametricKPICalculator:
     def _calc_Profil(self, df, cols, dt_col, temp_col,
                      pas_de_temps: str = "1h", periode: str = "Annee",
                      type_jour: str = "Tous", jour_regle: Optional[str] = None,
+                     couverture_min_jours: int = 7,
+                     couverture_horaire_min: float = 1.0,
                      **params) -> Dict[str, Any]:
         """Profil intra-journalier moyen en Watts pour chaque colonne.
 
@@ -732,12 +981,22 @@ class ParametricKPICalculator:
              fictif d'une journee (24-96 valeurs seulement, non sur 35k lignes).
           4. Retourne {col: {"HH:MM:SS": valeur_W, ...}}.
 
+        Conditions minimales de robustesse:
+          - Au moins couverture_min_jours jours distincts (defaut: 7) pour la robustesse.
+          - Au moins couverture_horaire_min couverture horaire (defaut: 1.0 = 100%) pour
+            garantir que tous les pas de temps horaires sont representes.
+          Si l'une de ces conditions n'est pas satisfaite, retourne None pour toutes les colonnes.
+
         Args:
             pas_de_temps : resolution souhaitee en sortie ('15min' | '30min' | '1h').
             periode      : filtre temporel ('Annee', 'Hiver', 'Ete', 'Janvier', …).
             type_jour    : filtre jour ('Tous', 'Semaine', 'FinDeSemaine', 'JourPreconfigure').
             jour_regle   : regle textuelle si type_jour='JourPreconfigure'
                            ex: 'dernier_mercredi_janvier'.
+            couverture_min_jours : nombre minimum de jours distincts requis. Defaut: 7.
+            couverture_horaire_min : fraction minimale de couverture horaire (0.0 a 1.0).
+                                     Ex: 1.0 = 100% (24/24 heures), 0.75 = 75% (18/24 heures).
+                                     Defaut: 1.0 (garantit aucun pas de temps manquant).
         """
         if pas_de_temps == "jour" or not dt_col or dt_col not in df.columns:
             return {col: None for col in cols}
@@ -759,6 +1018,16 @@ class ParametricKPICalculator:
         grouped = sub.groupby("_time")[valid_cols].mean()
         time_labels = grouped.index.tolist()
         
+        # Vérification 1 : nombre minimum de jours distincts
+        unique_days = sub[dt_col].dt.floor("D").nunique()
+        if unique_days < couverture_min_jours:
+            return {col: None for col in cols}
+        
+        # Vérification 2 : couverture horaire minimale (nombre d'heures / 24)
+        hours_coverage = grouped.shape[0] / 24.0
+        if hours_coverage < couverture_horaire_min:
+            return {col: None for col in cols}
+        
         # Step 2: Convert to Watts (divide by timestep_h in hours, multiply by 1000 to get W)
         profile_w = grouped / self.timestep_h * 1000.0
         
@@ -774,65 +1043,199 @@ class ParametricKPICalculator:
         return result
 
     def _calc_EcartType_Quotidien(self, df, cols, dt_col, temp_col,
-                                   saison: str = "Tous", **params) -> Dict[str, Any]:
+                                   saison: str = "Tous", couverture_min: float = 0.75,
+                                   jours_min: int = 7, ddof: int = 1,
+                                   **params) -> Dict[str, Any]:
         """Ecart-type journalier moyen de la consommation pour une saison donnee.
 
-        Algorithme: filtre saisonnier -> groupby(_date).std() -> moyenne des ecarts-types
-        journaliers sur toutes les colonnes en une seule operation.
+        Les jours dont la couverture est insuffisante sont exclus par colonne avant
+        de moyenner les ecarts-types journaliers. Une colonne doit conserver au moins
+        ``jours_min`` jours valides, sinon son resultat est None.
 
         Args:
             saison: 'Hiver' (T<=8C) | 'Ete' (T>=15C) | 'Misaison' (8C<T<15C) | 'Tous'.
+            couverture_min: fraction minimale de mesures valides attendues par jour.
+            jours_min: nombre minimal de jours valides requis par colonne.
+            ddof: correction utilisee par l'ecart-type (1=echantillon, 0=population).
         """
+        result: Dict[str, Any] = {col: None for col in cols}
+        if not dt_col or dt_col not in df.columns or "_date" not in df.columns:
+            return result
+
         sub = self._seasonal_filter(df, temp_col, saison)
-        if sub.empty:
-            return {col: None for col in cols}
         valid = [c for c in cols if c in sub.columns]
-        means = sub.groupby("_date")[valid].std().mean().round(4)
-        return {**means.to_dict(), **{c: None for c in cols if c not in valid}}
+        if sub.empty or not valid:
+            return result
+
+        try:
+            min_coverage = min(max(float(couverture_min), 0.0), 1.0)
+            min_days = max(int(jours_min), 1)
+            std_ddof = max(int(ddof), 0)
+        except (TypeError, ValueError):
+            return result
+        if pd.isna(min_coverage):
+            return result
+
+        work = sub[["_date", dt_col, *valid]].copy()
+        work[dt_col] = pd.to_datetime(work[dt_col], errors="coerce")
+        work[valid] = work[valid].apply(pd.to_numeric, errors="coerce")
+        work = work.dropna(subset=["_date", dt_col])
+        if work.empty:
+            return result
+
+        timestep_h = self.timestep_h if self.timestep_h > 0 else 1.0
+        expected_measurements = max(round(24.0 / timestep_h), 1)
+        min_measurements = max(round(expected_measurements * min_coverage), std_ddof + 1)
+
+        grouped = work.groupby("_date")[valid]
+        daily_std = grouped.std(ddof=std_ddof).where(grouped.count() >= min_measurements)
+
+        for col in valid:
+            values = daily_std[col].dropna()
+            if len(values) >= min_days:
+                result[col] = round(float(values.mean()), 4)
+        return result
 
     def _calc_FU_Quotidien(self, df, cols, dt_col, temp_col,
-                           saison: str = "Tous", **params) -> Dict[str, Any]:
+                           saison: str = "Tous", couverture_min: float = 0.75,
+                           jours_min: int = 7, **params) -> Dict[str, Any]:
         """Facteur d'utilisation quotidien moyen (mean/max par jour) pour une saison.
 
         FU = moyenne_journaliere / maximum_journalier, moyenne sur tous les jours.
-        Toutes les colonnes sont traitees en une seule passe groupby.
+        Les jours incomplets et ceux dont le maximum est nul ou negatif sont exclus
+        par colonne. Une colonne doit conserver au moins ``jours_min`` jours valides.
 
         Args:
             saison: 'Hiver' | 'Ete' | 'Misaison' | 'Tous'.
+            couverture_min: fraction minimale de mesures valides attendues par jour.
+            jours_min: nombre minimal de jours valides requis par colonne.
         """
+        result: Dict[str, Any] = {col: None for col in cols}
+        if not dt_col or dt_col not in df.columns or "_date" not in df.columns:
+            return result
+
+        season_name = str(saison or "Tous").strip().capitalize()
+        if season_name not in _SEASON_FILTER_RULES:
+            return result
+
         sub = self._seasonal_filter(df, temp_col, saison)
-        if sub.empty:
-            return {col: None for col in cols}
         valid = [c for c in cols if c in sub.columns]
-        grp = sub.groupby("_date")[valid]
-        means = (grp.mean() / grp.max().replace({0: float("nan")})).mean().round(4)
-        return {**means.to_dict(), **{c: None for c in cols if c not in valid}}
+        if sub.empty or not valid:
+            return result
+
+        try:
+            min_coverage = min(max(float(couverture_min), 0.0), 1.0)
+            min_days = max(int(jours_min), 1)
+        except (TypeError, ValueError):
+            return result
+        if pd.isna(min_coverage):
+            return result
+
+        work = sub[[dt_col, *valid]].copy()
+        work[dt_col] = pd.to_datetime(work[dt_col], errors="coerce")
+        work[valid] = work[valid].apply(pd.to_numeric, errors="coerce")
+        work = work.dropna(subset=[dt_col])
+        if work.empty:
+            return result
+
+        # Une mesure dupliquee au meme timestamp ne doit pas gonfler la couverture.
+        work["_date"] = work[dt_col].dt.date
+        work = work.groupby(["_date", dt_col], as_index=False)[valid].mean()
+
+        timestep_h = self.timestep_h if self.timestep_h > 0 else 1.0
+        expected_measurements = max(round(24.0 / timestep_h), 1)
+        min_measurements = max(math.ceil(expected_measurements * min_coverage), 1)
+
+        grouped = work.groupby("_date")[valid]
+        counts = grouped.count()
+        daily_max = grouped.max()
+        daily_fu = grouped.mean().div(daily_max.where(daily_max > 0))
+        daily_fu = daily_fu.where(counts >= min_measurements)
+
+        for col in valid:
+            values = daily_fu[col].dropna()
+            if len(values) < min_days:
+                continue
+            value = float(values.mean())
+            if math.isfinite(value):
+                result[col] = round(value, 4)
+        return result
 
     def _calc_RatioJN_Quotidien(self, df, cols, dt_col, temp_col,
-                                saison: str = "Tous", **params) -> Dict[str, Any]:
+                                saison: str = "Tous", couverture_min: float = 0.75,
+                                jours_min: int = 7, heure_debut_jour: int = 6,
+                                heure_fin_jour: int = 22, **params) -> Dict[str, Any]:
         """Ratio consommation jour / nuit quotidien moyen pour une saison.
 
-        Jour  : 6h-21h inclus. Nuit : 22h-5h inclus.
-        Algorithme: filtre saisonnier -> split jour/nuit -> groupby(_date).mean()
-        sur toutes les colonnes -> ratio -> moyenne sur les jours communs.
+        Le jour couvre l'intervalle [heure_debut_jour, heure_fin_jour[. Les jours
+        incomplets et ceux dont la moyenne nocturne est nulle ou negative sont exclus
+        par colonne. Une colonne doit conserver au moins ``jours_min`` jours valides.
 
         Args:
             saison: 'Hiver' | 'Ete' | 'Misaison' | 'Tous'.
+            couverture_min: couverture minimale requise pour le jour et la nuit.
+            jours_min: nombre minimal de jours valides requis par colonne.
+            heure_debut_jour: heure de debut incluse de la periode de jour.
+            heure_fin_jour: heure de fin exclue de la periode de jour.
         """
-        if not dt_col or dt_col not in df.columns:
-            return {col: None for col in cols}
+        result: Dict[str, Any] = {col: None for col in cols}
+        if not dt_col or dt_col not in df.columns or "_date" not in df.columns:
+            return result
+
+        season_name = str(saison or "Tous").strip().capitalize()
+        if season_name not in _SEASON_FILTER_RULES:
+            return result
+
         sub = self._seasonal_filter(df, temp_col, saison)
-        if sub.empty:
-            return {col: None for col in cols}
         valid = [c for c in cols if c in sub.columns]
-        day_mask = (sub[dt_col].dt.hour >= 6) & (sub[dt_col].dt.hour <= 21)
-        day_grp = sub[day_mask].groupby("_date")[valid].mean()
-        night_grp = sub[~day_mask].groupby("_date")[valid].mean()
-        idx = day_grp.index.intersection(night_grp.index)
-        if idx.empty:
-            return {col: None for col in cols}
-        means = (day_grp.loc[idx] / night_grp.loc[idx].replace({0: float("nan")})).mean().round(4)
-        return {**means.to_dict(), **{c: None for c in cols if c not in valid}}
+        if sub.empty or not valid:
+            return result
+
+        try:
+            min_coverage = min(max(float(couverture_min), 0.0), 1.0)
+            min_days = max(int(jours_min), 1)
+            day_start = int(heure_debut_jour)
+            day_end = int(heure_fin_jour)
+        except (TypeError, ValueError):
+            return result
+        if pd.isna(min_coverage) or not 0 <= day_start < day_end <= 24:
+            return result
+
+        work = sub[[dt_col, *valid]].copy()
+        work[dt_col] = pd.to_datetime(work[dt_col], errors="coerce")
+        work[valid] = work[valid].apply(pd.to_numeric, errors="coerce")
+        work = work.dropna(subset=[dt_col])
+        if work.empty:
+            return result
+
+        work["_date"] = work[dt_col].dt.date
+        work = work.groupby(["_date", dt_col], as_index=False)[valid].mean()
+
+        timestep_h = self.timestep_h if self.timestep_h > 0 else 1.0
+        day_hours = day_end - day_start
+        night_hours = 24 - day_hours
+        expected_day = max(round(day_hours / timestep_h), 1)
+        expected_night = max(round(night_hours / timestep_h), 1)
+        min_day = max(math.ceil(expected_day * min_coverage), 1)
+        min_night = max(math.ceil(expected_night * min_coverage), 1)
+
+        day_mask = (work[dt_col].dt.hour >= day_start) & (work[dt_col].dt.hour < day_end)
+        day_grouped = work[day_mask].groupby("_date")[valid]
+        night_grouped = work[~day_mask].groupby("_date")[valid]
+        day_mean = day_grouped.mean()
+        night_mean = night_grouped.mean()
+        ratios = day_mean.div(night_mean.where(night_mean > 0))
+        ratios = ratios.where(day_grouped.count() >= min_day)
+        ratios = ratios.where(night_grouped.count() >= min_night)
+
+        for col in valid:
+            values = ratios[col].dropna()
+            if len(values) < min_days:
+                continue
+            value = float(values.mean())
+            if math.isfinite(value):
+                result[col] = round(value, 4)
+        return result
 
     # Seasonal variants — thin wrappers that fix the saison parameter so that
     # calculate() can resolve them by KPI name without extra params dispatch.
