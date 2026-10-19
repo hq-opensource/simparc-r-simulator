@@ -37,8 +37,16 @@ def get_project_configuration(project_file):
     # Set absolute paths
     cfg["CURRENT_PATH"] = Path(project_file).parent.absolute()
     cfg["CONFIG_PATH"] = Path(project_file).absolute()
-    cfg["RESULTS_PATH"] = cfg["CURRENT_PATH"] / "results"
-    cfg["MEASURES_PATH"] = cfg["CURRENT_PATH"] / "measures"
-    cfg["WEATHER_FILES_PATH"] = cfg["CURRENT_PATH"] / "weather"
+    
+    # Results path: use YAML value if provided, otherwise default to {CURRENT_PATH}/results
+    if "RESULTS_PATH" in cfg and cfg["RESULTS_PATH"]:
+        cfg["RESULTS_PATH"] = (cfg["CURRENT_PATH"] / cfg["RESULTS_PATH"]).resolve()
+    else:
+        cfg["RESULTS_PATH"] = cfg["CURRENT_PATH"] / "results"
+    
+    cfg["PROJECT_PATH"] = Path("./").resolve()
+
+    cfg["MEASURES_PATH"] = cfg["PROJECT_PATH"] / "measures"
+    cfg["WEATHER_FILES_PATH"] = cfg["PROJECT_PATH"] / "weather"
 
     return cfg

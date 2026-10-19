@@ -22,6 +22,7 @@ def preprocess_data_types(data: pd.DataFrame, args_constraints: dict):
 		list_columns_hpxml: The list of columns that are part of the HPXML schema.
 	"""
 	# Convert each column in the dataframe data to the appropriate data type
+
 	dict_data_types = {
 		'Boolean': bool,
 		'Integer': int,
@@ -30,18 +31,23 @@ def preprocess_data_types(data: pd.DataFrame, args_constraints: dict):
 		'String': str
 		}
 	list_columns_hpxml = []
-	for column in data.columns:
-		if column in args_constraints.keys():
-			col_type = args_constraints[column]['Type']
-			if col_type == 'String' or col_type == 'Choice':
-				# Preserve NaN for string-like columns instead of converting to literal "nan"
-				data[column] = data[column].where(data[column].isna(), data[column].astype(str))
-			else:
-				data[column] = data[column].astype(dict_data_types[col_type])
-			list_columns_hpxml.append(column)
-
-	# Add building_id column to the data DataFrame
-	data['building_id'] = np.arange(1, len(data) + 1)
+	try:
+		for column in data.columns:
+			if column in args_constraints.keys():
+				col_type = args_constraints[column]['Type']
+				if col_type == 'String' or col_type == 'Choice':
+					# Preserve NaN for string-like columns instead of converting to literal "nan"
+					data[column] = data[column].where(data[column].isna(), data[column].astype(str))
+				else:
+					data[column] = data[column].astype(dict_data_types[col_type])
+				list_columns_hpxml.append(column)
+	except Exception as e:
+		logger.error(f"Error while converting data types: {e} for col {column} for data {data}")
+		raise RuntimeError(f"Error while converting data types: {e} for col {column} for data {data}")
+		
+	if "building_id" not in data.columns:
+		# Add building_id column to the data DataFrame
+		data['building_id'] = np.arange(1, len(data) + 1)
 
 	# Add other missing hpxml columns with default None values
 	list_missing_hpxml_columns = [col for col in args_constraints.keys() if col not in list_columns_hpxml]

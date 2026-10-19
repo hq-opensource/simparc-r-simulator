@@ -2,6 +2,8 @@ SCHEMA_VERSION : enum('0.1')
 
 SAMPLE_FILE : str(required=True)
 
+RESULTS_PATH: str(required=False)
+
 HPXML_SCHEMA_FILE : str(required=True)
 
 SEED : int(required=False)

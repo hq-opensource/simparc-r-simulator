@@ -12,7 +12,7 @@ N_JOBS : 20 # Number of parallel jobs (null = auto-detect based on CPU count)
 SIMULATION_TIMESTEP : 15 # minutes - must be integer and a divisor of 60 
 SIMULATION_YEAR : 2023
 SIMULATION_RUN_PERIOD : "Jan 1 - Dec 31" # Define the simulation run using the same format (First 3 letters of month and day number) e.g., "Jan 1 - Dec 31", "Jun 1 - Aug 31"
-WEATHER_FILE_TYPE : "AMY" # Options: "AMY" for actual weather files (2022-2023) or "CWEC" for typical weather files (2020) or "PCIC" for projected future weather files (2020, 2050, 2080)
+WEATHER_FILE_TYPE : "CWEC" # Options: "AMY" for actual weather files (2022-2023) or "CWEC" for typical weather files (2020) or "PCIC" for projected future weather files (2020, 2050, 2080)
 
 # Define the output settings
 ADD_COMPONENT_LOADS : False # If true, adds the calculation of heating/cooling component loads (not enabled by default for faster performance).

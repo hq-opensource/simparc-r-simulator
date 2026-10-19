@@ -111,6 +111,7 @@ Champs importants:
 - `SCHEMA_VERSION`: sélection du schéma de validation dans `schemas/`.
 - `SAMPLE_FILE`: chemin vers le fichier CSV listant les bâtiments à simuler.
 - `HPXML_SCHEMA_FILE`: chemin vers le XML de mesure utilisé pour déduire les contraintes HPXML.
+- `RESULTS_PATH`: (optionnel) chemin où les résultats sont stockés. Si omis, valeur par défaut = `{project_dir}/results`.
 - `N_JOBS`: nombre de workers parallèles. Si omis, valeur par défaut = nombre de CPU moins 8.
 - `SIMULATION_TIMESTEP`, `SIMULATION_YEAR`, `SIMULATION_RUN_PERIOD`.
 - `WEATHER_FILE_TYPE`: mode de correspondance météo (ex. AMY, CWEC, PCIC).
@@ -314,6 +315,7 @@ Important fields include:
 - `SCHEMA_VERSION`: selects the validation schema under `schemas/`.
 - `SAMPLE_FILE`: path to the CSV file listing the buildings to simulate.
 - `HPXML_SCHEMA_FILE`: path to measure XML used to infer HPXML constraints.
+- `RESULTS_PATH`: (optional) path where results are stored. If omitted, defaults to `{project_dir}/results`.
 - `N_JOBS`: parallel workers. If omitted, defaults to CPU count minus 8.
 - `SIMULATION_TIMESTEP`, `SIMULATION_YEAR`, `SIMULATION_RUN_PERIOD`.
 - `WEATHER_FILE_TYPE`: weather mapping mode (e.g., AMY, CWEC, PCIC).

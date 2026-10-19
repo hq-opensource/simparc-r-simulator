@@ -57,76 +57,81 @@ class LocalBatch(BuildStockBatchBase):
 
     @classmethod
     def run_building(cls,cfg,building_data):
-        # Create a new folder named 'building_1' in results_dir
-        building_dir = Path(os.path.join(cfg["CURRENT_PATH"], cfg["RESULTS_PATH"],
-                                    str(building_data['non_hpxml_args']['building_id'])))
+        try:
+            # Create a new folder named 'building_1' in results_dir
+            building_dir = Path(os.path.join(cfg["CURRENT_PATH"], cfg["RESULTS_PATH"],
+                                        str(building_data['non_hpxml_args']['building_id'])))
+            #print(building_dir)
+            #print(building_data)
+            cls.make_sim_dir(building_dir)
 
-        cls.make_sim_dir(building_dir)
+            # Dump metadata to a JSON file
+            # TODO improve this
+            with open(os.path.join(building_dir, "{}_metadata.json".format(str(building_data['non_hpxml_args']['building_id']))), "w") as f:
+                json.dump(building_data, f, indent=4)
+            f.close()
 
-        # Dump metadata to a JSON file
-        # TODO improve this
-        with open(os.path.join(building_dir, "{}_metadata.json".format(str(building_data['non_hpxml_args']['building_id']))), "w") as f:
-            json.dump(building_data, f, indent=4)
-        f.close()
+            # Correct the paths in hpxml_args
+            building_data['hpxml_args']['hpxml_path'] = str(building_dir / 'built.xml')
+            
+            # Define the right weather file path based on the weather file type, the simulation year and the administrative region
+            with open('weather/mapping/Mapping-Region-EPWfiles.json', 'r') as f:
+                mapping_region_weather = json.load(f)  
+            building_data['hpxml_args']['weather_station_epw_filepath'] = os.path.join(cfg["PROJECT_PATH"],
+                                                                                    cfg["WEATHER_FILES_PATH"],
+                                                                                    mapping_region_weather[cfg["WEATHER_FILE_TYPE"]][str(cfg["SIMULATION_YEAR"])].get(building_data['non_hpxml_args']['Region_Administrative']))
 
-        # Correct the paths in hpxml_args
-        building_data['hpxml_args']['hpxml_path'] = str(building_dir / 'built.xml')
-        
-		# Define the right weather file path based on the weather file type, the simulation year and the administrative region
-        with open('weather/mapping/Mapping-Region-EPWfiles.json', 'r') as f:
-            mapping_region_weather = json.load(f)  
-        building_data['hpxml_args']['weather_station_epw_filepath'] = os.path.join(cfg["CURRENT_PATH"],
-                                                                                   cfg["WEATHER_FILES_PATH"],
-                                                                                   mapping_region_weather[cfg["WEATHER_FILE_TYPE"]][str(cfg["SIMULATION_YEAR"])].get(building_data['non_hpxml_args']['Region_Administrative']))
+            # Define the simulation settings
+            building_data['hpxml_args']['simulation_control_timestep'] = cfg["SIMULATION_TIMESTEP"]
+            building_data['hpxml_args']['simulation_control_run_period'] = cfg["SIMULATION_RUN_PERIOD"]
 
-        # Define the simulation settings
-        building_data['hpxml_args']['simulation_control_timestep'] = cfg["SIMULATION_TIMESTEP"]
-        building_data['hpxml_args']['simulation_control_run_period'] = cfg["SIMULATION_RUN_PERIOD"]
+            # Define a new building based on the CSV data
+            building_i = Building(building_data,cfg,)
 
-        # Define a new building based on the CSV data
-        building_i = Building(building_data,cfg,)
+            # Generate stochastic profiles for diverse appliances if needed
+            building_i.generate_stochastic_profile(building_dir)
 
-        # Generate stochastic profiles for diverse appliances if needed
-        building_i.generate_stochastic_profile(building_dir)
+            # Create the OpenStudio Workflow (OSW) file for the building
+            building_i.create_osw(cfg["CURRENT_PATH"], building_dir)
 
-        # Create the OpenStudio Workflow (OSW) file for the building
-        building_i.create_osw(cfg["CURRENT_PATH"], building_dir)
-
-        # Run the OpenStudio workflow using the command line
-        container_aware = os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
-        start_time = time.perf_counter()
-        with open(building_dir / "openstudio_output.log", "w") as f_out:
-            subprocess_kw ={"check":True,"stdout":f_out,"stderr":subprocess.STDOUT}
-            try:
-                if container_aware:
-                    subprocess.run(["openstudio", "run", "-w", building_dir / "in.osw"],**subprocess_kw) # with devcontainer
-                else:
-                    openstudio_exe = os.environ.get("OPENSTUDIO_EXE", "").strip().strip('"')
-                    if not openstudio_exe:
-                        openstudio_exe = shutil.which("openstudio")
-                    if not openstudio_exe:
-                        raise EnvironmentError(
-                            "OPENSTUDIO_EXE is not defined and 'openstudio' is not available in PATH. "
-                            "Set OPENSTUDIO_EXE (absolute path to openstudio executable) or add OpenStudio bin to PATH."
-                        )
-                    subprocess.run([openstudio_exe, "run", "-w", building_dir / "in.osw"],**subprocess_kw) # with OpenStudio SDK configured as env var or PATH
-            except subprocess.TimeoutExpired as e:
-                print(str(building_dir))
-                print(str(e))
-                pass
-            except subprocess.CalledProcessError as e:
-                print(e)
-                pass
-            finally:
-                fs = LocalFileSystem()
-                dpout = read_simulation_outputs(fs,str(building_dir))
-                if cfg["BATCH_MODE"]:
-                    postprocess_results(building_dir, cfg)
-                    cls.cleanup_sim_dir(building_dir)
-                del cfg
-                del building_data
-                gc.collect()
-        return dpout
+            # Run the OpenStudio workflow using the command line
+            container_aware = os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
+            start_time = time.perf_counter()
+            with open(building_dir / "openstudio_output.log", "w") as f_out:
+                subprocess_kw ={"check":True,"stdout":f_out,"stderr":subprocess.STDOUT}
+                try:
+                    if container_aware:
+                        subprocess.run(["openstudio", "run", "-w", building_dir / "in.osw"],**subprocess_kw) # with devcontainer
+                    else:
+                        openstudio_exe = os.environ.get("OPENSTUDIO_EXE", "").strip().strip('"')
+                        if not openstudio_exe:
+                            openstudio_exe = shutil.which("openstudio")
+                        if not openstudio_exe:
+                            raise EnvironmentError(
+                                "OPENSTUDIO_EXE is not defined and 'openstudio' is not available in PATH. "
+                                "Set OPENSTUDIO_EXE (absolute path to openstudio executable) or add OpenStudio bin to PATH."
+                            )
+                        subprocess.run([openstudio_exe, "run", "-w", building_dir / "in.osw"],**subprocess_kw) # with OpenStudio SDK configured as env var or PATH
+                except subprocess.TimeoutExpired as e:
+                    print(str(building_dir))
+                    print(str(e))
+                    pass
+                except subprocess.CalledProcessError as e:
+                    print(e)
+                    pass
+                finally:
+                    fs = LocalFileSystem()
+                    dpout = read_simulation_outputs(fs,str(building_dir))
+                    if cfg["BATCH_MODE"]:
+                        postprocess_results(building_dir, cfg)
+                        cls.cleanup_sim_dir(building_dir)
+                    del cfg
+                    del building_data
+                    gc.collect()
+            return dpout
+        except Exception as e:
+            print(f"Error processing building {building_data.get('non_hpxml_args', {}).get('building_id', 'unknown')}: {e}")
+            return {"status": "Fail", "failure_message": str(e)}
 
     def run_batch(self):
         start_time = time.perf_counter()
@@ -141,7 +146,13 @@ class LocalBatch(BuildStockBatchBase):
         else:
             SEED = self.cfg["SEED"]
 
-        data['seed'] = SEED + data.index + 1
+        if 'seed' not in data.columns:
+            data['seed'] = SEED + data.index + 1
+        else:
+            #ajoute un seed si manquant
+            fallback_seeds = pd.Series(SEED + data.index + 1, index=data.index)
+            data['seed'] = data['seed'].fillna(fallback_seeds).astype(int)
+
 
         # Preprocess the data to ensure it meets the constraints
         data, list_columns_hpxml = preprocess_data_types(data, self.cfg["ARGS_CONSTRAINTS"])

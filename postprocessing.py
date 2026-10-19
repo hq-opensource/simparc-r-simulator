@@ -94,101 +94,113 @@ def postprocess_results(path, cfg=None):
 
     """
     try:
-        with open(os.path.join(path, "{}_metadata.json".format(str(Path(path).stem))), "r") as f:
-            metadata_json =json.load(f)
-            i = metadata_json["hpxml_args"] | metadata_json["non_hpxml_args"]
-    except FileNotFoundError as e:
-        i = {}
-        i['status'] = "Fail"
-        i['failure_message'] = "{}_metadata.json : File not found.".format(str(Path(path).stem))
-        return
-
-    i["building_id"] = str(Path(path).stem)
-    # Read the out.osw file
-    out_osw_path = os.path.join(path, 'out.osw')
-    try:
-        with open(out_osw_path, 'r') as f:
-            out_osw = json.load(f)
-    except FileNotFoundError as e:
-        i['status'] = "Fail"
-        i['failure_message'] = "{}/out.osw : File not found.".format(str(Path(path)))
-        return
-
-    # Get the status of the simulation
-    i['status'] = out_osw.get('completed_status', None)
-    # Get the failed step if any
-    i['last_step'] = out_osw['steps'][out_osw['current_step']-1].get('measure_dir_name', None)
-    i['failure_message'] = out_osw['steps'][out_osw['current_step']-1]['result'].get('step_errors', None)
-    if i['status'] == 'Success':
-        # Collect all columns names
-        columns_to_be_str = list(i.keys())
-        # Add the annual results
-        results_annual_path = os.path.join(path, 'run', 'results_annual.csv')
-        df_annual_results = pd.read_csv(results_annual_path,header=None)
-        dict_annual_results = df_annual_results.set_index(0).T.to_dict('records')[0]
-        i.update(dict_annual_results)
-        # Add the timeseries results
-        if (Path(path) / 'run' / 'results_timeseries.csv').exists():
-            dfTimeseries = pd.read_csv(os.path.join(path, 'run', 'results_timeseries.csv'),
-                                    header=[0,1])
-            dfTimeseries.columns = ['_'.join([str(i) for i in col if ((str(i) != 'nan') & (str(i)[:8] != "Unnamed:"))]) \
-                                    for col in dfTimeseries.columns.values]
-            
-            # Calculate quantities of interest from timeseries data
-            if cfg is None or cfg.get("INCLUDE_KPI", True):
-                try:
-                    kpi_settings = cfg.get("KPI_SETTING", {}) if cfg else {}
-                    dict_quantites_interet = Quantite_interet(dfTimeseries, kpi_settings=kpi_settings)
-                    i.update(dict_quantites_interet)
-                except Exception as e:
-                    print(f"Warning: Failed to calculate quantities of interest for building {i['building_id']}: {e}")
-            
-            dfTimeseries['building_id'] = i['building_id']
-            tableTimeseries = pa.Table.from_pandas(dfTimeseries)
-            pq.write_to_dataset(tableTimeseries,
-                                root_path=os.path.join(str(Path(path).parent), 'timeseries.parquet'),
+        try:
+            with open(os.path.join(path, "{}_metadata.json".format(str(Path(path).stem))), "r") as f:
+                metadata_json =json.load(f)
+                i = metadata_json["hpxml_args"] | metadata_json["non_hpxml_args"]
+        except FileNotFoundError as e:
+            i = {}
+            i['status'] = "Fail"
+            i['failure_message'] = "{}_metadata.json : File not found.".format(str(Path(path).stem))
+            return
+        #if "building_id" not in i:
+        i["building_id"] = str(Path(path).stem)
+        # Read the out.osw file
+        out_osw_path = os.path.join(path, 'out.osw')
+        try:
+            with open(out_osw_path, 'r') as f:
+                out_osw = json.load(f)
+        except FileNotFoundError as e:
+            i['status'] = "Fail"
+            i['failure_message'] = "{}/out.osw : File not found.".format(str(Path(path)))
+            return
+        try:
+            # Get the status of the simulation
+            i['status'] = out_osw.get('completed_status', None)
+            # Get the failed step if any
+            i['last_step'] = out_osw['steps'][out_osw['current_step']-1].get('measure_dir_name', None)
+            i['failure_message'] = out_osw['steps'][out_osw['current_step']-1]['result'].get('step_errors', None)
+        except Exception as e:
+            i['status'] = "Fail"
+            i['failure_message'] = "Error reading out.osw: {}".format(str(e))
+            return
+        if i['status'] == 'Success':
+            # Collect all columns names
+            columns_to_be_str = list(i.keys())
+            # Add the annual results
+            results_annual_path = os.path.join(path, 'run', 'results_annual.csv')
+            try:
+                df_annual_results = pd.read_csv(results_annual_path, header=None)
+                dict_annual_results = df_annual_results.set_index(0).T.to_dict('records')[0]
+                i.update(dict_annual_results)
+            except FileNotFoundError as e:
+                print(f"Warning: {results_annual_path} : File not found.")
+                return
+            # Add the timeseries results
+            if (Path(path) / 'run' / 'results_timeseries.csv').exists():
+                dfTimeseries = pd.read_csv(os.path.join(path, 'run', 'results_timeseries.csv'),
+                                        header=[0,1])
+                dfTimeseries.columns = ['_'.join([str(i) for i in col if ((str(i) != 'nan') & (str(i)[:8] != "Unnamed:"))]) \
+                                        for col in dfTimeseries.columns.values]
+                
+                # Calculate quantities of interest from timeseries data
+                if cfg is None or cfg.get("INCLUDE_KPI", True):
+                    try:
+                        kpi_settings = cfg.get("KPI_SETTING", {}) if cfg else {}
+                        dict_quantites_interet = Quantite_interet(dfTimeseries, kpi_settings=kpi_settings)
+                        i.update(dict_quantites_interet)
+                    except Exception as e:
+                        print(f"Warning: Failed to calculate quantities of interest for building {i['building_id']}: {e}")
+                
+                dfTimeseries['building_id'] = i['building_id']
+                tableTimeseries = pa.Table.from_pandas(dfTimeseries)
+                pq.write_to_dataset(tableTimeseries,
+                                    root_path=os.path.join(str(Path(path).parent), 'timeseries.parquet'),
+                                    partition_cols=['building_id'],
+                                    existing_data_behavior='delete_matching')
+            # Convert the dictionary to a pandas DataFrame and save it as a parquet file
+            # Serialize dict/list KPI values (e.g. Profil, Conso_mensuelle) to JSON strings
+            # before creating the DataFrame so all partitions share the same string type.
+            for k, v in i.items():
+                if isinstance(v, (dict, list)):
+                    i[k] = json.dumps(v)
+            dfMetadata = pd.DataFrame([i])
+            dfMetadata[columns_to_be_str] = dfMetadata[columns_to_be_str].astype(str)
+            # KPI names whose calculator returns str or dict (serialized to JSON string).
+            # When these KPIs return None for a building, the column must stay object (string)
+            # dtype — NOT float64 — to avoid schema conflicts across partitions.
+            _NON_NUMERIC_KPI_NAMES = {"Profil", "Conso_mensuelle", "Variation_saisonniere", "Type_PRISM"}
+            for col in dfMetadata.columns:
+                if col not in columns_to_be_str:
+                    kpi_name = col.split("__")[0] if "__" in col else ""
+                    if kpi_name in _NON_NUMERIC_KPI_NAMES:
+                        # Use StringDtype so PyArrow always writes large_string (never null type),
+                        # preventing schema conflicts across partitions when the value is None.
+                        dfMetadata[col] = dfMetadata[col].astype(pd.StringDtype())
+                    else:
+                        converted = pd.to_numeric(dfMetadata[col], errors="coerce")
+                        if not converted.isna().all() or dfMetadata[col].isna().all():
+                            dfMetadata[col] = converted
+                        if dfMetadata[col].isna().all():
+                            dfMetadata[col] = dfMetadata[col].astype("float64")
+            tableMetadata = pa.Table.from_pandas(dfMetadata)
+            pq.write_to_dataset(tableMetadata,
+                                root_path=os.path.join(str(Path(path).parent), 'metadata.parquet'),
                                 partition_cols=['building_id'],
                                 existing_data_behavior='delete_matching')
-        # Convert the dictionary to a pandas DataFrame and save it as a parquet file
-        # Serialize dict/list KPI values (e.g. Profil, Conso_mensuelle) to JSON strings
-        # before creating the DataFrame so all partitions share the same string type.
-        for k, v in i.items():
-            if isinstance(v, (dict, list)):
-                i[k] = json.dumps(v)
-        dfMetadata = pd.DataFrame([i])
-        dfMetadata[columns_to_be_str] = dfMetadata[columns_to_be_str].astype(str)
-        # KPI names whose calculator returns str or dict (serialized to JSON string).
-        # When these KPIs return None for a building, the column must stay object (string)
-        # dtype — NOT float64 — to avoid schema conflicts across partitions.
-        _NON_NUMERIC_KPI_NAMES = {"Profil", "Conso_mensuelle", "Variation_saisonniere", "Type_PRISM"}
-        for col in dfMetadata.columns:
-            if col not in columns_to_be_str:
-                kpi_name = col.split("__")[0] if "__" in col else ""
-                if kpi_name in _NON_NUMERIC_KPI_NAMES:
-                    # Use StringDtype so PyArrow always writes large_string (never null type),
-                    # preventing schema conflicts across partitions when the value is None.
-                    dfMetadata[col] = dfMetadata[col].astype(pd.StringDtype())
-                else:
-                    converted = pd.to_numeric(dfMetadata[col], errors="coerce")
-                    if not converted.isna().all() or dfMetadata[col].isna().all():
-                        dfMetadata[col] = converted
-                    if dfMetadata[col].isna().all():
-                        dfMetadata[col] = dfMetadata[col].astype("float64")
-        tableMetadata = pa.Table.from_pandas(dfMetadata)
-        pq.write_to_dataset(tableMetadata,
-                            root_path=os.path.join(str(Path(path).parent), 'metadata.parquet'),
-                            partition_cols=['building_id'],
-                            existing_data_behavior='delete_matching')
-    else:
-        # If the simulation failed, just save the dict i into a json file
-        dfErrors = pd.DataFrame([i])
-        tableErrors = pa.Table.from_pandas(dfErrors)
-        pq.write_to_dataset(tableErrors,
-                            root_path=os.path.join(str(Path(path).parent), 'errors.parquet'),
-                            partition_cols=['building_id'],
-                            existing_data_behavior='delete_matching')
+        else:
+            # If the simulation failed, just save the dict i into a json file
+            dfErrors = pd.DataFrame([i])
+            tableErrors = pa.Table.from_pandas(dfErrors)
+            pq.write_to_dataset(tableErrors,
+                                root_path=os.path.join(str(Path(path).parent), 'errors.parquet'),
+                                partition_cols=['building_id'],
+                                existing_data_behavior='delete_matching')
 
-    return
+        return
+    except Exception as e:
+        print(f"Error processing results for path {path}: {e}")
+        return
 
 if "__main__" == __name__:
     postprocess_results("/home/gilbert/SimParc/LTE-OpenStudioCLI-Test/results/182")

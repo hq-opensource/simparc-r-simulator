@@ -3,12 +3,16 @@
   "tasks": [
     {
       "label": "Run local.py with project.yaml",
-      "type": "shell",
+      "type": "process",
       "command": "${workspaceFolder}/.venv/bin/python",
       "args": [
-        "${workspaceFolder}/local.py",
-        "${workspaceFolder}/project.yaml"
+        "-u",
+        "local.py",
+        "project.yaml"
       ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "group": {
         "kind": "build",
         "isDefault": true
@@ -17,6 +21,5446 @@
         "reveal": "always",
         "panel": "shared",
         "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate Segment YAML Files",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/generate_segment_tasks.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "group": {
+        "kind": "build"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Segmentation Queue (Sequential)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Generate Segment YAML Files",
+        "Calcul Segment_001",
+        "Calcul Segment_002",
+        "Calcul Segment_003",
+        "Calcul Segment_004",
+        "Calcul Segment_005",
+        "Calcul Segment_006",
+        "Calcul Segment_007",
+        "Calcul Segment_008",
+        "Calcul Segment_009",
+        "Calcul Segment_010",
+        "Calcul Segment_011",
+        "Calcul Segment_012",
+        "Calcul Segment_013",
+        "Calcul Segment_014",
+        "Calcul Segment_015",
+        "Calcul Segment_016",
+        "Calcul Segment_017",
+        "Calcul Segment_018",
+        "Calcul Segment_019",
+        "Calcul Segment_020",
+        "Calcul Segment_021",
+        "Calcul Segment_022",
+        "Calcul Segment_023",
+        "Calcul Segment_024",
+        "Calcul Segment_025",
+        "Calcul Segment_026",
+        "Calcul Segment_027",
+        "Calcul Segment_028",
+        "Calcul Segment_029",
+        "Calcul Segment_030",
+        "Calcul Segment_031",
+        "Calcul Segment_032",
+        "Calcul Segment_033",
+        "Calcul Segment_034",
+        "Calcul Segment_035",
+        "Calcul Segment_036",
+        "Calcul Segment_037",
+        "Calcul Segment_038",
+        "Calcul Segment_039",
+        "Calcul Segment_040",
+        "Calcul Segment_041",
+        "Calcul Segment_042",
+        "Calcul Segment_043",
+        "Calcul Segment_044",
+        "Calcul Segment_045",
+        "Calcul Segment_046",
+        "Calcul Segment_047",
+        "Calcul Segment_048",
+        "Calcul Segment_049",
+        "Calcul Segment_050",
+        "Calcul Segment_051",
+        "Calcul Segment_052",
+        "Calcul Segment_053",
+        "Calcul Segment_054",
+        "Calcul Segment_055",
+        "Calcul Segment_056",
+        "Calcul Segment_057",
+        "Calcul Segment_058",
+        "Calcul Segment_059",
+        "Calcul Segment_060",
+        "Calcul Segment_061",
+        "Calcul Segment_062",
+        "Calcul Segment_063",
+        "Calcul Segment_064",
+        "Calcul Segment_065",
+        "Calcul Segment_066",
+        "Calcul Segment_067",
+        "Calcul Segment_068",
+        "Calcul Segment_069",
+        "Calcul Segment_070",
+        "Calcul Segment_071",
+        "Calcul Segment_072",
+        "Calcul Segment_073",
+        "Calcul Segment_074",
+        "Calcul Segment_075",
+        "Calcul Segment_076",
+        "Calcul Segment_077",
+        "Calcul Segment_078",
+        "Calcul Segment_079",
+        "Calcul Segment_080",
+        "Calcul Segment_081",
+        "Calcul Segment_082",
+        "Calcul Segment_083",
+        "Calcul Segment_084",
+        "Calcul Segment_085",
+        "Calcul Segment_086",
+        "Calcul Segment_087",
+        "Calcul Segment_088",
+        "Calcul Segment_089",
+        "Calcul Segment_090",
+        "Calcul Segment_091",
+        "Calcul Segment_092",
+        "Calcul Segment_093",
+        "Calcul Segment_094",
+        "Calcul Segment_095",
+        "Calcul Segment_096",
+        "Calcul Segment_097",
+        "Calcul Segment_098",
+        "Calcul Segment_099",
+        "Calcul Segment_100",
+        "Calcul Segment_101",
+        "Calcul Segment_102",
+        "Calcul Segment_103",
+        "Calcul Segment_104",
+        "Calcul Segment_105",
+        "Calcul Segment_106",
+        "Calcul Segment_107",
+        "Calcul Segment_108",
+        "Calcul Segment_109",
+        "Calcul Segment_110",
+        "Calcul Segment_111",
+        "Calcul Segment_112",
+        "Calcul Segment_113",
+        "Calcul Segment_114",
+        "Calcul Segment_115",
+        "Calcul Segment_116",
+        "Calcul Segment_117",
+        "Calcul Segment_118",
+        "Calcul Segment_119",
+        "Calcul Segment_120",
+        "Calcul Segment_121",
+        "Calcul Segment_122",
+        "Calcul Segment_123",
+        "Calcul Segment_124",
+        "Calcul Segment_125",
+        "Calcul Segment_126",
+        "Calcul Segment_127",
+        "Calcul Segment_128",
+        "Calcul Segment_129",
+        "Calcul Segment_130",
+        "Calcul Segment_131",
+        "Calcul Segment_132",
+        "Calcul Segment_133",
+        "Calcul Segment_134",
+        "Calcul Segment_135",
+        "Calcul Segment_136",
+        "Calcul Segment_137",
+        "Calcul Segment_138",
+        "Calcul Segment_139",
+        "Calcul Segment_140",
+        "Calcul Segment_141",
+        "Calcul Segment_142",
+        "Calcul Segment_143",
+        "Calcul Segment_144",
+        "Calcul Segment_145",
+        "Calcul Segment_146",
+        "Calcul Segment_147",
+        "Calcul Segment_148",
+        "Calcul Segment_149",
+        "Calcul Segment_150",
+        "Calcul Segment_151",
+        "Calcul Segment_152",
+        "Calcul Segment_153",
+        "Calcul Segment_154",
+        "Calcul Segment_155",
+        "Calcul Segment_156",
+        "Calcul Segment_157",
+        "Calcul Segment_158",
+        "Calcul Segment_159",
+        "Calcul Segment_160",
+        "Calcul Segment_161",
+        "Calcul Segment_162",
+        "Calcul Segment_163",
+        "Calcul Segment_164",
+        "Calcul Segment_165",
+        "Calcul Segment_166",
+        "Calcul Segment_167",
+        "Calcul Segment_168",
+        "Calcul Segment_169",
+        "Calcul Segment_170",
+        "Calcul Segment_171",
+        "Calcul Segment_172",
+        "Calcul Segment_173",
+        "Calcul Segment_174",
+        "Calcul Segment_175",
+        "Calcul Segment_176",
+        "Calcul Segment_177",
+        "Calcul Segment_178",
+        "Calcul Segment_179",
+        "Calcul Segment_180",
+        "Calcul Segment_181",
+        "Calcul Segment_182",
+        "Calcul Segment_183",
+        "Calcul Segment_184",
+        "Calcul Segment_185",
+        "Calcul Segment_186",
+        "Calcul Segment_187",
+        "Calcul Segment_188",
+        "Calcul Segment_189",
+        "Calcul Segment_190",
+        "Calcul Segment_191",
+        "Calcul Segment_192",
+        "Calcul Segment_193",
+        "Calcul Segment_194",
+        "Calcul Segment_195",
+        "Calcul Segment_196",
+        "Calcul Segment_197",
+        "Calcul Segment_198",
+        "Calcul Segment_199",
+        "Calcul Segment_200",
+        "Calcul Segment_201",
+        "Calcul Segment_202",
+        "Calcul Segment_203",
+        "Calcul Segment_204",
+        "Calcul Segment_205",
+        "Calcul Segment_206",
+        "Calcul Segment_207",
+        "Calcul Segment_208",
+        "Calcul Segment_209",
+        "Calcul Segment_210",
+        "Calcul Segment_211",
+        "Calcul Segment_212",
+        "Calcul Segment_213",
+        "Calcul Segment_214",
+        "Calcul Segment_215",
+        "Calcul Segment_216",
+        "Calcul Segment_217",
+        "Calcul Segment_218",
+        "Calcul Segment_219",
+        "Calcul Segment_220",
+        "Calcul Segment_221",
+        "Calcul Segment_222",
+        "Calcul Segment_223",
+        "Calcul Segment_224",
+        "Calcul Segment_225"
+      ],
+      "group": {
+        "kind": "build"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_001",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_001.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_002",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_002.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_003",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_003.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_004",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_004.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_005",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_005.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_006",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_006.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_007",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_007.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_008",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_008.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_009",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_009.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_010",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_010.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_011",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_011.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_012",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_012.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_013",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_013.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_014",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_014.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_015",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_015.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_016",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_016.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_017",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_017.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_018",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_018.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_019",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_019.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_020",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_020.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_021",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_021.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_022",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_022.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_023",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_023.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_024",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_024.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_025",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_025.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_026",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_026.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_027",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_027.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_028",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_028.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_029",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_029.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_030",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_030.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_031",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_031.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_032",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_032.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_033",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_033.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_034",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_034.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_035",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_035.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_036",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_036.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_037",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_037.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_038",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_038.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_039",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_039.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_040",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_040.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_041",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_041.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_042",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_042.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_043",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_043.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_044",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_044.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_045",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_045.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_046",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_046.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_047",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_047.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_048",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_048.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_049",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_049.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_050",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_050.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_051",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_051.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_052",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_052.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_053",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_053.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_054",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_054.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_055",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_055.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_056",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_056.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_057",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_057.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_058",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_058.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_059",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_059.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_060",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_060.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_061",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_061.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_062",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_062.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_063",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_063.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_064",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_064.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_065",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_065.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_066",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_066.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_067",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_067.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_068",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_068.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_069",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_069.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_070",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_070.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_071",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_071.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_072",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_072.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_073",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_073.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_074",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_074.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_075",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_075.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_076",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_076.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_077",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_077.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_078",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_078.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_079",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_079.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_080",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_080.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_081",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_081.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_082",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_082.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_083",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_083.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_084",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_084.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_085",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_085.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_086",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_086.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_087",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_087.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_088",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_088.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_089",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_089.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_090",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_090.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_091",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_091.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_092",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_092.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_093",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_093.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_094",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_094.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_095",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_095.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_096",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_096.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_097",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_097.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_098",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_098.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_099",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_099.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_100",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_100.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_101",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_101.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_102",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_102.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_103",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_103.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_104",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_104.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_105",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_105.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_106",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_106.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_107",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_107.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_108",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_108.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_109",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_109.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_110",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_110.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_111",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_111.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_112",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_112.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_113",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_113.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_114",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_114.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_115",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_115.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_116",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_116.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_117",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_117.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_118",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_118.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_119",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_119.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_120",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_120.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_121",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_121.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_122",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_122.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_123",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_123.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_124",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_124.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_125",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_125.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_126",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_126.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_127",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_127.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_128",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_128.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_129",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_129.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_130",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_130.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_131",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_131.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_132",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_132.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_133",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_133.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_134",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_134.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_135",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_135.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_136",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_136.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_137",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_137.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_138",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_138.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_139",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_139.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_140",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_140.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_141",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_141.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_142",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_142.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_143",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_143.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_144",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_144.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_145",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_145.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_146",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_146.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_147",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_147.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_148",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_148.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_149",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_149.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_150",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_150.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_151",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_151.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_152",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_152.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_153",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_153.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_154",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_154.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_155",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_155.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_156",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_156.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_157",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_157.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_158",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_158.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_159",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_159.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_160",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_160.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_161",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_161.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_162",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_162.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_163",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_163.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_164",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_164.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_165",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_165.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_166",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_166.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_167",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_167.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_168",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_168.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_169",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_169.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_170",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_170.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_171",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_171.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_172",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_172.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_173",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_173.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_174",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_174.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_175",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_175.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_176",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_176.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_177",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_177.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_178",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_178.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_179",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_179.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_180",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_180.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_181",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_181.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_182",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_182.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_183",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_183.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_184",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_184.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_185",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_185.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_186",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_186.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_187",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_187.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_188",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_188.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_189",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_189.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_190",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_190.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_191",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_191.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_192",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_192.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_193",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_193.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_194",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_194.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_195",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_195.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_196",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_196.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_197",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_197.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_198",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_198.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_199",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_199.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_200",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_200.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_201",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_201.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_202",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_202.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_203",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_203.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_204",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_204.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_205",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_205.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_206",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_206.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_207",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_207.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_208",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_208.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_209",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_209.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_210",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_210.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_211",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_211.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_212",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_212.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_213",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_213.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_214",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_214.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_215",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_215.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_216",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_216.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_217",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_217.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_218",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_218.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_219",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_219.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_220",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_220.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_221",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_221.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_222",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_222.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_223",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_223.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_224",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_224.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Calcul Segment_225",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/local.py",
+        "${workspaceFolder}/Segmentation/config/project_Segment_225.yaml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "presentation": {
+        "group": "segmentation_queue",
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
       },
       "problemMatcher": []
     }

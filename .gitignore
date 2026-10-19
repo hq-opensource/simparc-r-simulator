@@ -23,3 +23,13 @@ openstudio-3.9.0
 
 # ignore the folder "site"
 site
+
+# ignore segmentation data and folders
+segments
+results
+config
+backup_results
+
+df_segment_proportions.csv
+df_segment_counts.csv
+df_all.csv
