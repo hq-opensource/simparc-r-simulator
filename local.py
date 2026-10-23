@@ -121,7 +121,7 @@ class LocalBatch(BuildStockBatchBase):
                 fs = LocalFileSystem()
                 dpout = read_simulation_outputs(fs,str(building_dir))
                 if cfg["BATCH_MODE"]:
-                    postprocess_results(building_dir)
+                    postprocess_results(building_dir, cfg)
                     cls.cleanup_sim_dir(building_dir)
                 del cfg
                 del building_data
@@ -140,8 +140,13 @@ class LocalBatch(BuildStockBatchBase):
             self.cfg["SEED"] = SEED
         else:
             SEED = self.cfg["SEED"]
-
-        data['seed'] = SEED + data.index + 1
+        
+        if 'seed' not in data.columns:
+            data['seed'] = SEED + data.index + 1
+        else:
+            #ajoute un seed si manquant
+            fallback_seeds = pd.Series(SEED + data.index + 1, index=data.index)
+            data['seed'] = data['seed'].fillna(fallback_seeds).astype(int)
 
         # Preprocess the data to ensure it meets the constraints
         data, list_columns_hpxml = preprocess_data_types(data, self.cfg["ARGS_CONSTRAINTS"])
@@ -190,7 +195,7 @@ class LocalBatch(BuildStockBatchBase):
         start_time = time.perf_counter()
 
         postprocess_paths = [f.path for f in os.scandir(self.cfg["RESULTS_PATH"]) if f.is_dir()]
-        postprocess_sims = map(delayed(postprocess_results), postprocess_paths)
+        postprocess_sims = map(delayed(functools.partial(postprocess_results, cfg=self.cfg)), postprocess_paths)
 
         # Print the number of building results to post-process
         print("Running post-processing for {} simulation results with {} workers...".format(len(postprocess_paths),self._parallel["n_jobs"]))
