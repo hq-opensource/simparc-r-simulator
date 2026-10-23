@@ -1016,7 +1016,6 @@ class ParametricKPICalculator:
         sub = sub.copy()
         sub["_time"] = sub[dt_col].dt.strftime("%H:%M:%S")
         grouped = sub.groupby("_time")[valid_cols].mean()
-        time_labels = grouped.index.tolist()
         
         # Vérification 1 : nombre minimum de jours distincts
         unique_days = sub[dt_col].dt.floor("D").nunique()
