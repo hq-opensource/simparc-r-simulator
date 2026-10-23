@@ -24,7 +24,7 @@ class BuildStockBatchBase(object):
         # Check to see if the simulation is done already and skip it if so.
         if os.path.exists(str(sim_dir)) and not overwrite_existing:
                 raise FileExistsError("{} exists".format(str(sim_dir)))
-        elif os.path.exists(str(sim_dir)) and not overwrite_existing:
+        elif os.path.exists(str(sim_dir)) and overwrite_existing:
             shutil.rmtree(sim_dir)
 
         # Create the simulation directory

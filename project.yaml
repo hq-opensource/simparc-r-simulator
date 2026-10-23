@@ -66,7 +66,7 @@ KPI_SETTING :
   include_fuel_totals : True  # Conso_annuelle + Conso_mensuelle + Variation_saisonniere on all fuel total columns
   include_end_use : True    # Conso_annuelle + Conso_mensuelle + Variation_saisonniere + Profil saisons on all End Use columns
 
-# # Definition of upgrading settings
+# Definition of upgrading settings
 UPGRADES_SETTINGS : null
 # UPGRADES_SETTINGS :
 #   Set of upgrades 1 :
@@ -236,98 +236,98 @@ UPGRADES_SETTINGS : null
 #         seer2 : 21.0 # SEER2 rating for the MSHP
 #         hspf2 : 10.0 # HSPF2 rating for the MSHP
 
-#   # Set of upgrades 1 :
-#   #   Name : "Ajout isolation R16 au toit" # Name of the set of upgrades
-#   #   Filters : # List of filters to select the targeted buildings for the upgrades
-#   #     all:
-#   #       - ["Mode_Occupation", "==", "Proprietaire"]
-#   #       - ["Source_Energie_Chauf", "==", "Electricite"]
-#   #       - ["Type_Batiment", "==", "Maison"]
-#   #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
-#   #   Upgrades :
-#   #     Added roof or ceiling insulation :
-#   #       insulation_added : 16 # R-value of the added insulation
-#   # Set of upgrades 1 :
-#   #   Name : "Building Code 2020 QC" # Name of the set of upgrades
-#   #   Filters : [] # List of filters to select the targeted buildings for the upgrades
-#   #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
-#   #   Upgrades :
-#   #     Set wall insulation to standard :
-#   #       standard_name : "Building Code 2020 QC" 
-#   # Set of upgrades 2 :
-#   #   Name : "Novoclimat 2024" # Name of the set of upgrades
-#   #   Filters : [] # List of filters to select the targeted buildings for the upgrades
-#   #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
-#   #   Upgrades :
-#   #     Set wall insulation to standard :
-#   #       standard_name : "Novoclimat 2024" 
-#   # Set of upgrades 3 :
-#   #   Name : "PassivHaus" # Name of the set of upgrades
-#   #   Filters : [] # List of filters to select the targeted buildings for the upgrades
-#   #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
-#   #   Upgrades :
-#   #     Set wall insulation to standard :
-#   #       standard_name : "PassivHaus"
-#   # Set of upgrades 1 :
-#   #   Name : "Upgrade 1" # Name of the set of upgrades
-#   #   Filters : [] # List of filters to select the targeted buildings for the upgrades
-#   #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
-#   #   Upgrades :
-#   #     Wall insulation :
-#   #       improvement_rate : 0.2 # Fractional improvement rate for wall insulation
-#   #     Window properties :
-#   #       improvement_rate_uvalue : 0.3 # Fractional improvement rate for U-value
-#   #       improvement_rate_shgc : 0.15 # Fractional improvement rate for SHGC
-#   #     Air leakage :
-#   #       improvement_rate : 0.25 # Fractional improvement rate for air leakage
-#   # Set of upgrades 2 :
-#   #   Name : "Upgrade 2" # Name of the set of upgrades
-#   #   Filters : # List of filters to select the targeted buildings for the upgrades
-#   #     all: 
-#   #       - ["geometry_unit_type", "==", "single-family detached"]
-#   #       - ["geometry_unit_num_bedrooms", ">=", 3]
-#   #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
-#   #   Upgrades :
-#   #     Wall insulation :
-#   #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
-#   #     Window properties :
-#   #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
-#   #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
-#   #     Air leakage :
-#   #       improvement_rate : 0.2 # Fractional improvement rate for air leakage
-#   # Set of upgrades 3 :
-#   #   Name : "Upgrade 3" # Name of the set of upgrades  
-#   #   Filters : # List of filters to select the targeted buildings for the upgrades
-#   #     all:
-#   #       - ["geometry_unit_type", "==", "single-family detached"]
-#   #       - any:
-#   #           - ["geometry_unit_num_bedrooms", ">=", 3]
-#   #           - ["geometry_unit_cfa", ">", 1400]
-#   #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
-#   #   Upgrades :
-#   #     Wall insulation :
-#   #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
-#   #     Window properties :
-#   #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
-#   #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
-#   #     Air leakage :
-#   #       improvement_rate : 0.2 # Fractional improvement rate for air leakage
-#   # Set of upgrades 4 :
-#   #   Name : "Upgrade 4" # Name of the set of upgrades
-#   #   Filters : # List of filters to select the targeted buildings for the upgrades
-#   #     all:
-#   #       - any:
-#   #           - ["geometry_unit_type", "==", "single-family detached"]
-#   #           - ["geometry_unit_type", "==", "single-family attached"]
-#   #       - ["geometry_unit_num_bedrooms", ">=", 3]
-#   #       - not:
-#   #           - ["heating_system_fuel", "==", "fuel oil"]
-#   #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
-#   #   Upgrades :
-#   #     Wall insulation :
-#   #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
-#   #     Window properties :
-#   #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
-#   #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
-#   #     Air leakage :
-#   #       improvement_rate : 0.2 # Fractional improvement rate for air leakage
+  # Set of upgrades 1 :
+  #   Name : "Ajout isolation R16 au toit" # Name of the set of upgrades
+  #   Filters : # List of filters to select the targeted buildings for the upgrades
+  #     all:
+  #       - ["Mode_Occupation", "==", "Proprietaire"]
+  #       - ["Source_Energie_Chauf", "==", "Electricite"]
+  #       - ["Type_Batiment", "==", "Maison"]
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Added roof or ceiling insulation :
+  #       insulation_added : 16 # R-value of the added insulation
+  # Set of upgrades 1 :
+  #   Name : "Building Code 2020 QC" # Name of the set of upgrades
+  #   Filters : [] # List of filters to select the targeted buildings for the upgrades
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Set wall insulation to standard :
+  #       standard_name : "Building Code 2020 QC" 
+  # Set of upgrades 2 :
+  #   Name : "Novoclimat 2024" # Name of the set of upgrades
+  #   Filters : [] # List of filters to select the targeted buildings for the upgrades
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Set wall insulation to standard :
+  #       standard_name : "Novoclimat 2024" 
+  # Set of upgrades 3 :
+  #   Name : "PassivHaus" # Name of the set of upgrades
+  #   Filters : [] # List of filters to select the targeted buildings for the upgrades
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Set wall insulation to standard :
+  #       standard_name : "PassivHaus"
+  # Set of upgrades 1 :
+  #   Name : "Upgrade 1" # Name of the set of upgrades
+  #   Filters : [] # List of filters to select the targeted buildings for the upgrades
+  #   Adoption rate : 1 # Fraction of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Wall insulation :
+  #       improvement_rate : 0.2 # Fractional improvement rate for wall insulation
+  #     Window properties :
+  #       improvement_rate_uvalue : 0.3 # Fractional improvement rate for U-value
+  #       improvement_rate_shgc : 0.15 # Fractional improvement rate for SHGC
+  #     Air leakage :
+  #       improvement_rate : 0.25 # Fractional improvement rate for air leakage
+  # Set of upgrades 2 :
+  #   Name : "Upgrade 2" # Name of the set of upgrades
+  #   Filters : # List of filters to select the targeted buildings for the upgrades
+  #     all: 
+  #       - ["geometry_unit_type", "==", "single-family detached"]
+  #       - ["geometry_unit_num_bedrooms", ">=", 3]
+  #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Wall insulation :
+  #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
+  #     Window properties :
+  #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
+  #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
+  #     Air leakage :
+  #       improvement_rate : 0.2 # Fractional improvement rate for air leakage
+  # Set of upgrades 3 :
+  #   Name : "Upgrade 3" # Name of the set of upgrades  
+  #   Filters : # List of filters to select the targeted buildings for the upgrades
+  #     all:
+  #       - ["geometry_unit_type", "==", "single-family detached"]
+  #       - any:
+  #           - ["geometry_unit_num_bedrooms", ">=", 3]
+  #           - ["geometry_unit_cfa", ">", 1400]
+  #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Wall insulation :
+  #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
+  #     Window properties :
+  #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
+  #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
+  #     Air leakage :
+  #       improvement_rate : 0.2 # Fractional improvement rate for air leakage
+  # Set of upgrades 4 :
+  #   Name : "Upgrade 4" # Name of the set of upgrades
+  #   Filters : # List of filters to select the targeted buildings for the upgrades
+  #     all:
+  #       - any:
+  #           - ["geometry_unit_type", "==", "single-family detached"]
+  #           - ["geometry_unit_type", "==", "single-family attached"]
+  #       - ["geometry_unit_num_bedrooms", ">=", 3]
+  #       - not:
+  #           - ["heating_system_fuel", "==", "fuel oil"]
+  #   Adoption rate : 1 # Percentage of buildings that will adopt the upgrades among the targeted buildings
+  #   Upgrades :
+  #     Wall insulation :
+  #       improvement_rate : 0.15 # Fractional improvement rate for wall insulation
+  #     Window properties :
+  #       improvement_rate_uvalue : 0.2 # Fractional improvement rate for U-value
+  #       improvement_rate_shgc : 0.1 # Fractional improvement rate for SHGC
+  #     Air leakage :
+  #       improvement_rate : 0.2 # Fractional improvement rate for air leakage
