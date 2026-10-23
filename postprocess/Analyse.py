@@ -12,7 +12,7 @@ _KBTU_TO_KWH = 0.293071
 # Source: loaders/loader_simparc.py (SIMPARC_CONFIG["column_mapping"])
 # ---------------------------------------------------------------------------
 _COLUMN_MAPPING = {
-    "Time":                                                             "dateinterval",
+    "TimeDST":                                                          "dateinterval",
     "TimeUTC":                                                          "dateinterval_utc",
     "Weather: Drybulb Temperature_F":                                   "temperatureatmospherique",
     "Energy Use: Total_kBtu":                                           "Energy Use Total",

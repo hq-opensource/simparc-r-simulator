@@ -52,7 +52,7 @@ INCLUDE_TIMESERIES_AIRFLOWS : False
 INCLUDE_TIMESERIES_WEATHER : True
 INCLUDE_TIMESERIES_RESILIENCE : False
 TIMESERIES_TIMESTAMP_CONVENTION : "start" # Options: "start", "end"
-ADD_TIMESERIES_DST_COLUMN : False # If true, adds a column for Daylight Saving Time (DST) in the timeseries output.
+ADD_TIMESERIES_DST_COLUMN : True #Need for KPI # If true, adds a column for Daylight Saving Time (DST) in the timeseries output.
 ADD_TIMESERIES_UTC_COLUMN : True # If true, adds a column for UTC time in the timeseries output.
 USER_OUTPUT_VARIABLES : "" # Comma-separated list of user-defined output variables to include
 USER_OUTPUT_METERS : "" # Comma-separated list of user-defined output meters to include
