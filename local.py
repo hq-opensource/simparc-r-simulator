@@ -140,8 +140,13 @@ class LocalBatch(BuildStockBatchBase):
             self.cfg["SEED"] = SEED
         else:
             SEED = self.cfg["SEED"]
-
-        data['seed'] = SEED + data.index + 1
+        
+        if 'seed' not in data.columns:
+            data['seed'] = SEED + data.index + 1
+        else:
+            #ajoute un seed si manquant
+            fallback_seeds = pd.Series(SEED + data.index + 1, index=data.index)
+            data['seed'] = data['seed'].fillna(fallback_seeds).astype(int)
 
         # Preprocess the data to ensure it meets the constraints
         data, list_columns_hpxml = preprocess_data_types(data, self.cfg["ARGS_CONSTRAINTS"])
