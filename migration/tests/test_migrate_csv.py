@@ -32,6 +32,7 @@ from migration.src.migrate_csv import (
     update_geometry_attic_v110_to_v112,
     update_geometry_foundation_v110_to_v112,
     update_dhw_water_heater_v110_to_v112,
+    update_appliances_v110_to_v112,
     update_heat_pump_v110_to_v112,
     update_pool_parameters_v110_to_v112,
     update_ventilation_v110_to_v112,
@@ -40,6 +41,7 @@ from migration.src.migrate_csv import (
     update_site_time_zone_utc_offset_v110_to_v112,
     update_year_built_v110_to_v112,
 )
+from preprocessing import preprocess_data_types  # noqa: E402
 from migration.src.utils.utils import _match_enclosure_option  # noqa: E402
 from migration.src.utils.read_option_tsv import get_option_names, get_tsv_data  # noqa: E402
 
@@ -1172,6 +1174,361 @@ class TestMigrateCsvVentilation(unittest.TestCase):
             self.assertNotIn(col, out_df.columns)
 
 
+class TestMigrateCsvAppliances(unittest.TestCase):
+    def test_clothes_washer_without_location_still_matches_by_consumption(self):
+        clothes_washer_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_clothes_washer.tsv"
+        )
+
+        clothes_washer_row = _get_option_row(clothes_washer_tsv, "Standard, 2008-2017, 100% Usage")
+
+        input_df = pd.DataFrame(
+            [
+                {
+                    "clothes_washer_present": "True",
+                    "clothes_washer_efficiency_type": str(clothes_washer_row["Efficiency Type"]),
+                    "clothes_washer_efficiency": str(clothes_washer_row["Efficiency [ft3/kWh-cyc]"]),
+                    "clothes_washer_rated_annual_kwh": str(clothes_washer_row["Rated Annual Consumption [kWh/yr]"]),
+                    "clothes_washer_label_electric_rate": str(clothes_washer_row["Label Electric Rate [$/kWh]"]),
+                    "clothes_washer_label_gas_rate": str(clothes_washer_row["Label Gas Rate [$/therm]"]),
+                    "clothes_washer_label_annual_gas_cost": str(clothes_washer_row["Label Annual Gas Cost [$]"]),
+                    "clothes_washer_label_usage": str(clothes_washer_row["Label Usage [cyc/wk]"]),
+                    "clothes_washer_capacity": str(clothes_washer_row["Capacity [ft3]"]),
+                    "clothes_washer_usage_multiplier": "",
+                    "clothes_washer_location": "",
+                }
+            ],
+            dtype=str,
+        )
+
+        out_df = update_appliances_v110_to_v112(input_df.copy())
+
+        self.assertNotEqual(out_df.loc[0, "appliance_clothes_washer"], "None")
+        self.assertTrue(str(out_df.loc[0, "appliance_clothes_washer"]).startswith("Standard, 2008-2017"))
+
+    def test_clothes_washer_logs_usage_multiplier_context(self):
+        clothes_washer_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_clothes_washer.tsv"
+        )
+
+        clothes_washer_row = _get_option_row(clothes_washer_tsv, "Standard, 2008-2017, 75% Usage")
+
+        input_df = pd.DataFrame(
+            [
+                {
+                    "clothes_washer_present": "True",
+                    "clothes_washer_efficiency_type": str(clothes_washer_row["Efficiency Type"]),
+                    "clothes_washer_efficiency": str(clothes_washer_row["Efficiency [ft3/kWh-cyc]"]),
+                    "clothes_washer_rated_annual_kwh": "387",
+                    "clothes_washer_label_electric_rate": str(clothes_washer_row["Label Electric Rate [$/kWh]"]),
+                    "clothes_washer_label_gas_rate": str(clothes_washer_row["Label Gas Rate [$/therm]"]),
+                    "clothes_washer_label_annual_gas_cost": str(clothes_washer_row["Label Annual Gas Cost [$]"]),
+                    "clothes_washer_label_usage": "7.538462",
+                    "clothes_washer_capacity": str(clothes_washer_row["Capacity [ft3]"]),
+                    "clothes_washer_usage_multiplier": "0.8",
+                    "clothes_washer_location": "",
+                }
+            ],
+            dtype=str,
+        )
+
+        with self.assertLogs("migration.src.utils.utils", level="WARNING") as captured:
+            update_appliances_v110_to_v112(input_df.copy())
+
+        joined_logs = "\n".join(captured.output)
+        self.assertIn("Approximated appliance_clothes_washer option using nearest match 'Standard, 2008-2017, 75% Usage' : Rated Annual Consumption [kWh/yr]: 380", joined_logs)
+
+    def test_appliance_logs_use_specific_numeric_contexts(self):
+        clothes_washer_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_clothes_washer.tsv"
+        )
+        clothes_dryer_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_clothes_dryer.tsv"
+        )
+        dishwasher_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_dishwasher.tsv"
+        )
+        refrigerator_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_refrigerator.tsv"
+        )
+        extra_refrigerator_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_extra_refrigerator.tsv"
+        )
+
+        washer_row = _get_option_row(clothes_washer_tsv, "Standard, 2008-2017, 75% Usage")
+        dryer_row = _get_option_row(clothes_dryer_tsv, "Electricity, Standard, 75% Usage")
+        dishwasher_row = _get_option_row(dishwasher_tsv, "Federal Minimum, Standard, 50% Usage")
+        refrigerator_row = _get_option_row(refrigerator_tsv, "650 kWh/yr, 90% Usage")
+        extra_refrigerator_row = _get_option_row(extra_refrigerator_tsv, "748 kWh/yr, 90% Usage")
+
+        input_df = pd.DataFrame(
+            [
+                {
+                    "clothes_washer_present": "True",
+                    "clothes_washer_efficiency_type": str(washer_row["Efficiency Type"]),
+                    "clothes_washer_efficiency": str(washer_row["Efficiency [ft3/kWh-cyc]"]),
+                    "clothes_washer_rated_annual_kwh": "387",
+                    "clothes_washer_label_electric_rate": str(washer_row["Label Electric Rate [$/kWh]"]),
+                    "clothes_washer_label_gas_rate": str(washer_row["Label Gas Rate [$/therm]"]),
+                    "clothes_washer_label_annual_gas_cost": str(washer_row["Label Annual Gas Cost [$]"]),
+                    "clothes_washer_label_usage": "7.538462",
+                    "clothes_washer_capacity": str(washer_row["Capacity [ft3]"]),
+                    "clothes_washer_usage_multiplier": "0.8",
+                    "clothes_washer_location": "",
+                },
+                {
+                    "clothes_dryer_present": "True",
+                    "clothes_dryer_fuel_type": "electricity",
+                    "clothes_dryer_efficiency_type": str(dryer_row["Efficiency Type"]),
+                    "clothes_dryer_efficiency": "2.7",
+                    "clothes_dryer_vented_flow_rate": "0",
+                    "clothes_dryer_usage_multiplier": "0.8",
+                    "clothes_dryer_location": "",
+                },
+                {
+                    "dishwasher_present": "True",
+                    "dishwasher_efficiency_type": str(dishwasher_row["Efficiency Type"]),
+                    "dishwasher_efficiency": "290",
+                    "dishwasher_label_electric_rate": str(dishwasher_row["Label Electric Rate [$/kWh]"]),
+                    "dishwasher_label_gas_rate": str(dishwasher_row["Label Gas Rate [$/therm]"]),
+                    "dishwasher_label_annual_gas_cost": str(dishwasher_row["Label Annual Gas Cost [$]"]),
+                    "dishwasher_label_usage": str(dishwasher_row["Label Usage [cyc/wk]"]),
+                    "dishwasher_place_setting_capacity": str(dishwasher_row["Place Setting Capacity [#]"]),
+                    "dishwasher_usage_multiplier": "",
+                    "dishwasher_location": "",
+                },
+                {
+                    "refrigerator_present": "True",
+                    "refrigerator_rated_annual_kwh": "383",
+                    "refrigerator_usage_multiplier": "",
+                    "refrigerator_location": "",
+                    "extra_refrigerator_present": "True",
+                    "extra_refrigerator_rated_annual_kwh": "748",
+                    "extra_refrigerator_usage_multiplier": "1.0",
+                    "extra_refrigerator_location": "",
+                },
+            ],
+            dtype=str,
+        )
+
+        with self.assertLogs("migration.src.utils.utils", level="WARNING") as captured:
+            update_appliances_v110_to_v112(input_df.copy())
+
+        joined_logs = "\n".join(captured.output)
+        self.assertIn("Approximated appliance_clothes_washer option using nearest match 'Standard, 2008-2017, 75% Usage' : Rated Annual Consumption [kWh/yr]: 380", joined_logs)
+        self.assertIn("Approximated appliance_clothes_dryer option using nearest match 'Electricity, Standard, 75% Usage' : Efficiency [lb/kWh]: 3.73", joined_logs)
+        self.assertIn("Approximated appliance_dishwasher option using nearest match 'Federal Minimum, Standard, 50% Usage' : Efficiency [kWh/yr or #]: 307.0", joined_logs)
+        self.assertIn("Approximated appliance_refrigerator option using nearest match '384 kWh/yr, 90% Usage' : Rated Annual Consumption [kWh/yr]: 384", joined_logs)
+        self.assertIn("Approximated appliance_extra_refrigerator option using nearest match '748 kWh/yr, 90% Usage' : Rated Annual Consumption [kWh/yr]: 748", joined_logs)
+
+    def test_legacy_appliance_columns_map_to_v112_options(self):
+        clothes_washer_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_clothes_washer.tsv"
+        )
+        clothes_dryer_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_clothes_dryer.tsv"
+        )
+        dishwasher_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_dishwasher.tsv"
+        )
+        refrigerator_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_refrigerator.tsv"
+        )
+        extra_refrigerator_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_extra_refrigerator.tsv"
+        )
+        dehumidifier_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_dehumidifier.tsv"
+        )
+        dehumidifier_setpoint_tsv = (
+            REPO_ROOT
+            / "OpenStudio-HPXML"
+            / "BuildResidentialHPXML"
+            / "resources"
+            / "options"
+            / "appliance_dehumidifier_setpoint.tsv"
+        )
+
+        clothes_washer_row = _get_option_row(clothes_washer_tsv, "Detailed Example: Standard, 2008-2017, Garage")
+        clothes_dryer_row = _get_option_row(clothes_dryer_tsv, "Detailed Example: Electricity, EF 4.29")
+        dishwasher_row = _get_option_row(dishwasher_tsv, "Detailed Example: EF 0.7, Compact")
+        refrigerator_row = _get_option_row(refrigerator_tsv, "Detailed Example: 650 kWh/yr, Garage")
+        extra_refrigerator_row = _get_option_row(extra_refrigerator_tsv, "Detailed Example: 748 kWh/yr, Garage")
+        dehumidifier_row = _get_option_row(dehumidifier_tsv, "Detailed Example: Portable, 40 pints/day, EF 1.8")
+        dehumidifier_setpoint_row = _get_option_row(dehumidifier_setpoint_tsv, "55% RH")
+
+        input_df = pd.DataFrame(
+            [
+                {
+                    "clothes_washer_present": "True",
+                    "clothes_washer_efficiency_type": str(clothes_washer_row["Efficiency Type"]),
+                    "clothes_washer_efficiency": str(clothes_washer_row["Efficiency [ft3/kWh-cyc]"]),
+                    "clothes_washer_rated_annual_kwh": str(clothes_washer_row["Rated Annual Consumption [kWh/yr]"]),
+                    "clothes_washer_label_electric_rate": str(clothes_washer_row["Label Electric Rate [$/kWh]"]),
+                    "clothes_washer_label_gas_rate": str(clothes_washer_row["Label Gas Rate [$/therm]"]),
+                    "clothes_washer_label_annual_gas_cost": str(clothes_washer_row["Label Annual Gas Cost [$]"]),
+                    "clothes_washer_label_usage": str(clothes_washer_row["Label Usage [cyc/wk]"]),
+                    "clothes_washer_capacity": str(clothes_washer_row["Capacity [ft3]"]),
+                    "clothes_washer_usage_multiplier": "",
+                    "clothes_washer_location": str(clothes_washer_row["Location"]),
+                    "clothes_dryer_present": "True",
+                    "clothes_dryer_fuel_type": "electricity",
+                    "clothes_dryer_efficiency_type": "EnergyFactor",
+                    "clothes_dryer_efficiency": "4.29",
+                    "clothes_dryer_vented_flow_rate": "0",
+                    "clothes_dryer_usage_multiplier": "",
+                    "clothes_dryer_location": "",
+                    "dishwasher_present": "True",
+                    "dishwasher_efficiency_type": str(dishwasher_row["Efficiency Type"]),
+                    "dishwasher_efficiency": str(dishwasher_row["Efficiency [kWh/yr or #]"]),
+                    "dishwasher_label_electric_rate": str(dishwasher_row["Label Electric Rate [$/kWh]"]),
+                    "dishwasher_label_gas_rate": str(dishwasher_row["Label Gas Rate [$/therm]"]),
+                    "dishwasher_label_annual_gas_cost": str(dishwasher_row["Label Annual Gas Cost [$]"]),
+                    "dishwasher_label_usage": str(dishwasher_row["Label Usage [cyc/wk]"]),
+                    "dishwasher_place_setting_capacity": str(dishwasher_row["Place Setting Capacity [#]"]),
+                    "dishwasher_usage_multiplier": "",
+                    "dishwasher_location": "",
+                    "refrigerator_present": "True",
+                    "refrigerator_rated_annual_kwh": str(refrigerator_row["Rated Annual Consumption [kWh/yr]"]),
+                    "refrigerator_usage_multiplier": "",
+                    "refrigerator_location": str(refrigerator_row["Location"]),
+                    "extra_refrigerator_present": "True",
+                    "extra_refrigerator_rated_annual_kwh": str(extra_refrigerator_row["Rated Annual Consumption [kWh/yr]"]),
+                    "extra_refrigerator_usage_multiplier": "",
+                    "extra_refrigerator_location": str(extra_refrigerator_row["Location"]),
+                    "dehumidifier_type": str(dehumidifier_row["Type"]),
+                    "dehumidifier_efficiency_type": str(dehumidifier_row["Efficiency Type"]),
+                    "dehumidifier_efficiency": str(dehumidifier_row["Efficiency [liters/kWh]"]),
+                    "dehumidifier_capacity": str(dehumidifier_row["Capacity [pints/day]"]),
+                    "dehumidifier_rh_setpoint": str(dehumidifier_setpoint_row["Relative Humidity [frac]"]),
+                    "dehumidifier_fraction_dehumidification_load_served": "1.0",
+                }
+            ],
+            dtype=str,
+        )
+
+        out_df = update_appliances_v110_to_v112(input_df.copy())
+
+        self.assertEqual(out_df.loc[0, "appliance_clothes_washer"], "Standard, 2008-2017, 50% Usage")
+        self.assertEqual(out_df.loc[0, "appliance_clothes_dryer"], "Detailed Example: Electricity, EF 4.29")
+        self.assertEqual(out_df.loc[0, "appliance_dishwasher"], "Detailed Example: EF 0.7, Compact")
+        self.assertEqual(out_df.loc[0, "appliance_refrigerator"], "650 kWh/yr, 90% Usage")
+        self.assertEqual(out_df.loc[0, "appliance_extra_refrigerator"], "748 kWh/yr, 90% Usage")
+        self.assertEqual(out_df.loc[0, "appliance_dehumidifier"], "Detailed Example: Portable, 40 pints/day, EF 1.8")
+        self.assertEqual(out_df.loc[0, "appliance_dehumidifier_setpoint"], "55% RH")
+
+        for col in [
+            "clothes_dryer_present",
+            "clothes_dryer_fuel_type",
+            "clothes_dryer_efficiency_type",
+            "clothes_dryer_efficiency",
+            "clothes_dryer_vented_flow_rate",
+            "clothes_dryer_usage_multiplier",
+            "clothes_dryer_location",
+            "clothes_washer_present",
+            "clothes_washer_efficiency_type",
+            "clothes_washer_efficiency",
+            "clothes_washer_rated_annual_kwh",
+            "clothes_washer_label_electric_rate",
+            "clothes_washer_label_gas_rate",
+            "clothes_washer_label_annual_gas_cost",
+            "clothes_washer_label_usage",
+            "clothes_washer_capacity",
+            "clothes_washer_usage_multiplier",
+            "clothes_washer_location",
+            "dishwasher_present",
+            "dishwasher_efficiency_type",
+            "dishwasher_efficiency",
+            "dishwasher_label_electric_rate",
+            "dishwasher_label_gas_rate",
+            "dishwasher_label_annual_gas_cost",
+            "dishwasher_label_usage",
+            "dishwasher_place_setting_capacity",
+            "dishwasher_usage_multiplier",
+            "dishwasher_location",
+            "refrigerator_present",
+            "refrigerator_rated_annual_kwh",
+            "refrigerator_usage_multiplier",
+            "refrigerator_location",
+            "extra_refrigerator_present",
+            "extra_refrigerator_rated_annual_kwh",
+            "extra_refrigerator_usage_multiplier",
+            "extra_refrigerator_location",
+            "dehumidifier_type",
+            "dehumidifier_efficiency_type",
+            "dehumidifier_efficiency",
+            "dehumidifier_capacity",
+            "dehumidifier_rh_setpoint",
+            "dehumidifier_fraction_dehumidification_load_served",
+        ]:
+            self.assertNotIn(col, out_df.columns)
+
+
 class TestMigrateCsvDucts(unittest.TestCase):
     def test_legacy_duct_columns_map_to_hvac_ducts(self):
         input_df = pd.DataFrame(
@@ -1229,6 +1586,33 @@ class TestMigrateCsvDucts(unittest.TestCase):
         ]
         for col in dropped_cols:
             self.assertNotIn(col, out_df.columns)
+
+    def test_preprocess_data_types_normalizes_legacy_no_duct_values(self):
+        args_constraints = {
+            "hvac_ducts": {
+                "Type": "Choice",
+                "Choices": [
+                    "None",
+                    "0% Leakage, Uninsulated",
+                    "0% Leakage, R-4",
+                    "15% Leakage, Uninsulated",
+                ],
+            }
+        }
+        data = pd.DataFrame(
+            [
+                {
+                    "HVAC Has Ducts": "No",
+                    "Duct Location": "Aucun",
+                    "Duct Leakage and Insulation": "0% Leakage to Outside, Uninsulated",
+                }
+            ],
+            dtype=str,
+        )
+
+        processed, _ = preprocess_data_types(data, args_constraints)
+
+        self.assertEqual(processed.loc[0, "hvac_ducts"], "None")
 
 
 if __name__ == "__main__":

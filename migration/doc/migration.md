@@ -244,6 +244,62 @@ La liste ci-dessous est triée par ordre alphabétique du nom de colonne d'origi
 	- Nouvelle fonction : `update_geometry_skylight_areas_v110_to_v112()`
 	- Justification : la v1.12 concentre les surfaces de skylights dans une seule chaîne comma-separated.
 
+- `clothes_washer_present` / `clothes_washer_efficiency_type` / `clothes_washer_efficiency` / `clothes_washer_rated_annual_kwh` / `clothes_washer_label_electric_rate` / `clothes_washer_label_gas_rate` / `clothes_washer_label_annual_gas_cost` / `clothes_washer_label_usage` / `clothes_washer_capacity` / `clothes_washer_usage_multiplier` / `clothes_washer_location`
+	- Changement appliqué : fusion + renommage
+	- Impact résultats : aucun pour les correspondances exactes; les colonnes legacy de localisation et d'usage sont absorbées dans l'option canonique
+	- Nouveau nom si pertinent : `appliance_clothes_washer`
+	- Fonction avant : lave-linge détaillé par efficacité, consommation, coût d’étiquette, usage et localisation
+	- Nouvelle fonction : `update_appliances_v110_to_v112()`
+	- Justification : la v1.12 concentre le lave-linge dans une option canonique issue du TSV `appliance_clothes_washer.tsv`.
+
+- `clothes_dryer_present` / `clothes_dryer_fuel_type` / `clothes_dryer_efficiency_type` / `clothes_dryer_efficiency` / `clothes_dryer_vented_flow_rate` / `clothes_dryer_usage_multiplier` / `clothes_dryer_location`
+	- Changement appliqué : fusion + renommage + suppression d'un paramètre legacy sans équivalent direct
+	- Impact résultats : aucun pour les correspondances exactes; `clothes_dryer_vented_flow_rate` est supprimé car la v1.12 ne l'expose plus directement
+	- Nouveau nom si pertinent : `appliance_clothes_dryer`
+	- Fonction avant : sèche-linge détaillé par combustible, efficacité, mode de séchage, usage et localisation
+	- Nouvelle fonction : `update_appliances_v110_to_v112()`
+	- Justification : la v1.12 concentre le sèche-linge dans une option canonique issue du TSV `appliance_clothes_dryer.tsv`.
+
+- `dishwasher_present` / `dishwasher_efficiency_type` / `dishwasher_efficiency` / `dishwasher_label_electric_rate` / `dishwasher_label_gas_rate` / `dishwasher_label_annual_gas_cost` / `dishwasher_label_usage` / `dishwasher_place_setting_capacity` / `dishwasher_usage_multiplier` / `dishwasher_location`
+	- Changement appliqué : fusion + renommage
+	- Impact résultats : aucun pour les correspondances exactes; les paramètres legacy de coût et d'usage sont absorbés dans l'option canonique
+	- Nouveau nom si pertinent : `appliance_dishwasher`
+	- Fonction avant : lave-vaisselle détaillé par efficacité, coût, capacité et usage
+	- Nouvelle fonction : `update_appliances_v110_to_v112()`
+	- Justification : la v1.12 condense le lave-vaisselle dans une option canonique issue du TSV `appliance_dishwasher.tsv`.
+
+- `refrigerator_present` / `refrigerator_rated_annual_kwh` / `refrigerator_usage_multiplier` / `refrigerator_location`
+	- Changement appliqué : fusion + renommage
+	- Impact résultats : aucun pour les correspondances exactes; les colonnes legacy de localisation et d'usage sont absorbées dans l'option canonique
+	- Nouveau nom si pertinent : `appliance_refrigerator`
+	- Fonction avant : réfrigérateur détaillé par consommation, usage et localisation
+	- Nouvelle fonction : `update_appliances_v110_to_v112()`
+	- Justification : la v1.12 concentre le réfrigérateur dans une option canonique issue du TSV `appliance_refrigerator.tsv`.
+
+- `extra_refrigerator_present` / `extra_refrigerator_rated_annual_kwh` / `extra_refrigerator_usage_multiplier` / `extra_refrigerator_location`
+	- Changement appliqué : fusion + renommage
+	- Impact résultats : aucun pour les correspondances exactes; les colonnes legacy de localisation et d'usage sont absorbées dans l'option canonique
+	- Nouveau nom si pertinent : `appliance_extra_refrigerator`
+	- Fonction avant : réfrigérateur additionnel détaillé par consommation, usage et localisation
+	- Nouvelle fonction : `update_appliances_v110_to_v112()`
+	- Justification : la v1.12 concentre le réfrigérateur additionnel dans une option canonique issue du TSV `appliance_extra_refrigerator.tsv`.
+
+- `dehumidifier_type` / `dehumidifier_efficiency_type` / `dehumidifier_efficiency` / `dehumidifier_capacity` / `dehumidifier_fraction_dehumidification_load_served`
+	- Changement appliqué : fusion + renommage + suppression d'un paramètre legacy sans équivalent direct
+	- Impact résultats : aucun pour les correspondances exactes; `dehumidifier_fraction_dehumidification_load_served` est supprimé car la v1.12 ne l'expose plus directement
+	- Nouveau nom si pertinent : `appliance_dehumidifier`
+	- Fonction avant : déshumidificateur détaillé par type, efficacité, capacité et part de charge servie
+	- Nouvelle fonction : `update_appliances_v110_to_v112()`
+	- Justification : la v1.12 concentre le déshumidificateur dans une option canonique issue du TSV `appliance_dehumidifier.tsv`.
+
+- `dehumidifier_rh_setpoint`
+	- Changement appliqué : renommage
+	- Impact résultats : aucun pour les correspondances exactes
+	- Nouveau nom si pertinent : `appliance_dehumidifier_setpoint`
+	- Fonction avant : consigne d'humidité relative legacy
+	- Nouvelle fonction : `update_appliances_v110_to_v112()`
+	- Justification : la v1.12 expose ce paramètre comme un argument dédié, alimenté par le TSV `appliance_dehumidifier_setpoint.tsv`.
+
 - `overhangs_back_depth` / `overhangs_front_depth` / `overhangs_left_depth` / `overhangs_right_depth`
 	- Changement appliqué : fusion vers un seul argument
 	- Impact résultats : aucun

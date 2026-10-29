@@ -33,33 +33,7 @@ Le script migrate_csv.py vise Ã  convertir un fichier csv d'entrÃ©e concu po
 ### Ã‰tat courant de la migration
 
 Bloc dÃ©jÃ  validÃ©, documentÃ© dans `migration.md` et retirÃ© de `suivi.md`:
-- `simulation_control_daylight_saving_enabled`
-- `site_time_zone_utc_offset`
-- `geometry_building_num_units`
-- `geometry_average_ceiling_height`
-- `geometry_unit_orientation`
-- `geometry_unit_cfa`
-- `year_built`
-- `geometry_roof_type`
-- `geometry_unit_num_floors_above_grade`
-- `geometry_foundation_height`
-- `geometry_foundation_height_above_grade`
-- `geometry_rim_joist_height`
-- `geometry_attic_type`
-- `geometry_foundation_type`
-- `wall_type`
-- `wall_assembly_r`
-- `ceiling_assembly_r`
-- `floor_over_foundation_assembly_r`
-- `floor_over_garage_assembly_r`
-- `window_ufactor`
-- `window_shgc`
-- `skylight_ufactor`
-- `skylight_shgc`
-- `window_interior_shading_summer`
-- `window_interior_shading_winter`
-- `window_front_wwr` / `window_back_wwr` / `window_left_wwr` / `window_right_wwr` / `window_area_front` / `window_area_back` / `window_area_left` / `window_area_right` / `window_aspect_ratio`
-- `skylight_area_front` / `skylight_area_back` / `skylight_area_left` / `skylight_area_right`
+- `clothes_dryer_present` / `clothes_dryer_fuel_type` / `clothes_dryer_efficiency_type` / `clothes_dryer_efficiency` / `clothes_dryer_vented_flow_rate` / `clothes_dryer_usage_multiplier` / `clothes_dryer_location` / `clothes_washer_present` / `clothes_washer_efficiency_type` / `clothes_washer_efficiency` / `clothes_washer_rated_annual_kwh` / `clothes_washer_label_electric_rate` / `clothes_washer_label_gas_rate` / `clothes_washer_label_annual_gas_cost` / `clothes_washer_label_usage` / `clothes_washer_capacity` / `clothes_washer_usage_multiplier` / `clothes_washer_location` / `dishwasher_present` / `dishwasher_efficiency_type` / `dishwasher_efficiency` / `dishwasher_label_electric_rate` / `dishwasher_label_gas_rate` / `dishwasher_label_annual_gas_cost` / `dishwasher_label_usage` / `dishwasher_place_setting_capacity` / `dishwasher_usage_multiplier` / `dishwasher_location` / `refrigerator_present` / `refrigerator_rated_annual_kwh` / `refrigerator_usage_multiplier` / `refrigerator_location` / `extra_refrigerator_present` / `extra_refrigerator_rated_annual_kwh` / `extra_refrigerator_usage_multiplier` / `extra_refrigerator_location` / `dehumidifier_type` / `dehumidifier_efficiency_type` / `dehumidifier_efficiency` / `dehumidifier_capacity` / `dehumidifier_rh_setpoint` / `dehumidifier_fraction_dehumidification_load_served`
 - `overhangs_*` vers `enclosure_overhangs`
 - `ducts_*` vers `hvac_ducts`
 - `heat_pump_*` vers les options v1.12

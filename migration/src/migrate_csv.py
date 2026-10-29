@@ -43,6 +43,7 @@ from migration.src.utils.utils import (  # noqa: E402
     _normalize_legacy_value,
     _normalize_percent_value,
     _option_tsv_path,
+    _to_bool,
     _to_float,
     _to_optional_float,
     _format_target_values_block,
@@ -1546,6 +1547,431 @@ def update_ventilation_v110_to_v112(df):
         "Dropping legacy ventilation columns after mapping to v1.12 ventilation options.",
     )
 
+def _match_choice_option_by_tsv_properties(tsv_rows, target_values, context_label, field_weights=None):
+    best_name = None
+    best_row = None
+    best_score = None
+    field_weights = field_weights or {}
+
+    for row in tsv_rows:
+        option_name = str(row.get("Option Name", "")).strip()
+        if option_name == "" or option_name.startswith("#"):
+            continue
+
+        score = 0.0
+        compared = 0
+        for tsv_key, target_value in target_values.items():
+            if target_value is None:
+                continue
+            if isinstance(target_value, str) and target_value.strip() == "":
+                continue
+
+            weight = float(field_weights.get(tsv_key, 1.0))
+            if weight <= 0:
+                continue
+
+            compared += 1
+            candidate_value = row.get(tsv_key)
+            candidate_text = "" if candidate_value is None else str(candidate_value).strip()
+            target_text = str(target_value).strip()
+
+            candidate_float = _to_optional_float(candidate_value)
+            target_float = _to_optional_float(target_value)
+            if candidate_float is not None and target_float is not None:
+                score += weight * abs(candidate_float - target_float)
+                continue
+
+            if target_float is not None and candidate_float is None:
+                score += weight * 100.0
+                continue
+
+            if _normalize_legacy_value(candidate_text) != _normalize_legacy_value(target_text):
+                score += weight
+
+        if compared == 0:
+            continue
+
+        if best_score is None or score < best_score:
+            best_score = score
+            best_name = option_name
+            best_row = row
+
+    if best_name is None:
+        return None
+
+    if best_score is not None and best_score > 1e-9:
+        context_label_name = None
+        context_value_text = None
+        if best_row is not None:
+            preferred_context_keys_by_label = {
+                "appliance_clothes_washer": ["Rated Annual Consumption [kWh/yr]"],
+                "appliance_clothes_dryer": ["Efficiency [lb/kWh]"],
+                "appliance_dishwasher": ["Efficiency [kWh/yr or #]"],
+                "appliance_refrigerator": ["Rated Annual Consumption [kWh/yr]"],
+                "appliance_extra_refrigerator": ["Rated Annual Consumption [kWh/yr]"],
+                "appliance_dehumidifier": ["Efficiency [liters/kWh]", "Capacity [pints/day]"],
+                "appliance_dehumidifier_setpoint": ["Relative Humidity [frac]"],
+            }
+            preferred_context_keys = preferred_context_keys_by_label.get(
+                context_label,
+                ["Usage Multiplier", "Rated Annual Consumption [kWh/yr]", "Efficiency [ft3/kWh-cyc]", "Efficiency [lb/kWh]", "Efficiency [kWh/yr or #]", "Efficiency [liters/kWh]", "Capacity [ft3]", "Capacity [pints/day]"],
+            )
+            for context_key in preferred_context_keys:
+                context_value = best_row.get(context_key)
+                if context_value is None:
+                    continue
+                context_text = str(context_value).strip()
+                if context_text == "":
+                    continue
+                context_label_name = context_key
+                context_value_text = context_text
+                break
+        context_suffix = f" : {context_label_name}: {context_value_text}" if context_label_name is not None else ""
+        _log_approximation_warning_once(
+            (context_label, best_name),
+            "Approximated %s option using nearest match '%s'%s\n  target values:\n%s",
+            context_label,
+            best_name,
+            context_suffix,
+            _format_target_values_block(target_values),
+        )
+
+    return best_name
+
+
+def _update_appliance_clothes_washer_column(df, clothes_washer_rows):
+    if "appliance_clothes_washer" not in df.columns:
+        df["appliance_clothes_washer"] = None
+
+    for idx, row in df.iterrows():
+        if _to_bool(row.get("clothes_washer_present"), default=False):
+            target_values = {
+                "Efficiency Type": row.get("clothes_washer_efficiency_type"),
+                "Efficiency [ft3/kWh-cyc]": row.get("clothes_washer_efficiency"),
+                "Rated Annual Consumption [kWh/yr]": row.get("clothes_washer_rated_annual_kwh"),
+                "Label Electric Rate [$/kWh]": row.get("clothes_washer_label_electric_rate"),
+                "Label Gas Rate [$/therm]": row.get("clothes_washer_label_gas_rate"),
+                "Label Annual Gas Cost [$]": row.get("clothes_washer_label_annual_gas_cost"),
+                "Label Usage [cyc/wk]": row.get("clothes_washer_label_usage"),
+                "Capacity [ft3]": row.get("clothes_washer_capacity"),
+                "Usage Multiplier": row.get("clothes_washer_usage_multiplier"),
+                "Location": row.get("clothes_washer_location"),
+            }
+            field_weights = {
+                "Rated Annual Consumption [kWh/yr]": 10.0,
+                "Efficiency Type": 4.0,
+                "Efficiency [ft3/kWh-cyc]": 4.0,
+                "Capacity [ft3]": 2.0,
+                "Label Electric Rate [$/kWh]": 1.0,
+                "Label Gas Rate [$/therm]": 1.0,
+                "Label Annual Gas Cost [$]": 1.0,
+                "Label Usage [cyc/wk]": 1.0,
+                "Usage Multiplier": 1.0,
+                "Location": 0.0,
+            }
+            df.at[idx, "appliance_clothes_washer"] = (
+                _match_choice_option_by_tsv_properties(
+                    clothes_washer_rows,
+                    target_values,
+                    "appliance_clothes_washer",
+                    field_weights,
+                )
+                or "None"
+            )
+        else:
+            df.at[idx, "appliance_clothes_washer"] = "None"
+
+    return df
+
+
+def _update_appliance_clothes_dryer_column(df, clothes_dryer_rows):
+    if "appliance_clothes_dryer" not in df.columns:
+        df["appliance_clothes_dryer"] = None
+
+    for idx, row in df.iterrows():
+        if _to_bool(row.get("clothes_dryer_present"), default=False):
+            vented_flow_rate = _to_optional_float(row.get("clothes_dryer_vented_flow_rate"))
+            efficiency_type = _normalize_legacy_value(row.get("clothes_dryer_efficiency_type"))
+            efficiency = _to_optional_float(row.get("clothes_dryer_efficiency"))
+            fuel_type = _normalize_legacy_value(row.get("clothes_dryer_fuel_type"))
+            if vented_flow_rate is not None and vented_flow_rate > 0:
+                drying_method = "conventional"
+            elif fuel_type == "electricity" and efficiency_type == "energyfactor" and efficiency is not None and efficiency >= 4.0:
+                drying_method = "condensing"
+            elif fuel_type == "electricity" and efficiency_type == "combinedenergyfactor" and efficiency is not None and efficiency >= 5.0:
+                drying_method = "heat pump"
+            else:
+                drying_method = "conventional"
+
+            target_values = {
+                "Efficiency Type": row.get("clothes_dryer_efficiency_type"),
+                "Efficiency [lb/kWh]": row.get("clothes_dryer_efficiency"),
+                "Fuel Type": row.get("clothes_dryer_fuel_type"),
+                "Drying Method": drying_method,
+                "Usage Multiplier": row.get("clothes_dryer_usage_multiplier"),
+                "Location": row.get("clothes_dryer_location"),
+            }
+            field_weights = {
+                "Efficiency Type": 5.0,
+                "Efficiency [lb/kWh]": 8.0,
+                "Fuel Type": 5.0,
+                "Drying Method": 8.0,
+                "Usage Multiplier": 1.0,
+                "Location": 0.0,
+            }
+            df.at[idx, "appliance_clothes_dryer"] = (
+                _match_choice_option_by_tsv_properties(
+                    clothes_dryer_rows,
+                    target_values,
+                    "appliance_clothes_dryer",
+                    field_weights,
+                )
+                or "None"
+            )
+        else:
+            df.at[idx, "appliance_clothes_dryer"] = "None"
+
+    return df
+
+
+def _update_appliance_dishwasher_column(df, dishwasher_rows):
+    if "appliance_dishwasher" not in df.columns:
+        df["appliance_dishwasher"] = None
+
+    for idx, row in df.iterrows():
+        if _to_bool(row.get("dishwasher_present"), default=False):
+            target_values = {
+                "Efficiency Type": row.get("dishwasher_efficiency_type"),
+                "Efficiency [kWh/yr or #]": row.get("dishwasher_efficiency"),
+                "Label Electric Rate [$/kWh]": row.get("dishwasher_label_electric_rate"),
+                "Label Gas Rate [$/therm]": row.get("dishwasher_label_gas_rate"),
+                "Label Annual Gas Cost [$]": row.get("dishwasher_label_annual_gas_cost"),
+                "Label Usage [cyc/wk]": row.get("dishwasher_label_usage"),
+                "Place Setting Capacity [#]": row.get("dishwasher_place_setting_capacity"),
+                "Usage Multiplier": row.get("dishwasher_usage_multiplier"),
+                "Location": row.get("dishwasher_location"),
+            }
+            field_weights = {
+                "Efficiency Type": 5.0,
+                "Efficiency [kWh/yr or #]": 8.0,
+                "Label Electric Rate [$/kWh]": 1.0,
+                "Label Gas Rate [$/therm]": 1.0,
+                "Label Annual Gas Cost [$]": 1.0,
+                "Label Usage [cyc/wk]": 1.0,
+                "Place Setting Capacity [#]": 4.0,
+                "Usage Multiplier": 1.0,
+                "Location": 0.0,
+            }
+            df.at[idx, "appliance_dishwasher"] = (
+                _match_choice_option_by_tsv_properties(
+                    dishwasher_rows,
+                    target_values,
+                    "appliance_dishwasher",
+                    field_weights,
+                )
+                or "None"
+            )
+        else:
+            df.at[idx, "appliance_dishwasher"] = "None"
+
+    return df
+
+
+def _update_appliance_refrigerator_column(df, refrigerator_rows):
+    if "appliance_refrigerator" not in df.columns:
+        df["appliance_refrigerator"] = None
+
+    for idx, row in df.iterrows():
+        if _to_bool(row.get("refrigerator_present"), default=False):
+            target_values = {
+                "Rated Annual Consumption [kWh/yr]": row.get("refrigerator_rated_annual_kwh"),
+                "Usage Multiplier": row.get("refrigerator_usage_multiplier"),
+                "Location": row.get("refrigerator_location"),
+            }
+            field_weights = {
+                "Rated Annual Consumption [kWh/yr]": 10.0,
+                "Usage Multiplier": 1.0,
+                "Location": 0.0,
+            }
+            df.at[idx, "appliance_refrigerator"] = (
+                _match_choice_option_by_tsv_properties(
+                    refrigerator_rows,
+                    target_values,
+                    "appliance_refrigerator",
+                    field_weights,
+                )
+                or "None"
+            )
+        else:
+            df.at[idx, "appliance_refrigerator"] = "None"
+
+    return df
+
+
+def _update_appliance_extra_refrigerator_column(df, extra_refrigerator_rows):
+    if "appliance_extra_refrigerator" not in df.columns:
+        df["appliance_extra_refrigerator"] = None
+
+    for idx, row in df.iterrows():
+        if _to_bool(row.get("extra_refrigerator_present"), default=False):
+            target_values = {
+                "Rated Annual Consumption [kWh/yr]": row.get("extra_refrigerator_rated_annual_kwh"),
+                "Usage Multiplier": row.get("extra_refrigerator_usage_multiplier"),
+                "Location": row.get("extra_refrigerator_location"),
+            }
+            field_weights = {
+                "Rated Annual Consumption [kWh/yr]": 10.0,
+                "Usage Multiplier": 1.0,
+                "Location": 0.0,
+            }
+            df.at[idx, "appliance_extra_refrigerator"] = (
+                _match_choice_option_by_tsv_properties(
+                    extra_refrigerator_rows,
+                    target_values,
+                    "appliance_extra_refrigerator",
+                    field_weights,
+                )
+                or "None"
+            )
+        else:
+            df.at[idx, "appliance_extra_refrigerator"] = "None"
+
+    return df
+
+
+def _update_appliance_dehumidifier_column(df, dehumidifier_rows):
+    if "appliance_dehumidifier" not in df.columns:
+        df["appliance_dehumidifier"] = None
+
+    for idx, row in df.iterrows():
+        dehumidifier_type = _normalize_legacy_value(row.get("dehumidifier_type"))
+        if dehumidifier_type not in {"", "none"}:
+            target_values = {
+                "Type": row.get("dehumidifier_type"),
+                "Efficiency Type": row.get("dehumidifier_efficiency_type"),
+                "Efficiency [liters/kWh]": row.get("dehumidifier_efficiency"),
+                "Capacity [pints/day]": row.get("dehumidifier_capacity"),
+            }
+            field_weights = {
+                "Type": 4.0,
+                "Efficiency Type": 5.0,
+                "Efficiency [liters/kWh]": 8.0,
+                "Capacity [pints/day]": 4.0,
+            }
+            df.at[idx, "appliance_dehumidifier"] = (
+                _match_choice_option_by_tsv_properties(
+                    dehumidifier_rows,
+                    target_values,
+                    "appliance_dehumidifier",
+                    field_weights,
+                )
+                or "None"
+            )
+        else:
+            df.at[idx, "appliance_dehumidifier"] = "None"
+
+    return df
+
+
+def _update_appliance_dehumidifier_setpoint_column(df, dehumidifier_setpoint_rows):
+    if "appliance_dehumidifier_setpoint" not in df.columns:
+        df["appliance_dehumidifier_setpoint"] = None
+
+    for idx, row in df.iterrows():
+        dehumidifier_type = _normalize_legacy_value(row.get("dehumidifier_type"))
+        if dehumidifier_type not in {"", "none"}:
+            setpoint_value = _to_optional_float(row.get("dehumidifier_rh_setpoint"))
+            if setpoint_value is not None:
+                df.at[idx, "appliance_dehumidifier_setpoint"] = (
+                    _match_choice_option_by_tsv_properties(
+                        dehumidifier_setpoint_rows,
+                        {"Relative Humidity [frac]": setpoint_value},
+                        "appliance_dehumidifier_setpoint",
+                        {"Relative Humidity [frac]": 10.0},
+                    )
+                    or "50% RH"
+                )
+            else:
+                df.at[idx, "appliance_dehumidifier_setpoint"] = "50% RH"
+        else:
+            df.at[idx, "appliance_dehumidifier_setpoint"] = "50% RH"
+
+    return df
+
+
+def update_appliances_v110_to_v112(df):
+    """Map legacy appliance columns to the v1.12 appliance choice strings."""
+    reset_approximation_warning_cache()
+
+    legacy_columns = [
+        "clothes_dryer_present",
+        "clothes_dryer_fuel_type",
+        "clothes_dryer_efficiency_type",
+        "clothes_dryer_efficiency",
+        "clothes_dryer_vented_flow_rate",
+        "clothes_dryer_usage_multiplier",
+        "clothes_dryer_location",
+        "clothes_washer_present",
+        "clothes_washer_efficiency_type",
+        "clothes_washer_efficiency",
+        "clothes_washer_rated_annual_kwh",
+        "clothes_washer_label_electric_rate",
+        "clothes_washer_label_gas_rate",
+        "clothes_washer_label_annual_gas_cost",
+        "clothes_washer_label_usage",
+        "clothes_washer_capacity",
+        "clothes_washer_usage_multiplier",
+        "clothes_washer_location",
+        "dishwasher_present",
+        "dishwasher_efficiency_type",
+        "dishwasher_efficiency",
+        "dishwasher_label_electric_rate",
+        "dishwasher_label_gas_rate",
+        "dishwasher_label_annual_gas_cost",
+        "dishwasher_label_usage",
+        "dishwasher_place_setting_capacity",
+        "dishwasher_usage_multiplier",
+        "dishwasher_location",
+        "refrigerator_present",
+        "refrigerator_rated_annual_kwh",
+        "refrigerator_usage_multiplier",
+        "refrigerator_location",
+        "extra_refrigerator_present",
+        "extra_refrigerator_rated_annual_kwh",
+        "extra_refrigerator_usage_multiplier",
+        "extra_refrigerator_location",
+        "dehumidifier_type",
+        "dehumidifier_efficiency_type",
+        "dehumidifier_efficiency",
+        "dehumidifier_capacity",
+        "dehumidifier_rh_setpoint",
+        "dehumidifier_fraction_dehumidification_load_served",
+    ]
+    if not any(column in df.columns for column in legacy_columns):
+        return df
+
+    clothes_washer_rows = get_tsv_data(str(_option_tsv_path("appliance_clothes_washer.tsv")))
+    clothes_dryer_rows = get_tsv_data(str(_option_tsv_path("appliance_clothes_dryer.tsv")))
+    dishwasher_rows = get_tsv_data(str(_option_tsv_path("appliance_dishwasher.tsv")))
+    refrigerator_rows = get_tsv_data(str(_option_tsv_path("appliance_refrigerator.tsv")))
+    extra_refrigerator_rows = get_tsv_data(str(_option_tsv_path("appliance_extra_refrigerator.tsv")))
+    dehumidifier_rows = get_tsv_data(str(_option_tsv_path("appliance_dehumidifier.tsv")))
+    dehumidifier_setpoint_rows = get_tsv_data(str(_option_tsv_path("appliance_dehumidifier_setpoint.tsv")))
+
+    _update_appliance_clothes_washer_column(df, clothes_washer_rows)
+    _update_appliance_clothes_dryer_column(df, clothes_dryer_rows)
+    _update_appliance_dishwasher_column(df, dishwasher_rows)
+    _update_appliance_refrigerator_column(df, refrigerator_rows)
+    _update_appliance_extra_refrigerator_column(df, extra_refrigerator_rows)
+    _update_appliance_dehumidifier_column(df, dehumidifier_rows)
+    _update_appliance_dehumidifier_setpoint_column(df, dehumidifier_setpoint_rows)
+
+    return drop_legacy_columns(
+        df,
+        legacy_columns,
+        "Dropping legacy appliance columns after mapping to v1.12 appliance options.",
+    )
+
 def update_duct_leakage_v110_to_v112(df):
     """Map legacy duct leakage/insulation columns to the v1.12 hvac_ducts option string."""
 
@@ -1736,6 +2162,9 @@ def update_v110_to_v112(input_filePath, output_filePath):
 
     # Update legacy ventilation columns to v1.12 ventilation option strings
     df = update_ventilation_v110_to_v112(df)
+
+    # Update legacy appliance columns to v1.12 appliance option strings
+    df = update_appliances_v110_to_v112(df)
 
     # Update heat pump option strings from legacy v1.10 inputs
     df = update_heat_pump_v110_to_v112(df)
