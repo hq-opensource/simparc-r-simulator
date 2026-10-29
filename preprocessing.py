@@ -49,9 +49,9 @@ def preprocess_data_types(data: pd.DataFrame, args_constraints: dict):
 
 	#TODO: handle in migration
 	# Normalize legacy no-duct rows to the canonical choice string expected by v1.12.
-	if 'hvac_ducts' in args_constraints.keys() and 'HVAC Has Ducts' in data.columns:
-		no_ducts_mask = data['HVAC Has Ducts'].astype(str).str.strip().str.lower().isin(['no', 'non', 'false', '0', 'aucun'])
-		data.loc[no_ducts_mask, 'hvac_ducts'] = 'None'
+	#if 'hvac_ducts' in args_constraints.keys() and 'HVAC Has Ducts' in data.columns:
+#		no_ducts_mask = data['HVAC Has Ducts'].astype(str).str.strip().str.lower().isin(['no', 'non', 'false', '0', 'aucun'])
+#		data.loc[no_ducts_mask, 'hvac_ducts'] = 'None'
 
 	# Return the preprocessed data
 	return data, list_columns_hpxml
