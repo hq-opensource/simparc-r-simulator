@@ -122,6 +122,7 @@ class LocalBatch(BuildStockBatchBase):
                 dpout = read_simulation_outputs(fs,str(building_dir))
                 if cfg["BATCH_MODE"]:
                     postprocess_results(building_dir, cfg)
+                if cfg.get("CLEANUP", True):
                     cls.cleanup_sim_dir(building_dir)
                 del cfg
                 del building_data
