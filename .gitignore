@@ -23,3 +23,4 @@ openstudio-3.9.0
 
 # ignore the folder "site"
 site
+test-building-stock-csv/1000-EV_20261106_164209.csv

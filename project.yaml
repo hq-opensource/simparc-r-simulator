@@ -1,6 +1,6 @@
 SCHEMA_VERSION : "0.1"
 
-SAMPLE_FILE : test-building-stock-csv/resultats_20260724_153838.csv
+SAMPLE_FILE : test-building-stock-csv/1000-EV_20261106_164209_small.csv
 
 HPXML_SCHEMA_FILE : measures/BuildResidentialHPXML/measure.xml
 
@@ -19,7 +19,7 @@ ADD_COMPONENT_LOADS : False # If true, adds the calculation of heating/cooling c
 SKIP_VALIDATION : False # If true, skips the validation of the HPXML file for faster performance.
 DEBUG_MODE : True # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
 BATCH_MODE : True # If true, runs post-processing automatically after each simulation.
-CLEANUP : True # If true, removes temporary simulation folders and generated files after post-processing.
+CLEANUP : False # If true, removes temporary simulation folders and generated files after post-processing.
 INCLUDE_ANNUAL_TOTAL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_FUEL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_END_USE_CONSUMPTIONS : True

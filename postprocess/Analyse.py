@@ -200,21 +200,30 @@ def _kpis_without_profils(column, with_prism=False, with_seasonal=True):
 def _end_use_focus_kpis(column, pas_de_temps="1h", with_seasonal=True, with_prism=False):
     seasonal_kpis = _seasonal_daily_kpis(column) if with_seasonal else []
     prism_kpis = _prism_kpis(column) if with_prism else []
+    profile_entries = []
+    for periode in ("Annee", "Hiver", "Ete", "Automne", "Printemps"):
+        for type_jour in ("Tous", "Semaine", "FinDeSemaine"):
+            profile_entries.append({
+                "name": "Profil",
+                "column": column,
+                "params": {"pas_de_temps": pas_de_temps, "periode": periode, "type_jour": type_jour},
+            })
+    profile_entries.append({
+        "name": "Profil",
+        "column": column,
+        "params": {
+            "pas_de_temps": pas_de_temps,
+            "periode": "Janvier",
+            "type_jour": "JourPreconfigure",
+            "jour_regle": "dernier_mercredi_janvier",
+        },
+    })
     return [
         {"name": "Conso_annuelle",        "column": column, "params": {}},
         {"name": "Variation_saisonniere", "column": column, "params": {}},
         {"name": "Conso_mensuelle",       "column": column, "params": {}},
         *seasonal_kpis,
-        {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Hiver",     "type_jour": "Semaine"}},
-        {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Ete",       "type_jour": "Semaine"}},
-        {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Automne",   "type_jour": "Semaine"}},
-        {"name": "Profil", "column": column, "params": {"pas_de_temps": pas_de_temps, "periode": "Printemps", "type_jour": "Semaine"}},
-        {"name": "Profil", "column": column, "params": {
-            "pas_de_temps": pas_de_temps,
-            "periode":    "Janvier",
-            "type_jour":  "JourPreconfigure",
-            "jour_regle": "dernier_mercredi_janvier",
-        }},
+        *profile_entries,
         *prism_kpis,
     ]
 
