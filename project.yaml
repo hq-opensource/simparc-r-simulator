@@ -19,7 +19,7 @@ ADD_COMPONENT_LOADS : False # If true, adds the calculation of heating/cooling c
 SKIP_VALIDATION : False # If true, skips the validation of the HPXML file for faster performance.
 DEBUG_MODE : True # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
 BATCH_MODE : True # If true, runs post-processing automatically after each simulation.
-CLEANUP : False # If true, removes temporary simulation folders and generated files after post-processing.
+CLEANUP : True # If true, removes temporary simulation folders and generated files after post-processing.
 INCLUDE_ANNUAL_TOTAL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_FUEL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_END_USE_CONSUMPTIONS : True
