@@ -27,10 +27,7 @@ site
 # ignore uv.lock
 uv.lock
 
-# HVAC analysis outputs
-generated/hvac_analysis/
-Users/
 
-# Local backup spec file
-backup_SPEC.md
-backup_dual_SPEC.md
+# Local development folder (validation scripts, figures, docs)
+dev/
+Users/

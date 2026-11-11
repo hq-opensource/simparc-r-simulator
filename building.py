@@ -106,24 +106,36 @@ class Building:
     def _apply_dual_sizing(self):
         """Size both heating systems to the full design load for dual (bi-energy) mode.
 
-        Keeps the HPXML design fractions summing to 1 (0.5 / 0.5) so the schematron
-        constraint ``sum(FractionHeatLoadServed) == 1`` is satisfied, and applies an
-        autosizing factor of 2.0 to each so ACCA sizing yields the full design load
-        for both systems (0.5 * Q_design * 2.0 = Q_design). Runs before Step 1
+        Keeps the HPXML design fractions summing to 1 so the schematron constraint
+        ``sum(FractionHeatLoadServed) == 1`` is satisfied. Runs before Step 1
         (BuildResidentialHPXML), mutating ``self.hpxml_args`` in place.
+
+        - Two furnaces share one air distribution, and OpenStudio-HPXML allows only
+          one heating system with a non-zero fraction per distribution. They are
+          therefore split 1.0 / 0.0 with an autosizing factor of 1.0; system 2 is
+          resized to system 1's capacity/airflow by SetDualFuelHeatingSwitchover.
+        - Any other combination uses 0.5 / 0.5 with an autosizing factor of 2.0 so
+          ACCA sizing yields the full design load for both systems
+          (0.5 * Q_design * 2.0 = Q_design).
         """
-        overrides = {
-            "heating_system_fraction_heat_load_served": 0.5,
-            "heating_system_2_fraction_heat_load_served": 0.5,
-            "heating_system_heating_autosizing_factor": 2.0,
-            "heating_system_2_heating_autosizing_factor": 2.0,
-        }
+        both_furnaces = (
+            str(self.hpxml_args.get("heating_system_type", "")).strip() == "Furnace"
+            and str(self.hpxml_args.get("heating_system_2_type", "")).strip() == "Furnace")
+        if both_furnaces:
+            overrides = {
+                "heating_system_fraction_heat_load_served": 1.0,
+                "heating_system_2_fraction_heat_load_served": 0.0,
+                "heating_system_heating_autosizing_factor": 1.0,
+                "heating_system_2_heating_autosizing_factor": 1.0,
+            }
+        else:
+            overrides = {
+                "heating_system_fraction_heat_load_served": 0.5,
+                "heating_system_2_fraction_heat_load_served": 0.5,
+                "heating_system_heating_autosizing_factor": 2.0,
+                "heating_system_2_heating_autosizing_factor": 2.0,
+            }
         for key, value in overrides.items():
-            existing = self.hpxml_args.get(key)
-            if existing is not None and existing != value:
-                logger.warning(
-                    "backup_mode=dual overriding '%s' from %s to %s for full-capacity "
-                    "sizing.", key, existing, value)
             self.hpxml_args[key] = value
 
         # A fixed capacity would ignore the autosizing factor, so force autosizing
@@ -136,13 +148,13 @@ class Building:
                     "the full design load.", key)
                 self.hpxml_args[key] = None
 
-        # An explicit autosizing limit would cap the factor below 2.0 and prevent
+        # An explicit autosizing limit would cap the autosized capacity and prevent
         # full-capacity sizing.
         for key in ("heating_system_heating_autosizing_limit",
                     "heating_system_2_heating_autosizing_limit"):
             if self.hpxml_args.get(key) is not None:
                 logger.warning(
-                    "backup_mode=dual clearing '%s' so the 2.0 autosizing factor is "
+                    "backup_mode=dual clearing '%s' so the autosized capacity is "
                     "not capped.", key)
                 self.hpxml_args[key] = None
 
