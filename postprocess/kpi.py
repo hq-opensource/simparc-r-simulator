@@ -6,9 +6,11 @@ import math
 
 import warnings
 
+import numpy as np
 import pandas as pd
 
 from .prism import Prism
+from .kpi_keys import make_kpi_key
 
 
 class KPIMetadata:
@@ -126,6 +128,75 @@ _MONTH_FR_LOWER = {
     "novembre": 11,
     "decembre": 12,
 }
+
+
+_POINTE_SAISONS = {"hiver": ("Hiver", "<= 8C", "hiver"), "ete": ("Ete", ">= 15C", "ete")}
+_POINTE_DEMI_JOURNEES = {"am": ("matin", "0h a 11h"), "pm": ("soir", "12h a 23h")}
+_POINTE_PAS_DE_TEMPS_DEFAUT = "15min"
+
+
+def _build_pointe_metadata() -> Dict[str, KPIMetadata]:
+    """Genere les metadonnees des 16 KPI de pointe (max absolu et profil moyen; valeur + heure, hiver/ete, matin/soir)."""
+    meta: Dict[str, KPIMetadata] = {}
+    params = {
+        "pas_de_temps": (
+            "Pas de temps de moyennation de la puissance (ex: '1min', '5min', '15min', '1h'). "
+            "Defaut: '15min'. Ne peut pas etre inferieur au pas natif des donnees."
+        ),
+    }
+    for saison_key, (_, temp_txt, saison_txt) in _POINTE_SAISONS.items():
+        for dj_key, (dj_txt, plage_txt) in _POINTE_DEMI_JOURNEES.items():
+            name = f"Pointe_{saison_key}_{dj_key}"
+            meta[name] = KPIMetadata(
+                name=name,
+                description=(
+                    f"La pointe electrique d'{saison_txt} du {dj_txt}, soit la valeur maximale de puissance "
+                    f"moyenne appelee durant un pas de temps ({plage_txt}) pendant les journees ou la "
+                    f"temperature moyenne journaliere est {temp_txt}"
+                ),
+                unit="kW",
+                params=dict(params),
+                required={"datetime", "temperature"},
+                sources=None,
+            )
+            name_h = f"Pointe_h_{saison_key}_{dj_key}"
+            meta[name_h] = KPIMetadata(
+                name=name_h,
+                description=(
+                    f"L'heure de la pointe electrique d'{saison_txt} du {dj_txt} ({plage_txt}), "
+                    f"en heures decimales (ex: 1h15 = 1.25)"
+                ),
+                unit="h",
+                params=dict(params),
+                required={"datetime", "temperature"},
+                sources=None,
+            )
+            name_p = f"PointeProfil_{saison_key}_{dj_key}"
+            meta[name_p] = KPIMetadata(
+                name=name_p,
+                description=(
+                    f"La pointe electrique d'{saison_txt} du {dj_txt} sur le profil moyen, soit la valeur "
+                    f"maximale du profil journalier moyen de puissance ({plage_txt}) calcule sur les "
+                    f"journees ou la temperature moyenne journaliere est {temp_txt}"
+                ),
+                unit="kW",
+                params=dict(params),
+                required={"datetime", "temperature"},
+                sources=None,
+            )
+            name_ph = f"PointeProfil_h_{saison_key}_{dj_key}"
+            meta[name_ph] = KPIMetadata(
+                name=name_ph,
+                description=(
+                    f"L'heure de la pointe electrique d'{saison_txt} du {dj_txt} ({plage_txt}) sur le "
+                    f"profil moyen, en heures decimales (ex: 1h15 = 1.25)"
+                ),
+                unit="h",
+                params=dict(params),
+                required={"datetime", "temperature"},
+                sources=None,
+            )
+    return meta
 
 
 class ParametricKPICalculator:
@@ -251,7 +322,9 @@ class ParametricKPICalculator:
             name="Puissance_par_bin_temperature",
             description=(
                 "Puissance moyenne (W) par bin de temperature exterieure, "
-                "de -50C a 50C avec un pas de 5C"
+                "de -50C a 50C avec un pas de 5C. La puissance et la temperature "
+                "sont d'abord moyennees par jour, puis chaque jour est classe dans "
+                "un bin selon sa temperature moyenne journaliere"
             ),
             unit="W",
             params={
@@ -439,7 +512,33 @@ class ParametricKPICalculator:
             required={"datetime", "temperature"},
             sources=None,
         ),
+        "Pointe": KPIMetadata(
+            name="Pointe",
+            description=(
+                "Pointe de puissance (kW) ou heure de la pointe (h decimale) pour une saison et une "
+                "demi-journee donnees, calculee soit comme maximum absolu, soit sur le profil moyen"
+            ),
+            unit="kW | h",
+            params={
+                "saison": "Saison cible : 'Hiver' | 'Ete' | 'Misaison' | 'Tous'. Defaut: 'Hiver'.",
+                "demi_journee": "'am' (0h-11h59) | 'pm' (12h-23h59). Defaut: 'am'.",
+                "sortie": "'valeur' (kW) | 'heure' (heure decimale, 1h15 = 1.25). Defaut: 'valeur'.",
+                "pas_de_temps": (
+                    "Pas de temps de moyennation de la puissance (ex: '1min', '5min', '15min', '1h'). "
+                    "Defaut: '15min'. Ne peut pas etre inferieur au pas natif des donnees."
+                ),
+                "methode": (
+                    "'max' (maximum absolu sur la saison) | "
+                    "'profil_moyen' (maximum du profil journalier moyen). Defaut: 'max'."
+                ),
+            },
+            required={"datetime", "temperature"},
+            sources=None,
+        ),
     }
+    # Ajoute les 16 variantes nommees : Pointe_[h_]{hiver|ete}_{am|pm} (max absolu)
+    # et PointeProfil_[h_]{hiver|ete}_{am|pm} (profil moyen).
+    SUPPORTED_KPIS.update(_build_pointe_metadata())
 
     # KPI_REQUIRED_STANDARD_COLUMNS derive automatiquement de SUPPORTED_KPIS.required
     # pour etre la source de verite unique.
@@ -470,7 +569,11 @@ class ParametricKPICalculator:
         "EcartType_Quotidien":          {"datetime", "temperature"},
         "FU_Quotidien":                 {"datetime", "temperature"},
         "RatioJN_Quotidien":            {"datetime", "temperature"},
+        "Pointe":                       {"datetime", "temperature"},
     }
+    KPI_REQUIRED_STANDARD_COLUMNS.update(
+        {_name: {"datetime", "temperature"} for _name in _build_pointe_metadata()}
+    )
 
     def __init__(self) -> None:
         # Cache PRISM par colonne energie: un seul ajustement par trace.
@@ -631,11 +734,7 @@ class ParametricKPICalculator:
 
     @staticmethod
     def _make_key(name: str, column: str, params: dict) -> str:
-        col_safe = column.replace(" ", "_")
-        if not params:
-            return f"{name}__{col_safe}"
-        params_str = "__".join(f"{k}={v}" for k, v in sorted(params.items()))
-        return f"{name}__{col_safe}__{params_str}"
+        return make_kpi_key(name, column, params)
 
     def _filter_periode(self, df: pd.DataFrame, periode: str) -> pd.DataFrame:
         if not periode or periode in ("Annee", "Tous"):
@@ -1016,6 +1115,7 @@ class ParametricKPICalculator:
         sub = sub.copy()
         sub["_time"] = sub[dt_col].dt.strftime("%H:%M:%S")
         grouped = sub.groupby("_time")[valid_cols].mean()
+        time_labels = grouped.index.tolist()
         
         # Vérification 1 : nombre minimum de jours distincts
         unique_days = sub[dt_col].dt.floor("D").nunique()
@@ -1257,6 +1357,138 @@ class ParametricKPICalculator:
     def _calc_RatioJN_Quotidien_misaison(self, df, cols, *a, **kw):
         return self._calc_RatioJN_Quotidien(df, cols, *a, saison="Misaison", **kw)
 
+    # Pointes de puissance (valeur kW et heure decimale) — hiver/ete x matin/soir.
+    def _calc_Pointe_hiver_am(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Hiver", demi_journee="am", sortie="valeur", **kw)
+    def _calc_Pointe_h_hiver_am(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Hiver", demi_journee="am", sortie="heure", **kw)
+    def _calc_Pointe_hiver_pm(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Hiver", demi_journee="pm", sortie="valeur", **kw)
+    def _calc_Pointe_h_hiver_pm(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Hiver", demi_journee="pm", sortie="heure", **kw)
+    def _calc_Pointe_ete_am(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Ete", demi_journee="am", sortie="valeur", **kw)
+    def _calc_Pointe_h_ete_am(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Ete", demi_journee="am", sortie="heure", **kw)
+    def _calc_Pointe_ete_pm(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Ete", demi_journee="pm", sortie="valeur", **kw)
+    def _calc_Pointe_h_ete_pm(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Ete", demi_journee="pm", sortie="heure", **kw)
+
+    # Pointes sur le profil moyen (moyenne par heure de la journee sur les jours de la saison).
+    def _calc_PointeProfil_hiver_am(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Hiver", demi_journee="am", sortie="valeur", methode="profil_moyen", **kw)
+    def _calc_PointeProfil_h_hiver_am(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Hiver", demi_journee="am", sortie="heure", methode="profil_moyen", **kw)
+    def _calc_PointeProfil_hiver_pm(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Hiver", demi_journee="pm", sortie="valeur", methode="profil_moyen", **kw)
+    def _calc_PointeProfil_h_hiver_pm(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Hiver", demi_journee="pm", sortie="heure", methode="profil_moyen", **kw)
+    def _calc_PointeProfil_ete_am(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Ete", demi_journee="am", sortie="valeur", methode="profil_moyen", **kw)
+    def _calc_PointeProfil_h_ete_am(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Ete", demi_journee="am", sortie="heure", methode="profil_moyen", **kw)
+    def _calc_PointeProfil_ete_pm(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Ete", demi_journee="pm", sortie="valeur", methode="profil_moyen", **kw)
+    def _calc_PointeProfil_h_ete_pm(self, df, cols, dt_col, temp_col, **kw):
+        return self._calc_Pointe(df, cols, dt_col, temp_col, saison="Ete", demi_journee="pm", sortie="heure", methode="profil_moyen", **kw)
+
+    def _calc_Pointe(self, df, cols, dt_col, temp_col,
+                     saison: str = "Hiver", demi_journee: str = "am",
+                     sortie: str = "valeur",
+                     pas_de_temps: str = _POINTE_PAS_DE_TEMPS_DEFAUT,
+                     methode: str = "max",
+                     **params) -> Dict[str, Any]:
+        """Pointe de puissance (kW) ou heure de la pointe (h decimale) pour une saison.
+
+        Algorithme:
+          1. Filtre les jours de la saison (temperature moyenne journaliere + mois).
+          2. Puissance (kW) = energie (kWh/pas) / pas natif (h).
+          3. Moyenne de la puissance par fenetre de ``pas_de_temps`` alignee sur
+             l'horloge (ex: 15min -> 00:00, 00:15, ...). Si ``pas_de_temps`` est
+             inferieur ou egal au pas natif, le pas natif est utilise. Les fenetres
+             incompletes (moins de mesures que prevu) sont ignorees.
+          4. Ne garde que les fenetres dont l'heure de debut est dans la demi-journee
+             (am: 0h-11h59, pm: 12h-23h59).
+          5. ``methode='max'`` -> maximum global sur toutes les fenetres de la saison ;
+             ``methode='profil_moyen'`` -> moyenne des fenetres par heure de la journee
+             sur tous les jours (profil moyen), puis maximum de ce profil.
+          6. ``sortie='valeur'`` -> maximum en kW ; ``sortie='heure'`` -> heure de debut
+             de la fenetre du maximum, en heures decimales (1h15 = 1.25).
+
+        Args:
+            saison: 'Hiver' | 'Ete' | 'Misaison' | 'Tous'.
+            demi_journee: 'am' (0h-11h) | 'pm' (12h-23h).
+            sortie: 'valeur' | 'heure'.
+            pas_de_temps: duree de moyennation ('1min', '5min', '15min', '1h', ...).
+            methode: 'max' (pointe absolue) | 'profil_moyen' (pointe du profil moyen).
+        """
+        result: Dict[str, Any] = {col: None for col in cols}
+        if not dt_col or dt_col not in df.columns or sortie not in ("valeur", "heure"):
+            return result
+        if demi_journee not in ("am", "pm") or methode not in ("max", "profil_moyen"):
+            return result
+
+        try:
+            bin_td = pd.Timedelta(str(pas_de_temps).strip() or _POINTE_PAS_DE_TEMPS_DEFAUT)
+        except (TypeError, ValueError):
+            return result
+        if pd.isna(bin_td) or bin_td <= pd.Timedelta(0):
+            return result
+
+        timestep_h = self.timestep_h if self.timestep_h > 0 else 1.0
+        bin_h = max(bin_td.total_seconds() / 3600.0, timestep_h)
+        bin_seconds = max(int(round(bin_h * 3600.0)), 1)
+        freq = f"{bin_seconds}s"
+        expected_per_bin = max(int(round(bin_h / timestep_h)), 1)
+
+        sub = self._seasonal_filter(df, temp_col, saison)
+        valid = [c for c in cols if c in sub.columns]
+        if sub.empty or not valid:
+            return result
+
+        work = sub[[dt_col, *valid]].copy()
+        work[dt_col] = pd.to_datetime(work[dt_col], errors="coerce")
+        work[valid] = work[valid].apply(pd.to_numeric, errors="coerce")
+        work = work.dropna(subset=[dt_col])
+        if work.empty:
+            return result
+
+        # Une mesure dupliquee au meme timestamp ne doit pas fausser la moyenne.
+        work = work.groupby(dt_col)[valid].mean()
+        power_kw = work / timestep_h
+        bins = power_kw.index.floor(freq)
+        grouped = power_kw.groupby(bins)
+        mean_kw = grouped.mean()
+        counts = grouped.count()
+        mean_kw = mean_kw.where(counts >= expected_per_bin)
+
+        hour_start = mean_kw.index.hour
+        in_half_day = (hour_start < 12) if demi_journee == "am" else (hour_start >= 12)
+        mean_kw = mean_kw[in_half_day]
+        if mean_kw.empty:
+            return result
+
+        idx = mean_kw.index
+        seconds_of_day = idx.hour * 3600 + idx.minute * 60 + idx.second
+        if methode == "profil_moyen":
+            # Profil journalier moyen : moyenne par heure de la journee sur tous les jours.
+            mean_kw = mean_kw.groupby(np.asarray(seconds_of_day)).mean()
+            hours = pd.Series(mean_kw.index.to_numpy() / 3600.0, index=mean_kw.index)
+        else:
+            hours = pd.Series(np.asarray(seconds_of_day) / 3600.0, index=mean_kw.index)
+
+        for col in valid:
+            series = mean_kw[col].dropna()
+            if series.empty:
+                continue
+            ts = series.idxmax()
+            if sortie == "valeur":
+                result[col] = round(float(series.loc[ts]), 4)
+            else:
+                result[col] = round(float(hours.loc[ts]), 4)
+        return result
+
     # PRISM — fitted per column, results collected into a dict.
     def _calc_Pente_chauffage(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
         return {col: self._get_prism_param_by_prefix(self._run_prism(df, col, temp_col), "kch") for col in cols}
@@ -1269,11 +1501,13 @@ class ParametricKPICalculator:
     def _calc_Puissance_par_bin_temperature(self, df, cols, dt_col, temp_col, **params) -> Dict[str, Any]:
         """Puissance moyenne (W) par bin de temperature exterieure.
 
+        La puissance (W) et la temperature sont d'abord moyennees par jour, puis
+        chaque jour est classe dans un bin selon sa temperature moyenne journaliere.
         Bins fixes: [-50, -45], ..., [45, 50] (pas de 5C), retournes via les
         centres de bins en cles de dict (-47.5, -42.5, ..., 47.5).
         Le KPI est retourne uniquement si PRISM est calculable pour la colonne.
         """
-        if not temp_col or temp_col not in df.columns:
+        if not temp_col or temp_col not in df.columns or "_date" not in df.columns:
             return {col: None for col in cols}
 
         valid_cols = [c for c in cols if c in df.columns]
@@ -1289,13 +1523,16 @@ class ParametricKPICalculator:
                 result[col] = None
                 continue
 
-            sub = df[[temp_col, col]].dropna()
-            if sub.empty or self.timestep_h <= 0:
+            if self.timestep_h <= 0:
+                result[col] = None
+                continue
+            daily = df.groupby("_date").agg(e=(col, "mean"), t=(temp_col, "mean")).dropna()
+            if daily.empty:
                 result[col] = None
                 continue
 
-            binned = pd.cut(sub[temp_col], bins=bin_edges, include_lowest=True, right=True)
-            power_w = sub[col] / self.timestep_h * 1000.0
+            binned = pd.cut(daily["t"], bins=bin_edges, include_lowest=True, right=True)
+            power_w = daily["e"] / self.timestep_h * 1000.0
             mean_power_by_bin = power_w.groupby(binned, observed=False).mean().reindex(interval_index)
 
             result[col] = {
