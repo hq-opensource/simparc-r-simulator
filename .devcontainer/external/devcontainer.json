@@ -6,7 +6,7 @@
     "customizations": {
         "vscode": {
             "settings": {
-                "python.defaultInterpreterPath": "/workspaces/LTE-OpenStudioCLI-Test/.venv/bin/python3"
+                "python.defaultInterpreterPath": "/workspaces/simparc-r-simulator/.venv/bin/python3"
             },
             "extensions": [
                 "ms-python.python",

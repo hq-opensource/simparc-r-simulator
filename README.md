@@ -6,7 +6,7 @@
 
 La première section est en français et la documentation complète est [ici](https://hq-opensource.github.io/simparc-r-simulator/).  
   
-English is following and full documentation is [here](https://hq-opensource.github.io/simparc-r-simulator/).
+English is following [here](#english) and full documentation is [here](https://hq-opensource.github.io/simparc-r-simulator/).
 
 ## Français
 
@@ -191,6 +191,10 @@ Le fichier CSV listant les bâtiments du parc à simuler peut être préparé gr
 ### Licence
 
 Voir `LICENSE`.
+
+### Référence scientifique
+
+Pour plus d'informations sur la méthodologie et les résultats préliminaires, veuillez consulter l'article de la conférence eSim 2026 suivant: [Residential Building Stock Model of the Province of Quebec, Canada: Methodology, Preliminary Results](https://www.researchgate.net/publication/410669894_Residential_Building_Stock_Model_of_the_Province_of_Quebec_Canada_Methodology_Preliminary_Results)  
 
 ### Remerciements et logiciels sous-jacents
 
@@ -390,7 +394,11 @@ The CSV file listing the buildings in the stock to simulate can be prepared usin
 ### License
 
 See `LICENSE`.
- 
+
+### Scientific Publication
+
+For more information on the methodology and preliminary results, please refer to the following conference paper (eSim 2026): [Residential Building Stock Model of the Province of Quebec, Canada: Methodology, Preliminary Results](https://www.researchgate.net/publication/410669894_Residential_Building_Stock_Model_of_the_Province_of_Quebec_Canada_Methodology_Preliminary_Results)
+
 ### Acknowledgements and Underlying Software
 
 This tool relies on the open-source ResStock and BuildStockBatch projects developed by

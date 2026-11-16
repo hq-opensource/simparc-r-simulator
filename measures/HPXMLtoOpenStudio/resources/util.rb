@@ -45,7 +45,9 @@ module UrlResolver
 
           size = 0
           progress = 0
-          open outfile, 'wb' do |io|
+          # open outfile, 'wb' do |io|    ### old version replaced with next 2 lines
+          outpath = outfile.respond_to?(:path) ? outfile.path : outfile
+          File.open(outpath, 'wb') do |io|
             response.read_body do |chunk|
               io.write chunk
               size += chunk.size
