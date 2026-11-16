@@ -161,12 +161,24 @@ def _seasonal(name, column, seasons=("Hiver", "Ete", "Misaison")):
     return [{"name": name, "column": column, "params": {"saison": s}} for s in seasons]
 
 
-def _seasonal_daily_kpis(column, seasons=("Hiver", "Ete", "Misaison")):
-    """KPI quotidiens saisonniers parametriques (une entree par saison)."""
+def _pointe_kpis(column, pas_de_temps="15min"):
+    """KPI de pointe (max absolu et profil moyen; valeur kW et heure decimale) hiver/ete x matin/soir."""
+    return [
+        {"name": f"{base}_{sortie}{saison}_{dj}", "column": column, "params": {"pas_de_temps": pas_de_temps}}
+        for base in ("Pointe", "PointeProfil")
+        for saison in ("hiver", "ete")
+        for dj in ("am", "pm")
+        for sortie in ("", "h_")
+    ]
+
+
+def _seasonal_daily_kpis(column, seasons=("Hiver", "Ete", "Misaison"), pas_de_temps="15min"):
+    """KPI quotidiens saisonniers parametriques (une entree par saison) et pointes (hiver/ete)."""
     return [
         *_seasonal("EcartType_Quotidien", column, seasons=seasons),
         *_seasonal("FU_Quotidien", column, seasons=seasons),
         *_seasonal("RatioJN_Quotidien", column, seasons=seasons),
+        *_pointe_kpis(column, pas_de_temps=pas_de_temps),
     ]
 
 
@@ -177,7 +189,7 @@ def _all_kpis_for_column(column, with_prism=True, pas_de_temps="1h", with_season
         {"name": "Variation_saisonniere", "column": column, "params": {}},
     ]
     if with_seasonal:
-        kpis.extend(_seasonal_daily_kpis(column))
+        kpis.extend(_seasonal_daily_kpis(column, pas_de_temps=pas_de_temps))
     kpis.extend(_profils(column, pas_de_temps=pas_de_temps))
     if with_prism:
         kpis.extend(_prism_kpis(column))
@@ -198,7 +210,7 @@ def _kpis_without_profils(column, with_prism=False, with_seasonal=True):
 
 
 def _end_use_focus_kpis(column, pas_de_temps="1h", with_seasonal=True, with_prism=False):
-    seasonal_kpis = _seasonal_daily_kpis(column) if with_seasonal else []
+    seasonal_kpis = _seasonal_daily_kpis(column, pas_de_temps=pas_de_temps) if with_seasonal else []
     prism_kpis = _prism_kpis(column) if with_prism else []
     profile_entries = []
     for periode in ("Annee", "Hiver", "Ete", "Automne", "Printemps"):

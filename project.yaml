@@ -1,6 +1,6 @@
 SCHEMA_VERSION : "0.1"
 
-SAMPLE_FILE : test-building-stock-csv/building-test-frac.csv
+SAMPLE_FILE : test-building-stock-csv/resultats_20261116_091304.csv
 
 HPXML_SCHEMA_FILE : measures/BuildResidentialHPXML/measure.xml
 
@@ -63,7 +63,7 @@ INCLUDE_KPI : True # If true, calculates KPI from timeseries data during post-pr
 KPI_SETTING :
   include_prism : True      # PRISM model (Pente_chauffage, Pente_clim, Conso_base, Type_PRISM) on Energy Use Total and Electricity Total
   include_profils : True    # Profil (Hiver/Ete/Annee x Tous/Semaine/FinDeSemaine) on Energy Use Total and Electricity Total
-  include_seasonal : True   # Seasonal daily KPIs (EcartType_Quotidien, FU_Quotidien, RatioJN_Quotidien x Hiver/Ete/Misaison) on Electricity Total and Net
+  include_seasonal : True   # Seasonal daily KPIs (EcartType_Quotidien, FU_Quotidien, RatioJN_Quotidien x Hiver/Ete/Misaison) and peak KPIs (Pointe = absolute max, PointeProfil = peak of the average profile; value in kW and time of day in decimal hours, x hiver/ete x am/pm) on Electricity Total and Net
   include_fuel_totals : True  # Conso_annuelle + Conso_mensuelle + Variation_saisonniere on all fuel total columns
   include_end_use : True    # Conso_annuelle + Conso_mensuelle + Variation_saisonniere + Profil saisons on all End Use columns
 
