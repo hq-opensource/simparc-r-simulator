@@ -8,6 +8,8 @@ SEED : int(required=False)
 
 # Define parallel processing settings
 N_JOBS : int(required=False) # Number of parallel jobs (null = auto-detect based on CPU count)
+RECOMPUTE_FAIL_MISSING : any(bool(), list(int(), str()), required=False) # False = run all; True = run only failed and missing buildings; list of building ids = run only these ids
+MIN_FREE_DISK_GB : num(required=False) # A building fails immediately if free disk space is below this value (default 5)
 
 # Define the simulation settings
 SIMULATION_TIMESTEP : int(required=True) # minutes - must be integer and a divisor of 60 
@@ -62,6 +64,7 @@ USER_OUTPUT_METERS : str(required=True) # Comma-separated list of user-defined o
 
 # KPI post-processing settings
 INCLUDE_KPI : bool(required=False) # If true, calculates KPI from timeseries data during post-processing
+SAVE_TIMESERIES_PARQUET : bool(required=False) # If false, timeseries.parquet is not written (KPI are still calculated from the timeseries)
 KPI_SETTING : map(required=False)
 
 # Definition of upgrading settings

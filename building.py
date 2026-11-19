@@ -80,12 +80,12 @@ class Building:
 
     @staticmethod
     def _normalize_backup_mode(value, default="default"):
-        """Normalize the heating dispatch selector to one of default/staged/dual.
+        """Normalize the heating dispatch selector to one of default/staged/dual/share.
 
         Accepts the string ``backup_mode`` column. Unknown or missing values fall
         back to ``default`` (stock OpenStudio-HPXML sequential dispatch).
         """
-        valid = {"default", "staged", "dual"}
+        valid = {"default", "staged", "dual", "share"}
         if value is None:
             return default
         if isinstance(value, float) and np.isnan(value):
@@ -335,7 +335,7 @@ class Building:
         # Initialize the list of steps in the OSW content
         self.osw_content['steps'] = []
 
-        # Resolve the heating dispatch mode (default / staged / dual). For the dual
+        # Resolve the heating dispatch mode (default / staged / dual / share). For the dual
         # (bi-energy) mode, size both heating systems to the full design load before
         # BuildResidentialHPXML consumes self.hpxml_args in Step 1.
         backup_mode = self._normalize_backup_mode(self.non_hpxml_args.get("backup_mode"))
@@ -416,6 +416,24 @@ class Building:
                     "switchover_temp": self._parse_float(
                         self.non_hpxml_args.get("dual_switchover_temp"), default=-12.0),
                     "epw_path": str(self.hpxml_args.get("weather_station_epw_filepath", ""))
+                }}
+            self.osw_content['steps'].append(step4b)
+        elif backup_mode == "share":
+            # Load share: the smaller system (by design fraction) leads with
+            # share_fraction of the load, the other system takes the remainder
+            # (including what the lead cannot serve when saturated).
+            frac_1 = self._parse_float(
+                self.hpxml_args.get("heating_system_fraction_heat_load_served"), default=1.0)
+            frac_2 = self._parse_float(
+                self.hpxml_args.get("heating_system_2_fraction_heat_load_served"), default=0.25)
+            lead_id = "HeatingSystem2" if frac_2 < frac_1 else "HeatingSystem1"
+            step4b = {
+                'measure_dir_name': 'SetSharedHeatingDispatch',
+                'arguments': {
+                    "enabled": True,
+                    "share_fraction": self._parse_float(
+                        self.non_hpxml_args.get("share_fraction"), default=0.5),
+                    "lead_hpxml_id": lead_id
                 }}
             self.osw_content['steps'].append(step4b)
 

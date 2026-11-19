@@ -57,10 +57,30 @@ class LocalBatch(BuildStockBatchBase):
 
     @classmethod
     def run_building(cls,cfg,building_data):
+        # Wrapper: logs queued/running/success/failed in the single batch_status.log
+        results_dir = os.path.join(cfg["CURRENT_PATH"], cfg["RESULTS_PATH"])
+        bid = building_data['non_hpxml_args']['building_id']
+        cls.log_status(results_dir, bid, "running")
+        dpout, error = None, None
+        try:
+            free = shutil.disk_usage(results_dir).free
+            min_free = cfg.get("MIN_FREE_DISK_GB", 5) * 1024**3
+            if free < min_free:
+                raise OSError(f"low disk space: {free / 1024**3:.1f} GB free")
+            dpout, error = cls._run_building(cfg, building_data)
+        except Exception as e:
+            error = f"{type(e).__name__}: {e}"
+        cls.log_status(results_dir, bid, "failed" if error else "success", error or "simulation completed")
+        return dpout
+
+    @classmethod
+    def _run_building(cls,cfg,building_data):
+        error = None
         # Create a new folder named 'building_1' in results_dir
         building_dir = Path(os.path.join(cfg["CURRENT_PATH"], cfg["RESULTS_PATH"],
                                     str(building_data['non_hpxml_args']['building_id'])))
 
+        cls.remove_building_results(building_dir.parent, building_dir.name)
         cls.make_sim_dir(building_dir)
 
         # Dump metadata to a JSON file
@@ -113,11 +133,13 @@ class LocalBatch(BuildStockBatchBase):
             except subprocess.TimeoutExpired as e:
                 print(str(building_dir))
                 print(str(e))
-                pass
+                error = f"openstudio timeout: {e}"
             except subprocess.CalledProcessError as e:
                 print(e)
-                pass
+                error = f"openstudio exit code {e.returncode}: {cls.tail_line(building_dir / 'openstudio_output.log')}"
             finally:
+                if error is None and (building_dir / "run" / "failed.job").exists():
+                    error = "openstudio failed.job: " + cls.tail_line(building_dir / "openstudio_output.log")
                 fs = LocalFileSystem()
                 dpout = read_simulation_outputs(fs,str(building_dir))
                 if cfg["BATCH_MODE"]:
@@ -127,7 +149,19 @@ class LocalBatch(BuildStockBatchBase):
                 del cfg
                 del building_data
                 gc.collect()
-        return dpout
+        return dpout, error
+
+    @staticmethod
+    def tail_line(path, n=4000):
+        # Last non-empty line of a (possibly large) log file, reading only its end
+        try:
+            with open(path, "rb") as f:
+                f.seek(0, os.SEEK_END)
+                f.seek(max(0, f.tell() - n))
+                lines = f.read().decode("utf-8", "replace").strip().splitlines()
+                return lines[-1] if lines else "empty openstudio log"
+        except OSError:
+            return "no openstudio log"
 
     def run_batch(self):
         start_time = time.perf_counter()
@@ -164,18 +198,38 @@ class LocalBatch(BuildStockBatchBase):
         if not os.path.exists(results_dir):
             os.makedirs(results_dir)
 
+        # Buildings left queued/running by a previous crashed run are marked failed
+        self.reconcile_status(results_dir)
+
         if data_upgrades_dict is not None:
             sim_list = dp_list + data_upgrades_dict
         elif data_upgrades_dict is None:
             sim_list = dp_list
 
+        # Select the buildings to (re)compute
+        recompute = self.cfg.get("RECOMPUTE_FAIL_MISSING", False)
+        if recompute is True:
+            ids = self.list_failed_and_missing_ids(results_dir, [s['non_hpxml_args']['building_id'] for s in sim_list])
+            sim_list = [s for s in sim_list if str(s['non_hpxml_args']['building_id']) in ids]
+        elif recompute:
+            ids = {str(i) for i in recompute}
+            sim_list = [s for s in sim_list if str(s['non_hpxml_args']['building_id']) in ids]
+
         all_sims = map(delayed(functools.partial(self.run_building,self.cfg)),sim_list)
+
+        for s in sim_list:
+            self.log_status(results_dir, s['non_hpxml_args']['building_id'], "queued")
 
         print("------------------------------------------------------\n")
         # Print the number of simulations to run
         print("Running {} simulations with {} workers...".format(len(sim_list),self._parallel["n_jobs"]))
-        with parallel_config(**self._parallel):
-            dpouts = Parallel()(all_sims)
+        try:
+            with parallel_config(**self._parallel):
+                dpouts = Parallel()(all_sims)
+        finally:
+            # Anything still queued/running here did not finish (worker killed, batch aborted)
+            self.reconcile_status(results_dir, [s['non_hpxml_args']['building_id'] for s in sim_list])
+        dpouts = [d for d in dpouts if d is not None]
 
         sim_out_path = Path(self.cfg["RESULTS_PATH"])
 

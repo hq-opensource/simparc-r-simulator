@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<measure>
+  <schema_version>3.1</schema_version>
+  <name>set_shared_heating_dispatch</name>
+  <uid>4d9a7c3e-1b52-4f68-8e0a-6c2f9b7d5a13</uid>
+  <version_id>9e1c5b7a-3d24-4a86-b0f1-7a8c2d4e6f90</version_id>
+  <version_modified>2026-11-19T00:00:00Z</version_modified>
+  <xml_checksum>00000000</xml_checksum>
+  <class_name>SetSharedHeatingDispatch</class_name>
+  <display_name>Set Shared Heating Dispatch</display_name>
+  <description>Dispatches the two heating systems as a load share: the lead system takes a fixed fraction of the heating load (up to its capacity) and the other system takes everything that remains, including the load the lead system cannot serve when it is saturated. Sizing (capacity split) is left untouched.</description>
+  <modeler_description>Runs after HPXMLtoOpenStudio (post-sizing). The lead system (HeatingSystem1 or HeatingSystem2, chosen by the caller, typically the smaller one) is moved to heating priority 1 and its sequential heating fraction schedule is replaced by a constant share_fraction schedule; the other system is moved to heating priority 2 with a constant 1.0 schedule. Because the zone uses SequentialLoad distribution, the lead system serves min(share_fraction * load, its capacity) and the second system serves the entire remaining load up to its own capacity. share_fraction = 1.0 gives a base-load/peaking cascade. No EMS and no HPXML schema change are used.</modeler_description>
+  <arguments>
+    <argument>
+      <name>enabled</name>
+      <display_name>Enable Shared Heating Dispatch</display_name>
+      <description>If true, overrides the sequential heating fraction schedules and heating priorities to share the load between the two heating systems. If false, the measure does nothing (stock behavior is preserved).</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>true</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>share_fraction</name>
+      <display_name>Lead System Share Fraction</display_name>
+      <description>Fraction (0-1] of the heating load requested from the lead system. The other system serves the remaining load.</description>
+      <type>Double</type>
+      <units>Frac</units>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>0.5</default_value>
+    </argument>
+    <argument>
+      <name>lead_hpxml_id</name>
+      <display_name>Lead Heating System</display_name>
+      <description>HPXML ID of the system placed first in the heating sequence. For the shared load to be fully served up to the sum of capacities, this must be the smaller system when share_fraction is 0.5.</description>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>HeatingSystem2</default_value>
+      <choices>
+        <choice>
+          <value>HeatingSystem1</value>
+          <display_name>HeatingSystem1</display_name>
+        </choice>
+        <choice>
+          <value>HeatingSystem2</value>
+          <display_name>HeatingSystem2</display_name>
+        </choice>
+      </choices>
+    </argument>
+  </arguments>
+  <outputs />
+  <provenances />
+  <tags>
+    <tag>HVAC.HVAC Controls</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Measure Type</name>
+      <value>ModelMeasure</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>OpenStudio Application</value>
+      <datatype>string</datatype>
+    </attribute>
+  </attributes>
+  <files>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>3.9.0</identifier>
+        <min_compatible>3.9.0</min_compatible>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+    </file>
+  </files>
+</measure>

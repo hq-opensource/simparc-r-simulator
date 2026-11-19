@@ -144,11 +144,12 @@ def postprocess_results(path, cfg=None):
                     print(f"Warning: Failed to calculate quantities of interest for building {i['building_id']}: {e}")
             
             dfTimeseries['building_id'] = i['building_id']
-            tableTimeseries = pa.Table.from_pandas(dfTimeseries)
-            pq.write_to_dataset(tableTimeseries,
-                                root_path=os.path.join(str(Path(path).parent), 'timeseries.parquet'),
-                                partition_cols=['building_id'],
-                                existing_data_behavior='delete_matching')
+            if cfg is None or cfg.get("SAVE_TIMESERIES_PARQUET", True):
+                tableTimeseries = pa.Table.from_pandas(dfTimeseries)
+                pq.write_to_dataset(tableTimeseries,
+                                    root_path=os.path.join(str(Path(path).parent), 'timeseries.parquet'),
+                                    partition_cols=['building_id'],
+                                    existing_data_behavior='delete_matching')
         # Convert the dictionary to a pandas DataFrame and save it as a parquet file
         # Serialize dict/list KPI values (e.g. Profil, Conso_mensuelle) to JSON strings
         # before creating the DataFrame so all partitions share the same string type.

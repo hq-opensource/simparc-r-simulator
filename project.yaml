@@ -1,12 +1,14 @@
 SCHEMA_VERSION : "0.1"
 
-SAMPLE_FILE : test-building-stock-csv/building-test-frac.csv
+SAMPLE_FILE : test-building-stock-csv/BackupMode_share.csv
 
 HPXML_SCHEMA_FILE : measures/BuildResidentialHPXML/measure.xml
 
 SEED : 100
 # Define parallel processing settings
 N_JOBS : 20 # Number of parallel jobs (null = auto-detect based on CPU count)
+RECOMPUTE_FAIL_MISSING : True # False = run all buildings; True = run only failed (errors.parquet or last state in results/batch_status.log not 'success') and missing (no results folder) buildings; [id1, id2, ...] = run only these building ids. Previous results of recomputed ids are removed.
+MIN_FREE_DISK_GB : 5 # A building is marked failed (low disk space) if free disk space is below this value
 
 # Define the simulation settings
 SIMULATION_TIMESTEP : 15 # minutes - must be integer and a divisor of 60 
@@ -17,9 +19,10 @@ WEATHER_FILE_TYPE : "AMY" # Options: "AMY" for actual weather files (2022-2023) 
 # Define the output settings
 ADD_COMPONENT_LOADS : False # If true, adds the calculation of heating/cooling component loads (not enabled by default for faster performance).
 SKIP_VALIDATION : False # If true, skips the validation of the HPXML file for faster performance.
-DEBUG_MODE : True # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
+DEBUG_MODE : False # If true, enables debug mode for more verbose output (OSM, E+ and additional log output files).
 BATCH_MODE : True # If true, runs post-processing automatically after each simulation.
 CLEANUP : True # If true, removes temporary simulation folders and generated files after post-processing.
+SAVE_TIMESERIES_PARQUET : False # If false, timeseries.parquet is not written (KPI are still calculated from the timeseries)
 INCLUDE_ANNUAL_TOTAL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_FUEL_CONSUMPTIONS : True
 INCLUDE_ANNUAL_END_USE_CONSUMPTIONS : True
@@ -63,7 +66,7 @@ INCLUDE_KPI : True # If true, calculates KPI from timeseries data during post-pr
 KPI_SETTING :
   include_prism : True      # PRISM model (Pente_chauffage, Pente_clim, Conso_base, Type_PRISM) on Energy Use Total and Electricity Total
   include_profils : True    # Profil (Hiver/Ete/Annee x Tous/Semaine/FinDeSemaine) on Energy Use Total and Electricity Total
-  include_seasonal : True   # Seasonal daily KPIs (EcartType_Quotidien, FU_Quotidien, RatioJN_Quotidien x Hiver/Ete/Misaison) on Electricity Total and Net
+  include_seasonal : True   # Seasonal daily KPIs (EcartType_Quotidien, FU_Quotidien, RatioJN_Quotidien x Hiver/Ete/Misaison) and peak KPIs (Pointe = absolute max, PointeProfil = peak of the average profile; value in kW and time of day in decimal hours, x hiver/ete x am/pm) on Electricity Total and Net
   include_fuel_totals : True  # Conso_annuelle + Conso_mensuelle + Variation_saisonniere on all fuel total columns
   include_end_use : True    # Conso_annuelle + Conso_mensuelle + Variation_saisonniere + Profil saisons on all End Use columns
 
